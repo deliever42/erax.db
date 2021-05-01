@@ -1,0 +1,40 @@
+﻿{
+  "name": "erax.db",
+  "version": "1.3.2",
+  "description": "Gelişmiş Türkçe JSON ve Yaml Database Modülü",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "types": "main.ts",
+  "author": "emirhanbaltas34",
+  "license": "MIT",
+  "keywords": [
+    "erax.db",
+    "quick.db",
+    "database",
+    "db",
+    "storage",
+    "turkish",
+    "json",
+    "yaml",
+    "quick",
+    "json-db",
+    "yaml-db",
+    "yaml-database",
+    "json-database",
+    "easy",
+    "easy-database",
+    "easy-db"
+    
+  ],
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "yaml": "^1.10.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}
