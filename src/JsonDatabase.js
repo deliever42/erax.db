@@ -16,112 +16,123 @@ module.exports = class JsonDatabase {
     }
 
     /**
-     * Veri kaydedersiniz.
-     * @param {string} key Key
-     * @param {string} value Value
-     * @example db.set("key", value);
-     */
-     set(veri, value) {
-        if (!veri) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
+        * Veri kaydedersiniz.
+        * @param {string} key Key
+        * @param {string} value Value
+        * @example db.set("key", value);
+        */
+     set(key, value) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
         if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.");
         let dbDosya = oku(this.path)
-        dbDosya[veri] = value;
+        dbDosya[key] = value;
         yazdir(this.path, dbDosya);
-        return dbDosya[veri]
+        return dbDosya[key]
     }
 
     /**
      * Veri varmı/yokmu kontrol eder.
      * @param {string} key Key
-     * @example db.set("key");
+     * @example db.has("key");
      */
-    has(veri) {
-        if (!veri) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
+    has(key) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
         let dbDosya = oku(this.path)
-        if (!dbDosya[veri]) return false;
+        if (!dbDosya[key]) return false;
         return true;
     }
 
     /**
- * Tüm verileri silersiniz.
- * @example db.deleteAll();
- */
+    * Tüm verileri silersiniz.
+    * @example db.deleteAll();
+    */
     deleteAll() {
         yazdir(this.path, {})
         return true;
     }
 
     /**
- * Database dosyasını siler.
- * @example db.destroy();
- */
+    * Database dosyasını siler.
+    * @example db.destroy();
+    */
     destroy() {
         unlinkSync(this.path);
         return true;
     }
 
     /**
- * Veri çekersiniz.
- * @param {string} key Key
- * @example db.fetch("key";
- */
-    fetch(veri) {
-        if (!veri) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
+    * Veri çekersiniz.
+    * @param {string} key Key
+    * @example db.fetch("key";
+    */
+    fetch(key) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
         let dbDosya = oku(this.path)
-        if (!dbDosya[veri]) return null;
-        return dbDosya[veri]
+        if (!dbDosya[key]) return null;
+        return dbDosya[key]
     }
 
     /**
- * Veri çekersiniz.
- * @param {string} key Key
- * @example db.get("key");
- */
-    get(veri) {
-        if (!veri) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
-        return this.fetch(veri)
+    * Veri çekersiniz.
+    * @param {string} key Key
+    * @example db.get("key");
+    */
+    get(key) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
+        return this.fetch(key)
     }
 
     /**
- * Verinin tipini öğrenirsiniz.
- * @param {string} key Key
- * @example db.type("key");
- */
-    type(veri) {
-        if (!veri) throw new TypeError(`ERAX.DB - Bir Veri İsmi Belirmelisin.`)
+    * Verinin tipini öğrenirsiniz.
+    * @param {string} key Key
+    * @example db.type("key");
+    */
+    type(key) {
+        if (!key) throw new TypeError(`ERAX.DB - Bir Veri Belirmelisin.`)
         let dbDosya = oku(this.path)
-        if (!dbDosya[veri]) return null
+        if (!dbDosya[key]) return null
 
-        if (Array.isArray(this.get(veri))) {
-            return "array"
-        } else if (typeof this.get(veri) === "string") {
+        if (Array.isArray(this.get(key))) {
+            return "Array"
+        } else if (typeof this.get(key) === "string") {
             return "string"
-        } else if (typeof this.get(veri) === "number") {
+        } else if (typeof this.get(key) === "number") {
             return "number"
-        } else if (typeof this.get(veri) === "boolean") {
+        } else if (typeof this.get(key) === "boolean") {
             return "boolean"
+        } else if (typeof this.get(key) === "bigint") {
+            return "bigint"
+        } else if (typeof this.get(key) === "boolean") {
+            return "boolean"
+        } else if (typeof this.get(key) === "symbol") {
+            return "symbol"
+        } else if (typeof this.get(key) === "undefined") {
+            return "undefined"
+        } else if (typeof this.get(key) === "Function") {
+            return "Function"
         } else {
-            return typeof this.get(veri)
+            return typeof this.get(key)
         }
     }
 
     /**
- * Belirttiğiniz veriyi silersiniz.
- * @param {string} key Key
- * @example db.delete("key");
- */
-    delete(veri) {
+    * Belirttiğiniz veriyi silersiniz.
+    * @param {string} key Key
+    * @example db.delete("key");
+    */
+    delete(key) {
+        if (!key) throw new TypeError(`ERAX.DB - Bir Veri Belirmelisin.`)
         let dbDosya = oku(this.path);
-        if (!dbDosya[veri]) return null;
-        delete dbDosya[veri];
+        if (!dbDosya[key]) return null;
+        delete dbDosya[key];
         yazdir(this.path, dbDosya);
         return true;
     }
 
     /**
- * Tüm verileri çekersiniz.
- * @example db.fetchAll();
- */
+    * Tüm verileri çekersiniz.
+    * @example db.fetchAll();
+    */
     fetchAll() {
         let dbDosya = oku(this.path)
 
@@ -135,11 +146,11 @@ module.exports = class JsonDatabase {
     }
 
     /**
- * Tüm verileri gözden geçirir.
- * @example db.all();
- */
-    all(veri = 'all') {
-        switch (veri) {
+    * Tüm verileri gözden geçirir.
+    * @example db.all();
+    */
+    all(key = 'all') {
+        switch (key) {
             case 'all':
                 return Object.entries(oku(this.path))
                 break;
@@ -156,59 +167,59 @@ module.exports = class JsonDatabase {
     }
 
     /**
- * Database'de ki verilerin sayısını atar.
- * @example db.length();
- */
+    * Database'de ki verilerin sayısını atar.
+    * @example db.length();
+    */
     length() {
         return this.all().length
     }
 
     /**
- * Belirttiğiniz veri ismi ile başlayan verileri array içine ekler.
- * @param {string} key Key
- * @example db.startsWith("key");
- */
-    startsWith(veri) {
-        if (!veri) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
+    * Belirttiğiniz veri ismi ile başlayan verileri array içine ekler.
+    * @param {string} key Key
+    * @example db.startsWith("key");
+    */
+    startsWith(key) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
         const dbDosya = oku(this.path);
         const array = [];
         for (const veri in dbDosya) {
             const key = { ID: veri, data: dbDosya[veri] };
             array.push(key);
         }
-        return array.filter(x => x.ID.startsWith(veri))
+        return array.filter(x => x.ID.startsWith(key))
     }
 
     /**
- * Belirttiğiniz veri ismi ile biten verileri array içine ekler.
- * @param {string} key Key
- * @example db.endsWith("key");
- */
-    endsWith(veri) {
-        if (!veri) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
+    * Belirttiğiniz veri ismi ile biten verileri array içine ekler.
+    * @param {string} key Key
+    * @example db.endsWith("key");
+    */
+    endsWith(key) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
         const dbDosya = oku(this.path);
         const array = [];
         for (const veri in dbDosya) {
             const key = { ID: veri, data: dbDosya[veri] };
             array.push(key);
         }
-        return array.filter(x => x.ID.endsWith(veri))
+        return array.filter(x => x.ID.endsWith(key))
     }
 
     /**
- * Belirttiğiniz veri ismi içeren verileri array içine ekler.
- * @param {string} key Key
- * @example db.includes("key");
- */
-    includes(veri) {
-        if (!veri) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
+    * Belirttiğiniz veri ismi içeren verileri array içine ekler.
+    * @param {string} key Key
+    * @example db.includes("key");
+    */
+    includes(key) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
         const dbDosya = oku(this.path);
         const array = [];
         for (const veri in dbDosya) {
             const key = { ID: veri, data: dbDosya[veri] };
             array.push(key);
         }
-        return array.filter(x => x.ID.includes(veri))
+        return array.filter(x => x.ID.includes(key))
     }
 
     /**
@@ -217,56 +228,56 @@ module.exports = class JsonDatabase {
       * @param {string} value Value
       * @example db.push("key", value);
       */
-    push(veri, value) {
-        if (!this.get(veri)) {
-            return this.set(veri, [value]);
+    push(key, value) {
+        if (!this.get(key)) {
+            return this.set(key, [value]);
         }
 
-        if (Array.isArray(this.get(veri)) && this.get(veri)) {
-            let yenivalue = this.get(veri)
+        if (Array.isArray(this.get(key)) && this.get(key)) {
+            let yenivalue = this.get(key)
             yenivalue.push(value);
-            return this.set(veri, yenivalue);
+            return this.set(key, yenivalue);
         }
 
-        return this.set(veri, [value]);
+        return this.set(key, [value]);
     }
 
     /**
       * Matematik işlemi yaparak veri kaydedersiniz.
       * @param {string} key Key
       * @param {string} operator Operator
-      * @param {string} value Value
-      * @example db.push("key", value);
+      * @param {number} value Value
+      * @example db.math("key", "+", "1");
       */
-    math(veri, islem, value) {
-        if (!veri) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
-        if (!islem) throw new TypeError("ERAX.DB - Bir İşlem Belirtmelisin. (- + * /)")
+    math(key, operator, value) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
+        if (!operator) throw new TypeError("ERAX.DB - Bir İşlem Belirtmelisin. (- + * /)")
         if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
         if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
-        if (!isNaN(islem)) throw new TypeError(`ERAX.DB - İşlem Sayı İçermez!`);
-        if (islem > 1) throw new TypeError("ERAX.DB - İşlem 1 Karakterden Oluşabilir!")
+        if (!isNaN(operator)) throw new TypeError(`ERAX.DB - İşlem Sayı İçermez!`);
+        if (operator > 1) throw new TypeError("ERAX.DB - İşlem 1 Karakterden Oluşabilir!")
 
         let dbDosya = oku(this.path)
 
-        if (islem === "-") {
-            dbDosya[veri] = dbDosya[veri] - value;
+        if (operator === "-") {
+            dbDosya[key] = dbDosya[key] - value;
             yazdir(this.path, dbDosya);
-            return dbDosya[veri]
+            return dbDosya[key]
 
-        } else if (islem === "+") {
-            dbDosya[veri] = dbDosya[veri] + value;
+        } else if (operator === "+") {
+            dbDosya[key] = dbDosya[key] + value;
             yazdir(this.path, dbDosya);
-            return dbDosya[veri]
+            return dbDosya[key]
 
-        } else if (islem === "*") {
-            dbDosya[veri] = dbDosya[veri] * value;
+        } else if (operator === "*") {
+            dbDosya[key] = dbDosya[key] * value;
             yazdir(this.path, dbDosya);
-            return dbDosya[veri]
+            return dbDosya[key]
 
-        } else if (islem === "/") {
-            dbDosya[veri] = dbDosya[veri] / value;
+        } else if (operator === "/") {
+            dbDosya[key] = dbDosya[key] / value;
             yazdir(this.path, dbDosya);
-            return dbDosya[veri]
+            return dbDosya[key]
 
         } else {
             throw new TypeError("ERAX.DB - Matematik İşlemlerinde Sadece Toplama, Çıkarma, Çarpma ve Bölme İşlemlerini Yapabilirim! (- + * /)")
@@ -277,30 +288,30 @@ module.exports = class JsonDatabase {
       * Belirttiğiniz veriye 1 ekler.
       * @param {string} key Key
       * @param {number} value Value
-      * @example db.add("key", value);
+      * @example db.add("key", 1);
       */
-    add(veri, value) {
-        if (!veri) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
+    add(key, value) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
         if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
         if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
         let dbDosya = oku(this.path)
-        if (!dbDosya[veri]) return this.set(veri, value)
-        return this.math(veri, "+", value)
+        if (!dbDosya[key]) return this.set(key, value)
+        return this.math(key, "+", value)
     }
 
     /**
       * Belirttiğiniz veriden 1 çıkarır.
       * @param {string} key Key
       * @param {number} value Value
-      * @example db.subtract("key", value);
+      * @example db.subtract("key", 1);
       */
-    subtract(veri, value) {
-        if (!veri) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
+    subtract(key, value) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
         if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
         if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
         let dbDosya = oku(this.path)
-        if (!dbDosya[veri]) return this.set(veri, value)
-        return this.math(veri, "-", value)
+        if (!dbDosya[key]) return this.set(key, value)
+        return this.math(key, "-", value)
     }
 
     /**
@@ -308,11 +319,11 @@ module.exports = class JsonDatabase {
      * @param {string} key Key
      * @example db.arrayHas("key");
      */
-    arrayHas(veri) {
+    arrayHas(key) {
         let dbDosya = oku(this.path)
-        if (!veri) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
-        if (!dbDosya[veri]) return null;
-        if (Array.isArray(this.get(veri))) return true
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
+        if (!dbDosya[key]) return null;
+        if (Array.isArray(this.get(key))) return true
         return false
     }
 

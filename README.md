@@ -10,6 +10,12 @@ const { JsonDatabase } = require("erax.db")
 const db = new JsonDatabase("./MyDatabase.json")
 ```
 
+# Sqlite Database Kullanımı
+```js
+const { SqliteDatabase } = require("erax.db")
+const db = new SqliteDatabase()
+```
+
 # Fonksiyonlar
 ```js
 db.set("key", "value") //key Adlı Veriyi Database'ye Kaydeder. 

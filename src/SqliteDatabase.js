@@ -1,34 +1,22 @@
-const { unlinkSync, writeFileSync, readFileSync, existsSync } = require('fs');
-const yaml = require('yaml');
+const db = require("quick.db");
 
-const oku = (file) => yaml.parse(readFileSync(file, 'utf-8'));
-const yazdir = (file, data) => writeFileSync(file, yaml.stringify(data));
+module.exports = class SqliteDatabase {
 
-module.exports = class YamlDatabase {
-    constructor(dbPath) {
-        this.path = dbPath || 'database.yaml'
-
-        if (!this.path.startsWith('./')) this.path = "./" + this.path
-        if (!this.path.endsWith(".yaml")) this.path = this.path + ".yaml"
-
-        if (!existsSync(this.path)) {
-            yazdir(this.path, {})
-        }
+    constructor() {
+        this.db = db
     }
 
     /**
-        * Veri kaydedersiniz.
-        * @param {string} key Key
-        * @param {string} value Value
-        * @example db.set("key", value);
-        */
+     * Veri kaydedersiniz.
+     * @param {string} key Key
+     * @param {string} value Value
+     * @example db.set("key", value);
+     */
     set(key, value) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
         if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.");
-        let dbDosya = oku(this.path)
-        dbDosya[key] = value;
-        yazdir(this.path, dbDosya);
-        return dbDosya[key]
+
+        return this.db.set(key, value)
     }
 
     /**
@@ -38,27 +26,7 @@ module.exports = class YamlDatabase {
      */
     has(key) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
-        let dbDosya = oku(this.path)
-        if (!dbDosya[key]) return false;
-        return true;
-    }
-
-    /**
-    * Tüm verileri silersiniz.
-    * @example db.deleteAll();
-    */
-    deleteAll() {
-        yazdir(this.path, {})
-        return true;
-    }
-
-    /**
-    * Database dosyasını siler.
-    * @example db.destroy();
-    */
-    destroy() {
-        unlinkSync(this.path);
-        return true;
+        return this.db.has(key)
     }
 
     /**
@@ -68,9 +36,7 @@ module.exports = class YamlDatabase {
     */
     fetch(key) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
-        let dbDosya = oku(this.path)
-        if (!dbDosya[key]) return null;
-        return dbDosya[key]
+        return this.db.fetch(key)
     }
 
     /**
@@ -90,8 +56,7 @@ module.exports = class YamlDatabase {
     */
     type(key) {
         if (!key) throw new TypeError(`ERAX.DB - Bir Veri Belirmelisin.`)
-        let dbDosya = oku(this.path)
-        if (!dbDosya[key]) return null
+        if (this.has(key) === false) return null
 
         if (Array.isArray(this.get(key))) {
             return "Array"
@@ -123,11 +88,7 @@ module.exports = class YamlDatabase {
     */
     delete(key) {
         if (!key) throw new TypeError(`ERAX.DB - Bir Veri Belirmelisin.`)
-        let dbDosya = oku(this.path);
-        if (!dbDosya[key]) return null;
-        delete dbDosya[key];
-        yazdir(this.path, dbDosya);
-        return true;
+        return this.db.delete(key)
     }
 
     /**
@@ -135,36 +96,15 @@ module.exports = class YamlDatabase {
     * @example db.fetchAll();
     */
     fetchAll() {
-        let dbDosya = oku(this.path)
-
-        if (dbDosya.length > 1024) {
-            dbDosya = dbDosya.slice(0, 300) + " ..."
-        } else {
-            dbDosya = dbDosya
-        }
-
-        return dbDosya
+        return this.db.fetchAll()
     }
 
     /**
     * Tüm verileri gözden geçirir.
     * @example db.all();
     */
-    all(key = 'all') {
-        switch (key) {
-            case 'all':
-                return Object.entries(oku(this.path))
-                break;
-            case 'object':
-                return oku(this.path)
-                break;
-            case 'keys':
-                return Object.keys(oku(this.path))
-                break;
-            case 'values':
-                return Object.values(oku(this.path))
-                break;
-        }
+    all() {
+        return this.db.all()
     }
 
     /**
@@ -182,13 +122,7 @@ module.exports = class YamlDatabase {
     */
     startsWith(key) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
-        const dbDosya = oku(this.path);
-        const array = [];
-        for (const veri in dbDosya) {
-            const key = { ID: veri, data: dbDosya[veri] };
-            array.push(key);
-        }
-        return array.filter(x => x.ID.startsWith(key))
+        return this.all().filter(data => data.ID.startsWith(key))
     }
 
     /**
@@ -198,13 +132,7 @@ module.exports = class YamlDatabase {
     */
     endsWith(key) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
-        const dbDosya = oku(this.path);
-        const array = [];
-        for (const veri in dbDosya) {
-            const key = { ID: veri, data: dbDosya[veri] };
-            array.push(key);
-        }
-        return array.filter(x => x.ID.endsWith(key))
+        return this.all().filter(data => data.ID.endsWith(key))
     }
 
     /**
@@ -214,13 +142,7 @@ module.exports = class YamlDatabase {
     */
     includes(key) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
-        const dbDosya = oku(this.path);
-        const array = [];
-        for (const veri in dbDosya) {
-            const key = { ID: veri, data: dbDosya[veri] };
-            array.push(key);
-        }
-        return array.filter(x => x.ID.includes(key))
+        return this.all().filter(data => data.ID.includes(key))
     }
 
     /**
@@ -230,6 +152,9 @@ module.exports = class YamlDatabase {
       * @example db.push("key", value);
       */
     push(key, value) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
+        if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
+
         if (!this.get(key)) {
             return this.set(key, [value]);
         }
@@ -244,48 +169,6 @@ module.exports = class YamlDatabase {
     }
 
     /**
-      * Matematik işlemi yaparak veri kaydedersiniz.
-      * @param {string} key Key
-      * @param {string} operator Operator
-      * @param {number} value Value
-      * @example db.math("key", "+", "1");
-      */
-    math(key, operator, value) {
-        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
-        if (!operator) throw new TypeError("ERAX.DB - Bir İşlem Belirtmelisin. (- + * /)")
-        if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
-        if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
-        if (!isNaN(operator)) throw new TypeError(`ERAX.DB - İşlem Sayı İçermez!`);
-        if (operator > 1) throw new TypeError("ERAX.DB - İşlem 1 Karakterden Oluşabilir!")
-
-        let dbDosya = oku(this.path)
-
-        if (operator === "-") {
-            dbDosya[key] = dbDosya[key] - value;
-            yazdir(this.path, dbDosya);
-            return dbDosya[key]
-
-        } else if (operator === "+") {
-            dbDosya[key] = dbDosya[key] + value;
-            yazdir(this.path, dbDosya);
-            return dbDosya[key]
-
-        } else if (operator === "*") {
-            dbDosya[key] = dbDosya[key] * value;
-            yazdir(this.path, dbDosya);
-            return dbDosya[key]
-
-        } else if (operator === "/") {
-            dbDosya[key] = dbDosya[key] / value;
-            yazdir(this.path, dbDosya);
-            return dbDosya[key]
-
-        } else {
-            throw new TypeError("ERAX.DB - Matematik İşlemlerinde Sadece Toplama, Çıkarma, Çarpma ve Bölme İşlemlerini Yapabilirim! (- + * /)")
-        }
-    }
-
-    /**
       * Belirttiğiniz veriye 1 ekler.
       * @param {string} key Key
       * @param {number} value Value
@@ -295,9 +178,8 @@ module.exports = class YamlDatabase {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
         if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
         if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
-        let dbDosya = oku(this.path)
-        if (!dbDosya[key]) return this.set(key, value)
-        return this.math(key, "+", value)
+        if (this.has(key) === false) return this.set(key, value)
+        return this.db.add(key, value)
     }
 
     /**
@@ -310,9 +192,8 @@ module.exports = class YamlDatabase {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
         if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
         if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
-        let dbDosya = oku(this.path)
-        if (!dbDosya[key]) return this.set(key, value)
-        return this.math(key, "-", value)
+        if (this.has(key) === false) return this.set(key, value)
+        return this.db.subtract(key, value)
     }
 
     /**
@@ -321,9 +202,8 @@ module.exports = class YamlDatabase {
      * @example db.arrayHas("key");
      */
     arrayHas(key) {
-        let dbDosya = oku(this.path)
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
-        if (!dbDosya[key]) return null;
+        if (this.has(key) === false) return null
         if (Array.isArray(this.get(key))) return true
         return false
     }
