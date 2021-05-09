@@ -36,7 +36,7 @@ db.deleteAll() //Tüm Verileri Siler.
 db.destroy() //Database Dosyasını Siler.
 db.math("key", "işlem", "value", goToNegative = false) //Matematik İşlemi Yaparak Veriyi Kaydeder.
 db.add("key", 1) //key Adlı Veriye 1 Ekler.
-db.subtract("key" 1) //Key Adlı Veriden 1 Çıkarır.
+db.subtract("key" 1, goToNegative = false) //Key Adlı Veriden 1 Çıkarır.
 db.version() //ERAX.DB'nin Sürümünü Atar.
 ```
 
