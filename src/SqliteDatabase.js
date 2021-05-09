@@ -49,9 +49,10 @@ module.exports = class SqliteDatabase {
         return this.fetch(key)
     }
 
-    /**
+   /**
     * Verinin tipini öğrenirsiniz.
     * @param {string} key Key
+    * @returns {"string" | "number" | "bigint" | "boolean" | "symbol" | "Array" | "undefined" | "object" | "Function"}
     * @example db.type("key");
     */
     type(key) {
@@ -151,15 +152,10 @@ module.exports = class SqliteDatabase {
       * @param {string} value Value
       * @example db.push("key", value);
       */
-    push(key, value) {
-        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
-        if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
-
-        if (!this.get(key)) {
-            return this.set(key, [value]);
-        }
-
-        if (Array.isArray(this.get(key)) && this.get(key)) {
+     push(key, value) {
+        if (this.has(key) === false) return this.set(key, [value]);
+        
+        if (this.arrayHas(key) === true && this.has(key) === true) {
             let yenivalue = this.get(key)
             yenivalue.push(value);
             return this.set(key, yenivalue);

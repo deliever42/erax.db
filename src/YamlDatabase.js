@@ -17,11 +17,11 @@ module.exports = class YamlDatabase {
     }
 
     /**
-        * Veri kaydedersiniz.
-        * @param {string} key Key
-        * @param {string} value Value
-        * @example db.set("key", value);
-        */
+      * Veri kaydedersiniz.
+      * @param {string} key Key
+      * @param {string} value Value
+      * @example db.set("key", value);
+      */
     set(key, value) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
         if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.");
@@ -86,6 +86,7 @@ module.exports = class YamlDatabase {
     /**
     * Verinin tipini öğrenirsiniz.
     * @param {string} key Key
+    * @returns {"string" | "number" | "bigint" | "boolean" | "symbol" | "Array" | "undefined" | "object" | "Function"}
     * @example db.type("key");
     */
     type(key) {
@@ -208,7 +209,7 @@ module.exports = class YamlDatabase {
     }
 
     /**
-    * Belirttiğiniz veri ismi içeren verileri array içine ekler.
+    * Belirttiğiniz veri ismini içeren verileri array içine ekler.
     * @param {string} key Key
     * @example db.includes("key");
     */
@@ -230,11 +231,9 @@ module.exports = class YamlDatabase {
       * @example db.push("key", value);
       */
     push(key, value) {
-        if (!this.get(key)) {
-            return this.set(key, [value]);
-        }
+        if (this.has(key) === false) return this.set(key, [value]);
 
-        if (Array.isArray(this.get(key)) && this.get(key)) {
+        if (this.arrayHas(key) === true && this.has(key) === true) {
             let yenivalue = this.get(key)
             yenivalue.push(value);
             return this.set(key, yenivalue);
@@ -244,41 +243,52 @@ module.exports = class YamlDatabase {
     }
 
     /**
-      * Matematik işlemi yaparak veri kaydedersiniz.
-      * @param {string} key Key
-      * @param {string} operator Operator
-      * @param {number} value Value
-      * @example db.math("key", "+", "1");
-      */
-    math(key, operator, value) {
+   * Matematik işlemi yaparak veri kaydedersiniz.
+   * @param {string} key Key
+   * @param {"+" | "-" | "*" | "/"} operator Operator
+   * @param {number} value Value
+   * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
+   * @example db.math("key", "+", "1");
+   */
+    math(key, operator, value, goToNegative = false) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
         if (!operator) throw new TypeError("ERAX.DB - Bir İşlem Belirtmelisin. (- + * /)")
         if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
         if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
-        if (!isNaN(operator)) throw new TypeError(`ERAX.DB - İşlem Sayı İçermez!`);
-        if (operator > 1) throw new TypeError("ERAX.DB - İşlem 1 Karakterden Oluşabilir!")
 
         let dbDosya = oku(this.path)
 
         if (operator === "-") {
-            dbDosya[key] = dbDosya[key] - value;
+            if (goToNegative === false && this.get(key) < 1) {
+                dbDosya[key] = Number("0");
+                yazdir(this.path, dbDosya);
+                return dbDosya[key];
+            };
+
+            dbDosya[key] = dbDosya[key] - Number(value);
             yazdir(this.path, dbDosya);
-            return dbDosya[key]
+            return dbDosya[key];
 
         } else if (operator === "+") {
-            dbDosya[key] = dbDosya[key] + value;
+            dbDosya[key] = dbDosya[key] + Number(value);
             yazdir(this.path, dbDosya);
-            return dbDosya[key]
+            return dbDosya[key];
 
         } else if (operator === "*") {
-            dbDosya[key] = dbDosya[key] * value;
+            dbDosya[key] = dbDosya[key] * Number(value);
             yazdir(this.path, dbDosya);
-            return dbDosya[key]
+            return dbDosya[key];
 
         } else if (operator === "/") {
-            dbDosya[key] = dbDosya[key] / value;
+            if (goToNegative === false && this.get(key) < 1) {
+                dbDosya[key] = Number("0");
+                yazdir(this.path, dbDosya);
+                return dbDosya[key];
+            };
+
+            dbDosya[key] = dbDosya[key] / Number(value);
             yazdir(this.path, dbDosya);
-            return dbDosya[key]
+            return dbDosya[key];
 
         } else {
             throw new TypeError("ERAX.DB - Matematik İşlemlerinde Sadece Toplama, Çıkarma, Çarpma ve Bölme İşlemlerini Yapabilirim! (- + * /)")
@@ -292,11 +302,6 @@ module.exports = class YamlDatabase {
       * @example db.add("key", 1);
       */
     add(key, value) {
-        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
-        if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
-        if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
-        let dbDosya = oku(this.path)
-        if (!dbDosya[key]) return this.set(key, value)
         return this.math(key, "+", value)
     }
 
@@ -304,15 +309,11 @@ module.exports = class YamlDatabase {
       * Belirttiğiniz veriden 1 çıkarır.
       * @param {string} key Key
       * @param {number} value Value
+      * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
       * @example db.subtract("key", 1);
       */
-    subtract(key, value) {
-        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
-        if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
-        if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
-        let dbDosya = oku(this.path)
-        if (!dbDosya[key]) return this.set(key, value)
-        return this.math(key, "-", value)
+    subtract(key, value, goToNegative = false) {
+        return this.math(key, "-", value, goToNegative)
     }
 
     /**
