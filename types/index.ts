@@ -56,7 +56,7 @@ declare module "erax.db" {
     public fetch(key: string): any;
     public get(key: string): any;
     public add(key: string, value: number): void;
-    public subtract(key: string, value: number): void;
+    public subtract(key: string, value: number, goToNegative?: boolean): void;
     public has(key: string): boolean;
     public arrayHas(key: string): boolean;
     public fetchAll(): object;
@@ -67,6 +67,7 @@ declare module "erax.db" {
     public delete(key: string): void;
     public includes(key: string): object;
     public startsWith(key: string): object;
+    public math(key: string, operator: "+" | "-" | "*" | "/", value: number, goToNegative?: boolean): void;
     public endsWith(key: string): object;
     public type(key: string): "string" | "number" | "bigint" | "boolean" | "symbol" | "Array" | "undefined" | "object" | "Function";
   }

@@ -49,12 +49,12 @@ module.exports = class SqliteDatabase {
         return this.fetch(key)
     }
 
-   /**
-    * Verinin tipini öğrenirsiniz.
-    * @param {string} key Key
-    * @returns {"string" | "number" | "bigint" | "boolean" | "symbol" | "Array" | "undefined" | "object" | "Function"}
-    * @example db.type("key");
-    */
+    /**
+     * Verinin tipini öğrenirsiniz.
+     * @param {string} key Key
+     * @returns {"string" | "number" | "bigint" | "boolean" | "symbol" | "Array" | "undefined" | "object" | "Function"}
+     * @example db.type("key");
+     */
     type(key) {
         if (!key) throw new TypeError(`ERAX.DB - Bir Veri Belirmelisin.`)
         if (this.has(key) === false) return null
@@ -152,9 +152,9 @@ module.exports = class SqliteDatabase {
       * @param {string} value Value
       * @example db.push("key", value);
       */
-     push(key, value) {
+    push(key, value) {
         if (this.has(key) === false) return this.set(key, [value]);
-        
+
         if (this.arrayHas(key) === true && this.has(key) === true) {
             let yenivalue = this.get(key)
             yenivalue.push(value);
@@ -174,22 +174,69 @@ module.exports = class SqliteDatabase {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
         if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
         if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
-        if (this.has(key) === false) return this.set(key, value)
-        return this.db.add(key, value)
+        return this.math(key, "+", value)
     }
 
     /**
       * Belirttiğiniz veriden 1 çıkarır.
       * @param {string} key Key
       * @param {number} value Value
+      * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
       * @example db.subtract("key", 1);
       */
-    subtract(key, value) {
+    subtract(key, value, goToNegative = false) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
         if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
         if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
-        if (this.has(key) === false) return this.set(key, value)
-        return this.db.subtract(key, value)
+        return this.math(key, "-", value, goToNegative)
+    }
+
+    /**
+   * Matematik işlemi yaparak veri kaydedersiniz.
+   * @param {string} key Key
+   * @param {"+" | "-" | "*" | "/"} operator Operator
+   * @param {number} value Value
+   * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
+   * @example db.math("key", "+", "1");
+   */
+    math(key, operator, value, goToNegative = false) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
+        if (!operator) throw new TypeError("ERAX.DB - Bir İşlem Belirtmelisin. (- + * /)")
+        if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.")
+        if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
+
+        let data = this.get(key)
+        if (!data) return this.set(key, value)
+
+        if (operator === "-") {
+            if (goToNegative === false && this.get(key) < 1) {
+                let sayi = Number("0")
+                return this.set(key, sayi)
+            };
+
+            data = data - Number(value);
+            return this.set(key, data)
+
+        } else if (operator === "+") {
+            data = data + Number(value);
+            return this.set(key, data)
+
+        } else if (operator === "*") {
+            data = data * Number(value);
+            return this.set(key, data)
+
+        } else if (operator === "/") {
+            if (goToNegative === false && this.get(key) < 1) {
+                let sayi = Number("0")
+                return this.set(key, sayi)
+            };
+
+            data = data / Number(value);
+            return this.set(key, data)
+
+        } else {
+            throw new TypeError("ERAX.DB - Matematik İşlemlerinde Sadece Toplama, Çıkarma, Çarpma ve Bölme İşlemlerini Yapabilirim! (- + * /)")
+        }
     }
 
     /**

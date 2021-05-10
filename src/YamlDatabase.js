@@ -257,6 +257,7 @@ module.exports = class YamlDatabase {
         if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
 
         let dbDosya = oku(this.path)
+        if (this.has(key) === false) return this.set(key, value)
 
         if (operator === "-") {
             if (goToNegative === false && this.get(key) < 1) {

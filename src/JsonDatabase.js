@@ -16,12 +16,12 @@ module.exports = class JsonDatabase {
     }
 
     /**
-         * Veri kaydedersiniz.
-         * @param {string} key Key
-         * @param {string} value Value
-         * @example db.set("key", value);
-         */
-    set(key, value) {
+      * Veri kaydedersiniz.
+      * @param {string} key Key
+      * @param {string} value Value
+      * @example db.set("key", value);
+      */
+     set(key, value) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
         if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.");
         let dbDosya = oku(this.path)
@@ -256,6 +256,7 @@ module.exports = class JsonDatabase {
         if (isNaN(value)) throw new TypeError(`ERAX.DB - Value Sadece Sayıdan Oluşabilir!`);
 
         let dbDosya = oku(this.path)
+        if (this.has(key) === false) return this.set(key, value)
 
         if (operator === "-") {
             if (goToNegative === false && this.get(key) < 1) {
