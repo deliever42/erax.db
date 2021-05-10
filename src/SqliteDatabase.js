@@ -9,7 +9,7 @@ module.exports = class SqliteDatabase {
     /**
      * Veri kaydedersiniz.
      * @param {string} key Key
-     * @param {string} value Value
+     * @param {any} value Value
      * @example db.set("key", value);
      */
     set(key, value) {
@@ -59,7 +59,7 @@ module.exports = class SqliteDatabase {
         if (!key) throw new TypeError(`ERAX.DB - Bir Veri Belirmelisin.`)
         if (this.has(key) === false) return null
 
-        if (Array.isArray(this.get(key))) {
+        if (this.arrayHas(key) === true) {
             return "Array"
         } else if (typeof this.get(key) === "string") {
             return "string"
@@ -77,6 +77,8 @@ module.exports = class SqliteDatabase {
             return "undefined"
         } else if (typeof this.get(key) === "Function") {
             return "Function"
+        } else if (typeof this.get(key) === "object") {
+            return "object"
         } else {
             return typeof this.get(key)
         }
@@ -101,7 +103,7 @@ module.exports = class SqliteDatabase {
     }
 
     /**
-    * Tüm verileri gözden geçirir.
+    * Tüm verileri Array İçine Ekler.
     * @example db.all();
     */
     all() {
@@ -149,7 +151,7 @@ module.exports = class SqliteDatabase {
     /**
       * Arraylı veri kaydedersiniz.
       * @param {string} key Key
-      * @param {string} value Value
+      * @param {any} value Value
       * @example db.push("key", value);
       */
     push(key, value) {
@@ -258,5 +260,29 @@ module.exports = class SqliteDatabase {
     version() {
         let p = require("../package.json")
         return p.version
+    }
+
+    /**
+    * Belirttiğiniz veriyi içeren tüm verileri siler.
+    * @param {string} key Key
+    * @example db.deleteEach("key");
+    */
+    deleteEach(key) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
+        this.includes(key).forEach(veri => {
+            this.delete(veri.ID)
+        })
+        return true
+    }
+
+    /**
+    * Tüm verileri silersiniz.
+    * @example db.deleteAll();
+    */
+    deleteAll() {
+        this.all().forEach(veri => {
+            this.delete(veri.ID)
+        })
+        return true
     }
 }

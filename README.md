@@ -1,3 +1,17 @@
+![Image](https://img.shields.io/npm/v/erax.db?color=%2351F9C0&label=erax.db) 
+![Image](https://img.shields.io/npm/dt/erax.db.svg?color=%2351FC0&maxAge=3600) 
+#
+![Image](https://nodei.co/npm/erax.db.png?downloads=true&downloadRank=true&stars=true)
+
+# Nasılmı Yüklenir?
+```npm
+npm install erax.db
+```
+
+# Yenilikler
+- deleteEach Fonksiyonu Eklendi.
+- Sqlite'ye JSON ve Yaml'da Olan Fonksiyonlar Eklendi.
+
 # JSON Database Kullanımı
 ```js
 const { JsonDatabase } = require("erax.db")
@@ -38,6 +52,7 @@ db.math("key", "işlem", "value", goToNegative = false) //Matematik İşlemi Yap
 db.add("key", 1) //key Adlı Veriye 1 Ekler.
 db.subtract("key" 1, goToNegative = false) //Key Adlı Veriden 1 Çıkarır.
 db.version() //ERAX.DB'nin Sürümünü Atar.
+db.deleteEach("key") //key Adı İçeren Verileri Siler.
 ```
 
 #### Herhangi Bir Sıkıntı İle Karşılaşırsanız Aşağıdaki Discord'a Gelin.

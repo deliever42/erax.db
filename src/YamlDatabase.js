@@ -19,10 +19,10 @@ module.exports = class YamlDatabase {
     /**
       * Veri kaydedersiniz.
       * @param {string} key Key
-      * @param {string} value Value
+      * @param {any} value Value
       * @example db.set("key", value);
       */
-    set(key, value) {
+     set(key, value) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
         if (!value) throw new TypeError("ERAX.DB - Bir Value Belirtmelisin.");
         let dbDosya = oku(this.path)
@@ -94,7 +94,7 @@ module.exports = class YamlDatabase {
         let dbDosya = oku(this.path)
         if (!dbDosya[key]) return null
 
-        if (Array.isArray(this.get(key))) {
+        if (this.arrayHas(key) === true) {
             return "Array"
         } else if (typeof this.get(key) === "string") {
             return "string"
@@ -112,6 +112,8 @@ module.exports = class YamlDatabase {
             return "undefined"
         } else if (typeof this.get(key) === "Function") {
             return "Function"
+        } else if (typeof this.get(key) === "object") {
+            return "object"
         } else {
             return typeof this.get(key)
         }
@@ -148,24 +150,17 @@ module.exports = class YamlDatabase {
     }
 
     /**
-    * Tüm verileri gözden geçirir.
+    * Tüm verileri Array İçine Ekler.
     * @example db.all();
     */
-    all(key = 'all') {
-        switch (key) {
-            case 'all':
-                return Object.entries(oku(this.path))
-                break;
-            case 'object':
-                return oku(this.path)
-                break;
-            case 'keys':
-                return Object.keys(oku(this.path))
-                break;
-            case 'values':
-                return Object.values(oku(this.path))
-                break;
+    all() {
+        const dbDosya = oku(this.path);
+        const array = [];
+        for (const veri in dbDosya) {
+            const key = { ID: veri, data: dbDosya[veri] };
+            array.push(key);
         }
+        return array
     }
 
     /**
@@ -177,19 +172,13 @@ module.exports = class YamlDatabase {
     }
 
     /**
-    * Belirttiğiniz veri ismi ile başlayan verileri array içine ekler.
-    * @param {string} key Key
-    * @example db.startsWith("key");
-    */
+* Belirttiğiniz veri ismi ile başlayan verileri array içine ekler.
+* @param {string} key Key
+* @example db.startsWith("key");
+*/
     startsWith(key) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
-        const dbDosya = oku(this.path);
-        const array = [];
-        for (const veri in dbDosya) {
-            const key = { ID: veri, data: dbDosya[veri] };
-            array.push(key);
-        }
-        return array.filter(x => x.ID.startsWith(key))
+        return this.all().filter(x => x.ID.startsWith(key))
     }
 
     /**
@@ -199,13 +188,7 @@ module.exports = class YamlDatabase {
     */
     endsWith(key) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
-        const dbDosya = oku(this.path);
-        const array = [];
-        for (const veri in dbDosya) {
-            const key = { ID: veri, data: dbDosya[veri] };
-            array.push(key);
-        }
-        return array.filter(x => x.ID.endsWith(key))
+        return this.all().filter(x => x.ID.endsWith(key))
     }
 
     /**
@@ -215,19 +198,13 @@ module.exports = class YamlDatabase {
     */
     includes(key) {
         if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.");
-        const dbDosya = oku(this.path);
-        const array = [];
-        for (const veri in dbDosya) {
-            const key = { ID: veri, data: dbDosya[veri] };
-            array.push(key);
-        }
-        return array.filter(x => x.ID.includes(key))
+        return this.all().filter(x => x.ID.includes(key))
     }
 
     /**
       * Arraylı veri kaydedersiniz.
       * @param {string} key Key
-      * @param {string} value Value
+      * @param {any} value Value
       * @example db.push("key", value);
       */
     push(key, value) {
@@ -337,5 +314,18 @@ module.exports = class YamlDatabase {
     version() {
         let p = require("../package.json")
         return p.version
+    }
+
+    /**
+     * Belirttiğiniz veriyi içeren tüm verileri siler.
+     * @param {string} key Key
+     * @example db.deleteEach("key");
+     */
+    deleteEach(key) {
+        if (!key) throw new TypeError("ERAX.DB - Bir Veri Belirtmelisin.")
+        this.includes(key).forEach(veri => {
+            this.delete(veri.ID)
+        })
+        return true
     }
 }
