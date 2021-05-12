@@ -12,6 +12,9 @@ npm install erax.db
 - deleteEach Fonksiyonu Eklendi.
 - Sqlite'ye JSON ve Yaml'da Olan Fonksiyonlar Eklendi.
 
+# Uyarı
+- Node.JS'nin Sürümü 12'den Büyük Olmalıdır.
+
 # JSON Database Kullanımı
 ```js
 const { JsonDatabase } = require("erax.db")
@@ -53,6 +56,11 @@ db.add("key", 1) //key Adlı Veriye 1 Ekler.
 db.subtract("key" 1, goToNegative = false) //Key Adlı Veriden 1 Çıkarır.
 db.version() //ERAX.DB'nin Sürümünü Atar.
 db.deleteEach("key") //key Adı İçeren Verileri Siler.
+
+//Sqlite'ye Özgü Fonksiyonlar
+
+db.import("./dbPath.json") //dbPath.json Adlı Database'deki Verileri Kaydeder.
+db.export("./dbPath.json") //dbPath.json Adlı JSON'a Verileri Kaydeder.
 ```
 
 #### Herhangi Bir Sıkıntı İle Karşılaşırsanız Aşağıdaki Discord'a Gelin.
