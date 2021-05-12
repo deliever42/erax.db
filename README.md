@@ -9,8 +9,8 @@ npm install erax.db
 ```
 
 # Yenilikler
-- deleteEach Fonksiyonu Eklendi.
-- Sqlite'ye JSON ve Yaml'da Olan Fonksiyonlar Eklendi.
+- Hata & Bug Düzeltmeleri.
+- Sqlite'ye export Ve import Fonksiyonları Eklendi.
 
 # Uyarı
 - Node.JS'nin Sürümü 12'den Büyük Olmalıdır.
