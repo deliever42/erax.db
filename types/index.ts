@@ -74,5 +74,7 @@ declare module "erax.db" {
     public math(key: string, operator: "+" | "-" | "*" | "/", value: number, goToNegative?: boolean): void;
     public endsWith(key: string): object;
     public type(key: string): "string" | "number" | "bigint" | "boolean" | "symbol" | "Array" | "undefined" | "object" | "Function";
+    public import(file: string): void;
+    public export(file: string): void;
   }
 }

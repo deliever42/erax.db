@@ -1,5 +1,5 @@
 module.exports = {
-    SqliteDatabase: require("./src/SqliteDatabase"),
-    JsonDatabase: require("./src/JsonDatabase"),
-    YamlDatabase: require("./src/YamlDatabase")
+    SqliteDatabase: require("./lib/SqliteDatabase"),
+    JsonDatabase: require("./lib/JsonDatabase"),
+    YamlDatabase: require("./lib/YamlDatabase")
 }
