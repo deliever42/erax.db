@@ -9,11 +9,15 @@ npm install erax.db
 ```
 
 # Yenilikler
+```npm
 - Hata & Bug Düzeltmeleri.
 - Sqlite'ye export Ve import Fonksiyonları Eklendi.
+```
 
 # Uyarı
+```npm
 - Node.JS'nin Sürümü 12'den Büyük Olmalıdır.
+```
 
 # JSON Database Kullanımı
 ```js
