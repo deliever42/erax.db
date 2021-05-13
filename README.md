@@ -3,7 +3,7 @@
 #
 ![Image](https://nodei.co/npm/erax.db.png?downloads=true&downloadRank=true&stars=true)
 
-# Nasılmı Yüklenir?
+# Nasıl Mı Yüklenir?
 ```npm
 npm install erax.db
 ```
@@ -11,7 +11,6 @@ npm install erax.db
 # Yenilikler
 ```npm
 - Hata & Bug Düzeltmeleri.
-- Sqlite'ye export Ve import Fonksiyonları Eklendi.
 ```
 
 # Uyarı
