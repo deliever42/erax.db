@@ -5,7 +5,11 @@
 
 # Nasıl Mı Yüklenir?
 ```npm
+NPM:
 npm install erax.db
+
+YARN:
+yarn add erax.db
 ```
 
 # Yenilikler
@@ -38,30 +42,40 @@ const db = new SqliteDatabase()
 
 # Fonksiyonlar
 ```js
+//Set & Fetch Fonksiyonları
 db.set("key", "value") //key Adlı Veriyi Kaydeder.
 db.fetch("key") //key Adlı Veriyi Çeker.
 db.get("key") //db.fetch İle Aynı Fonksiyondur.
+db.fetchAll() //Database'deki Tüm Verileri Çeker.
+db.push("key", "value") //key Adlı Veriyi Arraylı Olarak Kaydeder.
+
+//Delete Fonksiyonları
+db.delete("key") //key Adlı Veriyi Siler.
+db.deleteAll() //Tüm Verileri Siler.
+db.deleteEach("key") //key Adı İçeren Verileri Siler.
+db.destroy() //Database Dosyasını Siler.
+
+//Boolean Fonksiyonları
 db.has("key") //key Adlı Veri Varmı/Yokmu Kontrol Eder. 
 db.arrayHas("key") //key Adlı Veri Arraylı/Arraysız Kontrol Eder.
-db.push("key", "value") //key Adlı Veriyi Arraylı Olarak Kaydeder.
-db.fetchAll() //Database'deki Tüm Verileri Çeker.
+
+//Veri Bulma Fonksiyonları
 db.all() //Database'deki Tüm Verileri Gözden Geçirir.
-db.length() //Database'deki Toplam Veri Sayısını Atar.
-db.type("key") //key Adlı Verinin Tipini Atar.
 db.startsWith("key") //key Adı İle Başlayan Verileri Array İçine Ekler.
 db.endsWith("key") //key Adı İle Biten Verileri Array İçine Ekler.
 db.includes("key") //key Adı İçeren Verileri Array İçine Ekler.
-db.delete("key") //key Adlı Veriyi Siler.
-db.deleteAll() //Tüm Verileri Siler.
-db.destroy() //Database Dosyasını Siler.
+
+//Matematik İşlemi Fonksiyonları
 db.math("key", "işlem", "value", goToNegative = false) //Matematik İşlemi Yaparak Veriyi Kaydeder.
 db.add("key", 1) //key Adlı Veriye 1 Ekler.
 db.subtract("key" 1, goToNegative = false) //Key Adlı Veriden 1 Çıkarır.
+
+//Normal Fonksiyonlar
 db.version() //ERAX.DB'nin Sürümünü Atar.
-db.deleteEach("key") //key Adı İçeren Verileri Siler.
+db.length() //Database'deki Toplam Veri Sayısını Atar.
+db.type("key") //key Adlı Verinin Tipini Atar.
 
-//Sqlite'ye Özgü Fonksiyonlar
-
+//Sqlite İçin Fonksiyonlar
 db.import("./dbPath.json") //dbPath.json Adlı Database'deki Verileri Kaydeder.
 db.export("./dbPath.json") //dbPath.json Adlı JSON'a Verileri Kaydeder.
 ```
