@@ -14,7 +14,7 @@ yarn add erax.db
 
 # Yenilikler
 ```npm
-- Hata & Bug Düzeltmeleri.
+- Math Fonksiyonu Düzeltildi.
 ```
 
 # Uyarı
