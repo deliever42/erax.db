@@ -15,6 +15,8 @@ yarn add erax.db
 # Yenilikler
 ```npm
 - Hata & Bug Fix.
+- length Methodu size Olarak Değiştirildi.
+- type & math Methodu Düzenlendi.
 ```
 
 # Uyarı
@@ -40,42 +42,42 @@ const { SqliteDatabase } = require("erax.db")
 const db = new SqliteDatabase()
 ```
 
-# Fonksiyonlar
+# Methodlar
 ```js
-//Set & Fetch Fonksiyonları
+//Set & Fetch Methodları
 db.set("key", "value") //key Adlı Veriyi Kaydeder.
 db.fetch("key") //key Adlı Veriyi Çeker.
-db.get("key") //db.fetch İle Aynı Fonksiyondur.
-db.fetchAll() //Database'deki Tüm Verileri Çeker.
+db.get("key") //key Adlı Veriyi Çeker.
 db.push("key", "value") //key Adlı Veriyi Arraylı Olarak Kaydeder.
 
-//Delete Fonksiyonları
+//Delete Methodları
 db.delete("key") //key Adlı Veriyi Siler.
 db.deleteAll() //Tüm Verileri Siler.
 db.deleteEach("key") //key Adı İçeren Verileri Siler.
 db.destroy() //Database Dosyasını Siler.
 
-//Boolean Fonksiyonları
+//Boolean Methodları
 db.has("key") //key Adlı Veri Varmı/Yokmu Kontrol Eder. 
 db.arrayHas("key") //key Adlı Veri Arraylı/Arraysız Kontrol Eder.
 
-//Veri Bulma Fonksiyonları
-db.all() //Database'deki Tüm Verileri Gözden Geçirir.
+//Veri Bulma Methodları
+db.all() //Database'deki Tüm Verileri Array İçine Ekler.
+db.fetchAll() //Database'deki Tüm Verileri Array İçine Ekler.
 db.startsWith("key") //key Adı İle Başlayan Verileri Array İçine Ekler.
 db.endsWith("key") //key Adı İle Biten Verileri Array İçine Ekler.
 db.includes("key") //key Adı İçeren Verileri Array İçine Ekler.
 
-//Matematik İşlemi Fonksiyonları
+//Matematik İşlemi Methodları
 db.math("key", "işlem", "value", goToNegative = false) //Matematik İşlemi Yaparak Veriyi Kaydeder.
 db.add("key", 1) //key Adlı Veriye 1 Ekler.
 db.subtract("key" 1, goToNegative = false) //Key Adlı Veriden 1 Çıkarır.
 
-//Normal Fonksiyonlar
+//Normal Methodlar
 db.version() //ERAX.DB'nin Sürümünü Atar.
-db.length() //Database'deki Toplam Veri Sayısını Atar.
+db.size() //Database'deki Toplam Veri Sayısını Atar.
 db.type("key") //key Adlı Verinin Tipini Atar.
 
-//Sqlite İçin Fonksiyonlar
+//Sqlite İçin Methodlar
 db.import("./dbPath.json") //dbPath.json Adlı Database'deki Verileri Kaydeder.
 db.export("./dbPath.json") //dbPath.json Adlı JSON'a Verileri Kaydeder.
 ```
