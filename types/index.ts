@@ -2,6 +2,7 @@ declare module "erax.db" {
   export class JsonDatabase {
     constructor(dbPath?: string);
     private dbPath: string;
+    
     public set(key: string, value: any): void;
     public fetch(key: string): any;
     public get(key: string): any;
@@ -11,7 +12,7 @@ declare module "erax.db" {
     public has(key: string): boolean;
     public arrayHas(key: string): boolean;
     public deleteAll(): void;
-    public fetchAll(): object;
+    public fetchAll(): Array<{ ID: string, data: any }>;
     public all(): Array<{ ID: string, data: any }>;
     public size(): object;
     public length(): object;
@@ -37,7 +38,7 @@ declare module "erax.db" {
     public has(key: string): boolean;
     public arrayHas(key: string): boolean;
     public deleteAll(): void;
-    public fetchAll(): object;
+    public fetchAll(): Array<{ ID: string, data: any }>;
     public all(): Array<{ ID: string, data: any }>;
     public size(): object;
     public length(): object;
@@ -60,7 +61,7 @@ declare module "erax.db" {
     public subtract(key: string, value: number, goToNegative?: boolean): void;
     public has(key: string): boolean;
     public arrayHas(key: string): boolean;
-    public fetchAll(): object;
+    public fetchAll(): Array<{ ID: string, data: any }>;
     public all(): Array<{ ID: string, data: any }>;
     public deleteAll(): void;
     public size(): object;

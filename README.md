@@ -15,8 +15,7 @@ yarn add erax.db
 # Yenilikler
 ```npm
 - Hata & Bug Fix.
-- length Methodu size Olarak Değiştirildi.
-- type & math Methodu Düzenlendi.
+- fetchAll Methodu Düzenlendi.
 ```
 
 # Uyarı
