@@ -16,6 +16,7 @@ yarn add erax.db
 ```npm
 - Hata & Bug Fix.
 - fetchAll Methodu Düzenlendi.
+- arrayHas Methodu Düzeltildi.
 ```
 
 # Uyarı
