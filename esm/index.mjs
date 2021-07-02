@@ -1,3 +1,3 @@
-import { JsonDatabase, YamlDatabase, SqliteDatabase } from "../index.js";
+import { JsonDatabase, YamlDatabase } from "../index.js";
 
-export { JsonDatabase, YamlDatabase, SqliteDatabase };
+export { JsonDatabase, YamlDatabase };

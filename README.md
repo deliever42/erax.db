@@ -15,8 +15,8 @@ yarn add erax.db
 # Yenilikler
 ```npm
 - Hata & Bug Fix.
-- fetchAll Methodu Düzenlendi.
-- arrayHas Methodu Düzeltildi.
+- unpush Methodu Eklendi.
+- arrayHasValue Methodu Eklendi.
 ```
 
 # Uyarı
@@ -36,12 +36,6 @@ const { YamlDatabase } = require("erax.db")
 const db = new YamlDatabase("./MyDatabase.yaml")
 ```
 
-# Sqlite Database Kullanımı
-```js
-const { SqliteDatabase } = require("erax.db")
-const db = new SqliteDatabase()
-```
-
 # Methodlar
 ```js
 //Set & Fetch Methodları
@@ -55,10 +49,12 @@ db.delete("key") //key Adlı Veriyi Siler.
 db.deleteAll() //Tüm Verileri Siler.
 db.deleteEach("key") //key Adı İçeren Verileri Siler.
 db.destroy() //Database Dosyasını Siler.
+db.unpush("key", "value") //Key Adlı Verinin Arrayından Belirtilen Valueyi Siler.
 
 //Boolean Methodları
 db.has("key") //key Adlı Veri Varmı/Yokmu Kontrol Eder. 
 db.arrayHas("key") //key Adlı Veri Arraylı/Arraysız Kontrol Eder.
+db.arrayHasValue("key", "value") //key Adlı Verinin Arrayında Belirtilen Value Varmı/Yokmu Kontrol Eder.
 
 //Veri Bulma Methodları
 db.all() //Database'deki Tüm Verileri Array İçine Ekler.
@@ -76,10 +72,6 @@ db.subtract("key" 1, goToNegative = false) //Key Adlı Veriden 1 Çıkarır.
 db.version() //ERAX.DB'nin Sürümünü Atar.
 db.size() //Database'deki Toplam Veri Sayısını Atar.
 db.type("key") //key Adlı Verinin Tipini Atar.
-
-//Sqlite İçin Methodlar
-db.import("./dbPath.json") //dbPath.json Adlı Database'deki Verileri Kaydeder.
-db.export("./dbPath.json") //dbPath.json Adlı JSON'a Verileri Kaydeder.
 ```
 
 #### Herhangi Bir Sıkıntı İle Karşılaşırsanız Aşağıdaki Discord'a Gelin.
