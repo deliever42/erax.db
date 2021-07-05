@@ -1,8 +1,7 @@
 declare module "erax.db" {
   export class JsonDatabase {
-    constructor(dbPath?: string);
-    private dbPath: string;
-
+    public constructor(options: { databasePath: String });
+    private databasePath: string;
     public set(key: string, value: any): void;
     public fetch(key: string): any;
     public get(key: string): any;
@@ -16,8 +15,7 @@ declare module "erax.db" {
     public fetchAll(): Array<{ ID: string, data: any }>;
     public all(): Array<{ ID: string, data: any }>;
     public size(): object;
-    public length(): object;
-    public push(key: string, value: any): void;
+    public push(key: string, value: any, valueIgnoreIfPresent?: boolean): void;
     public math(key: string, operator: "+" | "-" | "*" | "/", value: number, goToNegative?: boolean): void;
     public delete(key: string): void;
     public includes(key: string): Array<{ ID: string, data: any }>;
@@ -26,11 +24,13 @@ declare module "erax.db" {
     public deleteEach(key: string): void;
     public type(key: string): "array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint";
     public unpush(key: string, value: any): void;
+    public filter(callbackfn: (key: string) => boolean): Array<{ ID: string, data: any }>;
+    public info(): object;
   }
 
   export class YamlDatabase {
-    constructor(dbPath?: string);
-    private dbPath: string;
+    public constructor(options: { databasePath: String });
+    private databasePath: string;
     public set(key: string, value: any): void;
     public fetch(key: string): any;
     public get(key: string): any;
@@ -44,8 +44,7 @@ declare module "erax.db" {
     public fetchAll(): Array<{ ID: string, data: any }>;
     public all(): Array<{ ID: string, data: any }>;
     public size(): object;
-    public length(): object;
-    public push(key: string, value: any): void;
+    public push(key: string, value: any, valueIgnoreIfPresent?: boolean): void;
     public math(key: string, operator: "+" | "-" | "*" | "/", value: number, goToNegative?: boolean): void;
     public delete(key: string): void;
     public includes(key: string): Array<{ ID: string, data: any }>;
@@ -54,5 +53,7 @@ declare module "erax.db" {
     public deleteEach(key: string): void;
     public type(key: string): "array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint";
     public unpush(key: string, value: any): void;
+    public filter(callbackfn: (key: string) => boolean): Array<{ ID: string, data: any }>;
+    public info(): object;
   }
 }

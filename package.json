@@ -1,6 +1,6 @@
 ﻿{
   "name": "erax.db",
-  "version": "1.7.5",
+  "version": "1.8.2",
   "description": "Gelişmiş Türkçe JSON ve Yaml Database Modülü",
   "main": "index.js",
   "scripts": {
