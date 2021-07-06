@@ -31,7 +31,7 @@ declare module "erax.db" {
   }
 
   export class YamlDatabase {
-    public constructor(options: { databasePath: String | "./database.json" });
+    public constructor(options: { databasePath: String | "./database.yml" });
     public dbPath: string;
     public dbName: string;
     private data: { [key: string]: any };
