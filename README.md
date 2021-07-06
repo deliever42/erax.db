@@ -15,11 +15,9 @@ yarn add erax.db
 # Yenilikler
 ```npm
 - Hata & Bug Düzeltmeleri.
-- filter Methodu Eklendi.
-- Modül Hızlandırıldı.
-- push Methodu Düzenlendi.
-- unpush Methodu Düzenlendi.
-- Hatalı Olan Yaml Syntax'ı Düzeltildi.
+- TypeScript Düzeltildi.
+- Yazılar Düzenlendi.
+- Set, Fetch, Get ve Delete Methodlarına Ayırıcı (Seperator) Eklendi.
 ```
 
 # Uyarı
@@ -27,57 +25,55 @@ yarn add erax.db
 - Node.JS'nin Sürümü 12'den Büyük Olmalıdır.
 ```
 
-# JSON Database Kullanımı
+# JSON Database
 ```js
 const { JsonDatabase } = require("erax.db")
-const db = new JsonDatabase({ databasePath: "./MyDatabase.json"})
+const db = new JsonDatabase({ databasePath: "./MyDatabase.json" })
 ```
 
-# Yaml Database Kullanımı
+# Yaml Database
 ```js
 const { YamlDatabase } = require("erax.db")
-const db = new YamlDatabase({ databasePath: "./MyDatabase.yml"})
+const db = new YamlDatabase({ databasePath: "./MyDatabase.yml" })
 ```
 
 # Methodlar
 ```js
 //Set & Fetch Methodları
-db.set("key", "value") //key Adlı Veriyi Kaydeder.
-db.fetch("key") //key Adlı Veriyi Çeker.
-db.get("key") //key Adlı Veriyi Çeker.
-db.push("key", "value", valueIgnoreIfPresent = true) //key Adlı Veriyi Arraylı Olarak Kaydeder.
+db.set("veri", "değer") //Belirttiğiniz veriyi kaydedersiniz.
+db.fetch("veri") //Belirttiğiniz veriyi çekersiniz.
+db.get("veri") //Belirttiğiniz veriyi çekersiniz.
+db.push("veri", "değer", valueIgnoreIfPresent = true) //Belirttiğiniz veriyi Array'lı kaydedersiniz.
 
 //Delete Methodları
-db.delete("key") //key Adlı Veriyi Siler.
-db.deleteAll() //Tüm Verileri Siler.
-db.deleteEach("key") //key Adı İçeren Verileri Siler.
-db.destroy() //Database Dosyasını Siler.
-db.unpush("key", "value") //Key Adlı Verinin Arrayından Belirtilen Valueyi Siler.
+db.delete("veri") //Belirttiğiniz veriyi silersiniz.
+db.deleteAll() //Tüm verileri silersiniz.
+db.deleteEach("veri") //Belirttiğiniz değeri içeren verileri siler.
+db.destroy() //Database dosyasını siler.
+db.unpush("veri", "değer") //Belirttiğiniz verinin Array'ından belirttiğiniz değeri siler.
 
 //Boolean Methodları
-db.has("key") //key Adlı Veri Varmı/Yokmu Kontrol Eder. 
-db.arrayHas("key") //key Adlı Veri Arraylı/Arraysız Kontrol Eder.
-db.arrayHasValue("key", "value") //key Adlı Verinin Arrayında Belirtilen Value Varmı/Yokmu Kontrol Eder.
+db.has("veri") //Belirttiğiniz veri varmı/yokmu kontrol eder.
+db.arrayHas("veri") //Belirttiğiniz veri Array'lı ise true, Array'sız ise false olarak cevap verir.
+db.arrayHasValue("veri", "değer") //Belirttiğiniz verinin Array'ında belirttiğiniz değer varmı/yokmu kontrol eder.
 
 //Veri Bulma & Filtreleme Methodları
-db.all() //Database'deki Tüm Verileri Array İçine Ekler.
-db.fetchAll() //Database'deki Tüm Verileri Array İçine Ekler.
-db.startsWith("key") //key Adı İle Başlayan Verileri Array İçine Ekler.
-db.endsWith("key") //key Adı İle Biten Verileri Array İçine Ekler.
-db.includes("key") //key Adı İçeren Verileri Array İçine Ekler.
-db.filter(x => x.ID.startsWith("key")) //Verileri Filtrelersiniz.
+db.all() //Tüm verileri Array içine ekler.
+db.fetchAll() //Tüm verileri Array içine ekler.
+db.startsWith("veri") //Belirttiğiniz değer ile başlayan verileri Array içine ekler.
+db.endsWith("veri") //Belirttiğiniz değer ile biten verileri Array içine ekler.
+db.includes("veri") //Belirttiğiniz değeri içeren verileri Array içine ekler.
+db.filter(x => x.ID.startsWith("veri")) //Verileri filtrelersiniz.
 
 //Matematik İşlemi Methodları
-db.math("key", "işlem", "value", goToNegative = false) //Matematik İşlemi Yaparak Veriyi Kaydeder.
-db.add("key", 1) //key Adlı Veriye 1 Ekler.
-db.subtract("key" 1, goToNegative = false) //Key Adlı Veriden 1 Çıkarır.
+db.math("veri", "işlem", "değer", goToNegative = false) //Matematik işlemi yaparak veri kaydedersiniz.
+db.add("veri", 1) //Belirttiğiniz veriye 1 ekler.
+db.subtract("veri" 1, goToNegative = false) //Belirttiğiniz veriden 1 çıkarır.
 
 //Normal Methodlar
-db.info() //Database Bilgilerini Öğrenirsiniz.
-db.size() //Database'deki Toplam Veri Sayısını Atar.
-db.type("key") //key Adlı Verinin Tipini Atar.
+db.info() //Database bilgilerini öğrenirsiniz.
+db.size() //Database'deki verilerin sayısını atar.
+db.type("veri") //Verinin tipini öğrenirsiniz.
 ```
 
-#### Herhangi Bir Sıkıntı İle Karşılaşırsanız Aşağıdaki Discord'a Gelin.
-[Discord](https://discord.gg/bKmtnaBDRH)
-
+#### Hata Bildirmek İçin Discord Üzerinden Emirhan77#0001'e Ulaşabilirsiniz.

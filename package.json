@@ -1,6 +1,6 @@
-﻿{
+{
   "name": "erax.db",
-  "version": "2.0.0",
+  "version": "2.0.5",
   "description": "Gelişmiş Türkçe JSON ve Yaml Database Modülü",
   "main": "index.js",
   "scripts": {
@@ -8,12 +8,11 @@
   },
   "author": "emirhanbaltas34",
   "license": "Apache-2.0",
-  "types": "types/index.ts",
+  "types": "index.ts",
   "keywords": [
     "erax.db",
     "quick.db",
-    "quick-db",
-    "quick",
+    "fast",
     "database",
     "db",
     "storage",
@@ -23,9 +22,13 @@
   ],
   "dependencies": {
     "fs": "0.0.1-security",
+    "lodash": "^4.17.21",
     "yaml": "^1.10.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/lodash": "^4.14.169",
+    "@types/node": "^14.14.45"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/emirhanbaltas34/erax.db"

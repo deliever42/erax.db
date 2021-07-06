@@ -1,4 +1,4 @@
 module.exports = {
-    JsonDatabase: require("./lib/JsonDatabase"),
-    YamlDatabase: require("./lib/YamlDatabase"),
+    JsonDatabase: require("./src/JsonDatabase"),
+    YamlDatabase: require("./src/YamlDatabase"),
 };
