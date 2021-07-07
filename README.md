@@ -14,10 +14,8 @@ yarn add erax.db
 
 # Yenilikler
 ```npm
-- Hata & Bug Düzeltmeleri.
-- TypeScript Düzeltildi.
-- Yazılar Düzenlendi.
-- Set, Fetch, Get ve Delete Methodlarına Ayırıcı (Seperator) Eklendi.
+- TypeScript'teki Küçük Bir Hata Düzeltildi.
+- all Methodu Düzenlendi. 
 ```
 
 # Uyarı
@@ -43,7 +41,7 @@ const db = new YamlDatabase({ databasePath: "./MyDatabase.yml" })
 db.set("veri", "değer") //Belirttiğiniz veriyi kaydedersiniz.
 db.fetch("veri") //Belirttiğiniz veriyi çekersiniz.
 db.get("veri") //Belirttiğiniz veriyi çekersiniz.
-db.push("veri", "değer", valueIgnoreIfPresent = true) //Belirttiğiniz veriyi Array'lı kaydedersiniz.
+db.push("veri", "değer") //Belirttiğiniz veriyi Array'lı kaydedersiniz.
 
 //Delete Methodları
 db.delete("veri") //Belirttiğiniz veriyi silersiniz.
@@ -66,9 +64,9 @@ db.includes("veri") //Belirttiğiniz değeri içeren verileri Array içine ekler
 db.filter(x => x.ID.startsWith("veri")) //Verileri filtrelersiniz.
 
 //Matematik İşlemi Methodları
-db.math("veri", "işlem", "değer", goToNegative = false) //Matematik işlemi yaparak veri kaydedersiniz.
+db.math("veri", "işlem", "değer") //Matematik işlemi yaparak veri kaydedersiniz.
 db.add("veri", 1) //Belirttiğiniz veriye 1 ekler.
-db.subtract("veri" 1, goToNegative = false) //Belirttiğiniz veriden 1 çıkarır.
+db.subtract("veri" 1) //Belirttiğiniz veriden 1 çıkarır.
 
 //Normal Methodlar
 db.info() //Database bilgilerini öğrenirsiniz.
