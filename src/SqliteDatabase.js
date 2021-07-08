@@ -230,7 +230,6 @@ module.exports = class SqliteDatabase {
         })
 
         this.data = {}
-        console.log(arr.length)
         return arr.length
     };
 
