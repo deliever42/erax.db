@@ -16,7 +16,7 @@ yarn add erax.db
 ```npm
 - TypeScript'teki Küçük Bir Hata Düzeltildi.
 - all Methodu Düzenlendi.
-- Sqlite Eklendi.
+- Sqlite Desteği Eklendi.
 - Hata Düzeltmeleri.
 ```
 
