@@ -6,11 +6,12 @@ module.exports = class JsonDatabase {
     constructor(options = { databasePath: "./database.json" }) {
 
         this.dbPath = options.databasePath;
-        this.dbName = this.dbPath.split("./").pop().split(".json")[0];
-        this.data = {};
 
         if (!this.dbPath.startsWith('./')) this.dbPath = "./" + this.dbPath
         if (!this.dbPath.endsWith(".json")) this.dbPath = this.dbPath + ".json"
+        
+        this.dbName = this.dbPath.split("./").pop().split(".json")[0];
+        this.data = {};
 
         if (!fs.existsSync(this.dbPath)) {
             fs.writeFileSync(this.dbPath, "");
@@ -78,7 +79,7 @@ module.exports = class JsonDatabase {
     * Belirttiğiniz veriyi çekersiniz.
     * @param {string} key Veri
     * @returns {any}
-    * @example db.fetch("key";
+    * @example db.fetch("key");
     */
     fetch(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");

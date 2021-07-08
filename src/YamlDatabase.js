@@ -7,12 +7,13 @@ module.exports = class YamlDatabase {
     constructor(options = { databasePath: "./database.yml" }) {
 
         this.dbPath = options.databasePath;
-        this.dbName = this.dbPath.split("./").pop().split(".yml")[0];
-        this.data = {};
 
         if (!this.dbPath.startsWith('./')) this.dbPath = "./" + this.dbPath
         if (this.dbPath.endsWith(".yaml")) this.dbPath = this.dbPath.split(".yaml")[0]
         if (!this.dbPath.endsWith(".yml")) this.dbPath = this.dbPath + ".yml"
+
+        this.dbName = this.dbPath.split("./").pop().split(".yml")[0];
+        this.data = {};
 
         if (!fs.existsSync(this.dbPath)) {
             fs.writeFileSync(this.dbPath, "");
@@ -80,7 +81,7 @@ module.exports = class YamlDatabase {
     * Belirttiğiniz veriyi çekersiniz.
     * @param {string} key Veri
     * @returns {any}
-    * @example db.fetch("key";
+    * @example db.fetch("key");
     */
     fetch(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
