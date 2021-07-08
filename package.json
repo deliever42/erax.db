@@ -18,7 +18,9 @@
     "storage",
     "turkish",
     "json",
-    "yaml"
+    "yaml",
+    "sqlite3",
+    "sqlite"
   ],
   "dependencies": {
     "fs": "0.0.1-security",

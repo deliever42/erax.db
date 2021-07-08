@@ -14,8 +14,9 @@ yarn add erax.db
 
 # Yenilikler
 ```npm
-- TypeScript'teki Küçük Bir Hata Düzeltildi.
-- all Methodu Düzenlendi. 
+- TypeScript'teki Hata Düzeltildi.
+- all Methodu Düzenlendi.
+- Hata Düzeltmeleri.
 ```
 
 # Uyarı
@@ -26,13 +27,13 @@ yarn add erax.db
 # JSON Database
 ```js
 const { JsonDatabase } = require("erax.db")
-const db = new JsonDatabase({ databasePath: "./MyDatabase.json" })
+const db = new JsonDatabase({ databasePath: "./MyJsonDatabase.json" })
 ```
 
 # Yaml Database
 ```js
 const { YamlDatabase } = require("erax.db")
-const db = new YamlDatabase({ databasePath: "./MyDatabase.yml" })
+const db = new YamlDatabase({ databasePath: "./MyYamlDatabase.yml" })
 ```
 
 # Methodlar
