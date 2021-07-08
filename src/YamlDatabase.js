@@ -51,8 +51,8 @@ module.exports = class YamlDatabase {
 
     /**
     * Tüm verileri silersiniz.
-    * @example db.deleteAll();
     * @returns {boolean}
+    * @example db.deleteAll();
     */
     deleteAll() {
         this.all().forEach(data => {
