@@ -14,8 +14,9 @@ yarn add erax.db
 
 # Yenilikler
 ```npm
-- TypeScript'teki Hata Düzeltildi.
+- TypeScript'teki Küçük Bir Hata Düzeltildi.
 - all Methodu Düzenlendi.
+- Sqlite Eklendi.
 - Hata Düzeltmeleri.
 ```
 
@@ -34,6 +35,14 @@ const db = new JsonDatabase({ databasePath: "./MyJsonDatabase.json" })
 ```js
 const { YamlDatabase } = require("erax.db")
 const db = new YamlDatabase({ databasePath: "./MyYamlDatabase.yml" })
+```
+
+# Sqlite Database
+```js
+const { SqliteDatabase } = require("erax.db")
+const db = new SqliteDatabase({ databasePath: "./MySqliteDatabase.sqlite" })
+
+//NOT: İlk Kullanım Sırasında Bir Hata Alabilirsiniz.
 ```
 
 # Methodlar
