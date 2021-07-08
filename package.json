@@ -1,6 +1,6 @@
 {
   "name": "erax.db",
-  "version": "2.1.0",
+  "version": "2.5.0",
   "description": "Gelişmiş Türkçe JSON, Yaml ve Sqlite Database Modülü",
   "main": "index.js",
   "scripts": {
@@ -33,7 +33,9 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.169",
-    "@types/node": "^14.14.45"
+    "@types/node": "^14.14.45",
+    "@types/sqlite3": "^3.1.7",
+    "@types/sequelize": "^4.28.10"
   },
   "repository": {
     "type": "git",
