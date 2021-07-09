@@ -85,5 +85,9 @@ declare module "erax.db" {
     public type(key: string): Promise<"array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint">;
     public filter(callbackfn: (key: string) => boolean): Promise<Array<{ ID: string, data: any }>>;
     public info(): object;
+    public arrayHas(key: string): Promise<boolean>;
+    public arrayHasValue(key: string, value: any): Promise<boolean>;
+    public unpush(key: string, value: any): Promise<Array<any>>;
+    public push(key: string, value: any, valueIgnoreIfPresent?: boolean): Promise<Array<any>>;
   }
 }

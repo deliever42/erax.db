@@ -14,10 +14,8 @@ yarn add erax.db
 
 # Yenilikler
 ```npm
-- TypeScript'teki Küçük Bir Hata Düzeltildi.
-- all Methodu Düzenlendi.
-- Sqlite Desteği Eklendi.
-- Hata Düzeltmeleri.
+- Sqlite'de Olmayan Methodlar Eklendi. (push, unpush, arrayHas, arrayHasValue)
+- Json ve Yaml'daki Küçük Bir Hata Düzeltildi.
 ```
 
 # Uyarı
@@ -42,7 +40,7 @@ const db = new YamlDatabase({ databasePath: "./MyYamlDatabase.yml" })
 const { SqliteDatabase } = require("erax.db")
 const db = new SqliteDatabase({ databasePath: "./MySqliteDatabase.sqlite" })
 
-//NOT: İlk Kullanım Sırasında Bir Hata Alabilirsiniz.
+//NOT: Bazen Hata Alabilirsiniz, Kafanıza Takmayın.
 ```
 
 # Methodlar
@@ -58,7 +56,7 @@ db.delete("veri") //Belirttiğiniz veriyi silersiniz.
 db.deleteAll() //Tüm verileri silersiniz.
 db.deleteEach("veri") //Belirttiğiniz değeri içeren verileri siler.
 db.destroy() //Database dosyasını siler.
-db.unpush("veri", "değer") //Belirttiğiniz verinin Array'ından belirttiğiniz değeri siler.
+db.unpush("veri", "değer") //Belirttiğiniz verinin Array'ından belirttiğiniz değer varsa siler.
 
 //Boolean Methodları
 db.has("veri") //Belirttiğiniz veri varmı/yokmu kontrol eder.
