@@ -33,8 +33,8 @@ module.exports = class SqliteDatabase {
       * Belirttiğiniz veriyi kaydedersiniz.
       * @param {string} key Veri
       * @param {any} value Değer
-      * @returns {Promise<any>}
       * @example await db.set("key", "value");
+      * @returns {Promise<any>}
       */
     async set(key, value) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -47,11 +47,11 @@ module.exports = class SqliteDatabase {
             if (!tag) {
                 await this.sql.create({ key: key, value: value })
                 this.data = {}
-                return tag
+                return await tag.get("value")
             } else {
                 await this.sql.update({ value: value }, { where: { key: key } })
                 this.data = {}
-                return tag
+                return await tag.get("value")
             }
         })
     };
@@ -59,8 +59,8 @@ module.exports = class SqliteDatabase {
     /**
      * Belirttiğiniz veri varmı/yokmu kontrol eder.
      * @param {string} key Veri
-     * @returns {Promise<boolean>}
      * @example await db.has("key");
+     * @returns {Promise<boolean>}
      */
     async has(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -70,8 +70,8 @@ module.exports = class SqliteDatabase {
 
     /**
     * Tüm verileri silersiniz.
-    * @returns {Promise<boolean>}
     * @example await db.deleteAll();
+    * @returns {Promise<boolean>}
     */
     async deleteAll() {
         await this.sql.findAll().then(async datas => {
@@ -83,8 +83,8 @@ module.exports = class SqliteDatabase {
             })
         })
 
-        Object.keys(this.data).forEach(key => {
-            this.delete(key)
+        Object.keys(this.data).forEach(async key => {
+            await this.delete(key)
         })
 
         this.data = {}
@@ -94,22 +94,21 @@ module.exports = class SqliteDatabase {
     /**
     * Belirttiğiniz veriyi çekersiniz.
     * @param {string} key Veri
-    * @returns {Promise<any>}
     * @example await db.fetch("key");
+    * @returns {Promise<any>}
     */
     async fetch(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
         let tag = await this.sql.findOne({ where: { key: key } })
         if (!tag) return null
-        let value = await tag.get("value")
-        return value
+        return await tag.get("value")
     };
 
     /**
     * Belirttiğiniz veriyi çekersiniz.
     * @param {string} key Veri
-    * @returns {Promise<any>}
     * @example await db.get("key");
+    * @returns {Promise<any>}
     */
     async get(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -119,8 +118,8 @@ module.exports = class SqliteDatabase {
     /**
     * Verinin tipini öğrenirsiniz.
     * @param {string} key Veri
-    * @returns {Promise<"array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint">}
     * @example await db.type("key");
+    * @returns {Promise<"array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint">}
     */
     async type(key) {
         if (!key || key === "") return Error(`Bir Veri Belirmelisin.`)
@@ -132,8 +131,8 @@ module.exports = class SqliteDatabase {
     /**
     * Belirttiğiniz veriyi silersiniz.
     * @param {string} key Veri
-    * @returns {Promise<boolean>}
     * @example await db.delete("key");
+    * @returns {Promise<boolean>}
     */
     async delete(key) {
         if (!key || key === "") return Error(`Bir Veri Belirmelisin.`)
@@ -239,8 +238,8 @@ module.exports = class SqliteDatabase {
     * @param {"+" | "-" | "*" | "/"} operator Operator
     * @param {number} value Değer
     * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
-    * @returns {Promise<any>}
     * @example await db.math("key", "+", "1");
+    * @returns {Promise<any>}
     */
     async math(key, operator, value, goToNegative = false) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
@@ -272,8 +271,8 @@ module.exports = class SqliteDatabase {
       * Belirttiğiniz veriye 1 ekler.
       * @param {string} key Veri
       * @param {number} value Değer
-      * @returns {Promise<any>}
       * @example await db.add("key", 1);
+      * @returns {Promise<any>}
       */
     async add(key, value) {
         return await this.math(key, "+", value)
@@ -310,8 +309,8 @@ module.exports = class SqliteDatabase {
     /**
     * Belirttiğiniz değer ile başlayan verileri Array içine ekler.
     * @param {string} key Veri
-    * @returns {Promise<Array<{ ID: string, data: any }>>}
     * @example await db.startsWith("key");
+    * @returns {Promise<Array<{ ID: string, data: any }>>}
     */
     async startsWith(key) {
         let arr = []
@@ -342,8 +341,8 @@ module.exports = class SqliteDatabase {
     /**
     * Belirttiğiniz değer ile biten verileri Array içine ekler.
     * @param {string} key Veri
-    * @returns {Promise<Array<{ ID: string, data: any }>>}
     * @example await db.endsWith("key");
+    * @returns {Promise<Array<{ ID: string, data: any }>>}
     */
     async endsWith(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
@@ -375,8 +374,8 @@ module.exports = class SqliteDatabase {
     /**
     * Belirttiğiniz değeri içeren verileri Array içine ekler.
     * @param {string} key Veri
-    * @returns {Promise<Array<{ ID: string, data: any }>>}
     * @example await db.includes("key");
+    * @returns {Promise<Array<{ ID: string, data: any }>>}
     */
     async includes(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
@@ -408,8 +407,8 @@ module.exports = class SqliteDatabase {
     /**
      * Belirttiğiniz değeri içeren verileri siler.
      * @param {string} key Veri
-     * @returns {Promise<boolean>}
      * @example await db.deleteEach("key");
+     * @returns {Promise<boolean>}
      */
     async deleteEach(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
@@ -435,8 +434,8 @@ module.exports = class SqliteDatabase {
     /**
     * Verileri filtrelersiniz.
     * @param {(key: string) => boolean} callbackfn Callbackfn
-    * @returns {Promise<Array<{ ID: string, data: any }>>}
     * @example await db.filter(x => x.ID.startsWith("key"));
+    * @returns {Promise<Array<{ ID: string, data: any }>>}
     */
     async filter(callbackfn) {
         let arr = []
@@ -463,4 +462,83 @@ module.exports = class SqliteDatabase {
 
         return arr.filter(callbackfn)
     }
+
+    /**
+      * Belirttiğiniz veriyi Array'lı kaydedersiniz.
+      * @param {string} key Veri
+      * @param {any} value Değer
+      * @param {boolean} valueIgnoreIfPresent Belirtilen verinin Array'ında belirtilen Value varsa otomatik yoksay, default olarak true.
+      * @example await db.push("key", "value");
+      * @returns {Promise<Array<any>>}
+      */
+    async push(key, value, valueIgnoreIfPresent = true) {
+        if (await this.has(key) === false) return await this.set(key, [value]);
+        else if (await this.arrayHas(key) === true && await this.has(key) === true) {
+
+            let tag = await this.sql.findOne({ where: { key: key } })
+            let yenivalue = await tag.get("value")
+
+            yenivalue.push(value)
+            if (await yenivalue.indexOf(value) > -1 && valueIgnoreIfPresent === true) return "EraxDB => Bir Hata Oluştu: Şartlar Uygun Olmadığı İçin Veri Pushlanmadı."
+            return await this.set(key, yenivalue);
+        }
+        else {
+            return "EraxDB => Bir Hata Oluştu: Şartlar Uygun Olmadığı İçin Veri Pushlanmadı."
+        };
+    };
+
+    /**
+    * Belirttiğiniz veri Array'lı ise true, Array'sız ise false olarak cevap verir.
+    * @param {string} key Veri
+    * @example await db.arrayHas("key");
+    * @returns {Promise<boolean>}
+    */
+    async arrayHas(key) {
+        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
+        let tag = await this.sql.findOne({ where: { key: key } })
+        let datavalue = await tag.get("value")
+        if (Array.isArray(await datavalue)) return true;
+        return false;
+    };
+
+    /**
+    * Belirttiğiniz verinin Array'ında belirttiğiniz değer varmı/yokmu kontrol eder.
+    * @param {string} key Veri
+    * @param {any} value Değer
+    * @example await db.arrayHasValue("key", "value");
+    * @returns {Promise<boolean>}
+    * 
+    */
+    async arrayHasValue(key, value) {
+        if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
+        if (await this.has(key) === false) return null;
+        if (await this.arrayHas(key) === false) return "EraxDB => Bir Hata Oluştu: Belirtilen Verinin Tipi Array Olmak Zorundadır!"
+        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        let tag = await this.sql.findOne({ where: { key: key } })
+        let datavalue = await tag.get("value")
+        if (await datavalue.indexOf(value) > -1) return true
+        return false
+    }
+
+    /**
+    * Belirttiğiniz verinin Array'ından belirttiğiniz değer varsa siler.
+    * @param {string} key Veri
+    * @param {any} value Değer
+    * @example await db.unpush("key", "value");
+    * @returns {Promise<Array<any>>}
+    */
+    async unpush(key, value) {
+        if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
+        if (this.has(key) === false) return null;
+        if (this.arrayHas(key) === false) return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!"
+        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+
+        let tag = await this.sql.findOne({ where: { key: key } })
+        let datavalue = await tag.get("value")
+        
+        if (await datavalue.indexOf(value) < 0) return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Değer Belirttiğiniz Verinin Array'ında Bulunmuyor."
+        
+        let yenivalue =  datavalue.filter(x => x !== value);
+        return await this.set(key, yenivalue);
+    };
 };

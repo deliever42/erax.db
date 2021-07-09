@@ -9,12 +9,12 @@ module.exports = class JsonDatabase {
 
         if (!this.dbPath.startsWith('./')) this.dbPath = "./" + this.dbPath
         if (!this.dbPath.endsWith(".json")) this.dbPath = this.dbPath + ".json"
-        
+
         this.dbName = this.dbPath.split("./").pop().split(".json")[0];
         this.data = {};
 
         if (!fs.existsSync(this.dbPath)) {
-            fs.writeFileSync(this.dbPath, "");
+            fs.writeFileSync(this.dbPath, "{}");
         } else {
             this.data = JSON.parse(fs.readFileSync(this.dbPath, "utf-8"));
         }
@@ -24,8 +24,8 @@ module.exports = class JsonDatabase {
       * Belirttiğiniz veriyi kaydedersiniz.
       * @param {string} key Veri
       * @param {any} value Değer
-      * @returns {any}
       * @example db.set("key", "value");
+      * @returns {any}
       */
     set(key, value) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -38,8 +38,8 @@ module.exports = class JsonDatabase {
     /**
      * Belirttiğiniz veri varmı/yokmu kontrol eder.
      * @param {string} key Veri
-     * @returns {boolean}
      * @example db.has("key");
+     * @returns {boolean}
      */
     has(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -49,15 +49,15 @@ module.exports = class JsonDatabase {
 
     /**
     * Tüm verileri silersiniz.
-    * @returns {boolean}
     * @example db.deleteAll();
+    * @returns {boolean}
     */
     deleteAll() {
         this.all().forEach(data => {
             _.unset(this.data, data.ID)
         })
 
-        fs.writeFileSync(this.dbPath, "");
+        fs.writeFileSync(this.dbPath, "{}");
         return true;
     };
 
@@ -78,8 +78,8 @@ module.exports = class JsonDatabase {
     /**
     * Belirttiğiniz veriyi çekersiniz.
     * @param {string} key Veri
-    * @returns {any}
     * @example db.fetch("key");
+    * @returns {any}
     */
     fetch(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -89,8 +89,8 @@ module.exports = class JsonDatabase {
     /**
     * Belirttiğiniz veriyi çekersiniz.
     * @param {string} key Veri
-    * @returns {any}
     * @example db.get("key");
+    * @returns {any}
     */
     get(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -100,8 +100,8 @@ module.exports = class JsonDatabase {
     /**
     * Verinin tipini öğrenirsiniz.
     * @param {string} key Veri
-    * @returns {"array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint"}
     * @example db.type("key");
+    * @returns {"array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint"}
     */
     type(key) {
         if (!key || key === "") return Error(`Bir Veri Belirmelisin.`)
@@ -113,8 +113,8 @@ module.exports = class JsonDatabase {
     /**
     * Belirttiğiniz veriyi silersiniz.
     * @param {string} key Veri
-    * @returns {boolean}
     * @example db.delete("key");
+    * @returns {boolean}
     */
     delete(key) {
         if (!key || key === "") return Error(`Bir Veri Belirmelisin.`)
@@ -163,8 +163,8 @@ module.exports = class JsonDatabase {
     /**
     * Belirttiğiniz değer ile başlayan verileri Array içine ekler.
     * @param {string} key Veri
-    * @returns {Array<{ ID: string, data: any }>}
     * @example db.startsWith("key");
+    * @returns {Array<{ ID: string, data: any }>}
     */
     startsWith(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -174,8 +174,8 @@ module.exports = class JsonDatabase {
     /**
     * Belirttiğiniz değer ile biten verileri Array içine ekler.
     * @param {string} key Veri
-    * @returns {Array<{ ID: string, data: any }>}
     * @example db.endsWith("key");
+    * @returns {Array<{ ID: string, data: any }>}
     */
     endsWith(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -185,8 +185,8 @@ module.exports = class JsonDatabase {
     /**
     * Belirttiğiniz değeri içeren verileri Array içine ekler.
     * @param {string} key Veri
-    * @returns {Array<{ ID: string, data: any }>}
     * @example db.includes("key");
+    * @returns {Array<{ ID: string, data: any }>}
     */
     includes(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -198,14 +198,15 @@ module.exports = class JsonDatabase {
       * @param {string} key Veri
       * @param {any} value Değer
       * @param {boolean} valueIgnoreIfPresent Belirtilen verinin Array'ında belirtilen Value varsa otomatik yoksay, default olarak true.
-      * @returns {Array<any>}
       * @example db.push("key", "value");
+      * @returns {Array<any>}
       */
     push(key, value, valueIgnoreIfPresent = true) {
         if (this.has(key) === false) return this.set(key, [value]);
-        else if (this.arrayHas(key) === true && this.has(key) === true && valueIgnoreIfPresent === true) {
+        else if (this.arrayHas(key) === true && this.has(key) === true) {
             let yenivalue = this.get(key)
             yenivalue.push(value);
+            if (this.arrayHasValue(key, yenivalue) && valueIgnoreIfPresent === true) return "EraxDB => Bir Hata Oluştu: Şartlar Uygun Olmadığı İçin Veri Pushlanmadı."
             return this.set(key, yenivalue);
         }
         else {
@@ -219,8 +220,8 @@ module.exports = class JsonDatabase {
     * @param {"+" | "-" | "*" | "/"} operator Operator
     * @param {number} value Değer
     * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
-    * @returns {any}
     * @example db.math("key", "+", "1");
+    * @returns {any}
     */
     math(key, operator, value, goToNegative = false) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
@@ -252,8 +253,8 @@ module.exports = class JsonDatabase {
       * Belirttiğiniz veriye 1 ekler.
       * @param {string} key Veri
       * @param {number} value Değer
-      * @returns {any}
       * @example db.add("key", 1);
+      * @returns {any}
       */
     add(key, value) {
         return this.math(key, "+", value)
@@ -264,8 +265,8 @@ module.exports = class JsonDatabase {
       * @param {string} key Veri
       * @param {number} value Değer
       * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
-      * @returns {any}
       * @example db.subtract("key", 1);
+      * @returns {any}
       */
     subtract(key, value, goToNegative = false) {
         return this.math(key, "-", value, goToNegative)
@@ -302,8 +303,8 @@ module.exports = class JsonDatabase {
     /**
      * Belirttiğiniz değeri içeren verileri siler.
      * @param {string} key Veri
-     * @returns {boolean}
      * @example db.deleteEach("key");
+     * @returns {boolean}
      */
     deleteEach(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
@@ -315,18 +316,18 @@ module.exports = class JsonDatabase {
     }
 
     /**
-    * Belirttiğiniz verinin Array'ından belirttiğiniz değeri siler.
+    * Belirttiğiniz verinin Array'ından belirttiğiniz değer varsa siler.
     * @param {string} key Veri
     * @param {any} value Değer
-    * @returns {Array<any>}
     * @example db.unpush("key", "value");
+    * @returns {Array<any>}
     */
     unpush(key, value) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
         if (this.has(key) === false) return null;
-        if (this.arrayHas(key) === false) return Error("Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!")
+        if (this.arrayHas(key) === false) return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!"
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
-        if (this.arrayHasValue(key, value) === false) return Error("Belirttiğiniz Değer belirttiğiniz Verinin Array'ında Bulunmuyor.")
+        if (this.arrayHasValue(key, value) === false) return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Değer Belirttiğiniz Verinin Array'ında Bulunmuyor."
 
         let oldArr = this.get(key)
         let newArr = oldArr.filter(x => x !== value);
@@ -338,13 +339,13 @@ module.exports = class JsonDatabase {
     * Belirttiğiniz verinin Array'ında belirttiğiniz değer varmı/yokmu kontrol eder.
     * @param {string} key Veri
     * @param {any} value Değer
-    * @returns {boolean}
     * @example db.arrayHasValue("key", "value");
+    * @returns {boolean}
     */
     arrayHasValue(key, value) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
         if (this.has(key) === false) return null;
-        if (this.arrayHas(key) === false) return Error("Belirtilen Verinin Tipi Array Olmak Zorundadır!")
+        if (this.arrayHas(key) === false) return "EraxDB => Bir Hata Oluştu: Belirtilen Verinin Tipi Array Olmak Zorundadır!"
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
         if (this.get(key).indexOf(value) > -1) return true
         return false
@@ -353,8 +354,8 @@ module.exports = class JsonDatabase {
     /**
     * Verileri filtrelersiniz.
     * @param {(key: string) => boolean} callbackfn Callbackfn
-    * @returns {Array<{ ID: string, data: any }>}
     * @example db.filter(x => x.ID.startsWith("key"));
+    * @returns {Array<{ ID: string, data: any }>}
     */
     filter(callbackfn) {
         return this.all().filter(callbackfn)
