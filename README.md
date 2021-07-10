@@ -14,8 +14,7 @@ yarn add erax.db
 
 # Yenilikler
 ```npm
-- Sqlite'de Olmayan Methodlar Eklendi. (push, unpush, arrayHas, arrayHasValue)
-- Json ve Yaml'daki Küçük Bir Hata Düzeltildi.
+- Sqlite'deki Bir Bug Düzeltildi.
 ```
 
 # Uyarı
