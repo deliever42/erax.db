@@ -47,11 +47,11 @@ module.exports = class SqliteDatabase {
             if (!tag) {
                 await this.sql.create({ key: key, value: value })
                 this.data = {}
-                return await tag.get("value")
+                return value
             } else {
                 await this.sql.update({ value: value }, { where: { key: key } })
                 this.data = {}
-                return await tag.get("value")
+                return value
             }
         })
     };
@@ -535,10 +535,10 @@ module.exports = class SqliteDatabase {
 
         let tag = await this.sql.findOne({ where: { key: key } })
         let datavalue = await tag.get("value")
-        
+
         if (await datavalue.indexOf(value) < 0) return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Değer Belirttiğiniz Verinin Array'ında Bulunmuyor."
-        
-        let yenivalue =  datavalue.filter(x => x !== value);
+
+        let yenivalue = datavalue.filter(x => x !== value);
         return await this.set(key, yenivalue);
     };
 };
