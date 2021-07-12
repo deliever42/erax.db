@@ -14,7 +14,11 @@ yarn add erax.db
 
 # Yenilikler
 ```npm
-- Sqlite'deki Bir Bug Düzeltildi.
+- TypeScript'teki Bir Hata Düzeltildi.
+- filter Methodundaki Hata Düzeltildi.
+- unpush Methodu pull Olarak Değiştirildi.
+- Sqlite'deki Uzun Kodlar Kısaltıldı.
+- keyArray Ve valueArray Methodları Eklendi.
 ```
 
 # Uyarı
@@ -53,22 +57,24 @@ db.push("veri", "değer") //Belirttiğiniz veriyi Array'lı kaydedersiniz.
 //Delete Methodları
 db.delete("veri") //Belirttiğiniz veriyi silersiniz.
 db.deleteAll() //Tüm verileri silersiniz.
-db.deleteEach("veri") //Belirttiğiniz değeri içeren verileri siler.
+db.deleteEach("değer") //Belirttiğiniz değeri içeren verileri siler.
 db.destroy() //Database dosyasını siler.
-db.unpush("veri", "değer") //Belirttiğiniz verinin Array'ından belirttiğiniz değer varsa siler.
+db.pull("veri", "değer") //Belirttiğiniz verinin Array'ında belirttiğiniz değer varsa siler.
 
 //Boolean Methodları
 db.has("veri") //Belirttiğiniz veri varmı/yokmu kontrol eder.
 db.arrayHas("veri") //Belirttiğiniz veri Array'lı ise true, Array'sız ise false olarak cevap verir.
 db.arrayHasValue("veri", "değer") //Belirttiğiniz verinin Array'ında belirttiğiniz değer varmı/yokmu kontrol eder.
 
-//Veri Bulma & Filtreleme Methodları
+//Array Methodları
 db.all() //Tüm verileri Array içine ekler.
 db.fetchAll() //Tüm verileri Array içine ekler.
-db.startsWith("veri") //Belirttiğiniz değer ile başlayan verileri Array içine ekler.
-db.endsWith("veri") //Belirttiğiniz değer ile biten verileri Array içine ekler.
-db.includes("veri") //Belirttiğiniz değeri içeren verileri Array içine ekler.
-db.filter(x => x.ID.startsWith("veri")) //Verileri filtrelersiniz.
+db.startsWith("değer") //Belirttiğiniz değer ile başlayan verileri Array içine ekler.
+db.endsWith("değer") //Belirttiğiniz değer ile biten verileri Array içine ekler.
+db.includes("değer") //Belirttiğiniz değeri içeren verileri Array içine ekler.
+db.filter((element, index, array) => element.ID.startsWith("veri")) //Verileri filtrelersiniz.
+db.keyArray() //Tüm verilerin adını Array içine ekler.
+db.valueArray() //Tüm verilerin değerini Array içine ekler.
 
 //Matematik İşlemi Methodları
 db.math("veri", "işlem", "değer") //Matematik işlemi yaparak veri kaydedersiniz.
@@ -78,7 +84,7 @@ db.subtract("veri" 1) //Belirttiğiniz veriden 1 çıkarır.
 //Normal Methodlar
 db.info() //Database bilgilerini öğrenirsiniz.
 db.size() //Database'deki verilerin sayısını atar.
-db.type("veri") //Verinin tipini öğrenirsiniz.
+db.type("veri") //Belirttiğiniz verinin tipini öğrenirsiniz.
 ```
 
 #### Hata Bildirmek İçin Discord Üzerinden Emirhan77#0001'e Ulaşabilirsiniz.
