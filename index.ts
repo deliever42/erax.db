@@ -18,7 +18,7 @@ declare module "erax.db" {
     public all(): Array<{ ID: string, data: any }>;
     public size(): number;
     public push(key: string, value: any, valueIgnoreIfPresent?: boolean): Array<any[]>;
-    public math(key: string, operator: "+" | "-" | "*" | "/", value: number, goToNegative?: boolean): any;
+    public math(key: string, operator: "+" | "-" | "*" | "/" | "%", value: number, goToNegative?: boolean): any;
     public delete(key: string): boolean;
     public includes(key: string): Array<{ ID: string, data: any }>;
     public startsWith(key: string): Array<{ ID: string, data: any }>;
@@ -51,7 +51,7 @@ declare module "erax.db" {
     public all(): Array<{ ID: string, data: any }>;
     public size(): number;
     public push(key: string, value: any, valueIgnoreIfPresent?: boolean): Array<any[]>;
-    public math(key: string, operator: "+" | "-" | "*" | "/", value: number, goToNegative?: boolean): any;
+    public math(key: string, operator: "+" | "-" | "*" | "/" | "%", value: number, goToNegative?: boolean): any;
     public delete(key: string): boolean;
     public includes(key: string): Array<{ ID: string, data: any }>;
     public startsWith(key: string): Array<{ ID: string, data: any }>;
@@ -84,7 +84,7 @@ declare module "erax.db" {
     public all(): Promise<Array<{ ID: string, data: any }>>;
     public size(): Promise<number>;
     public push(key: string, value: any, valueIgnoreIfPresent?: boolean): Promise<Array<any[]>>;
-    public math(key: string, operator: "+" | "-" | "*" | "/", value: number, goToNegative?: boolean): Promise<any>;
+    public math(key: string, operator: "+" | "-" | "*" | "/" | "%", value: number, goToNegative?: boolean): Promise<any>;
     public delete(key: string): Promise<boolean>;
     public includes(key: string): Promise<Array<{ ID: string, data: any }>>;
     public startsWith(key: string): Promise<Array<{ ID: string, data: any }>>;
