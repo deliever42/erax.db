@@ -98,7 +98,7 @@ module.exports = class JsonDatabase {
     };
 
     /**
-    * Verinin tipini öğrenirsiniz.
+    * Belirttiğiniz verinin tipini öğrenirsiniz.
     * @param {string} key Veri
     * @example db.type("key");
     * @returns {"array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint"}
@@ -162,35 +162,35 @@ module.exports = class JsonDatabase {
 
     /**
     * Belirttiğiniz değer ile başlayan verileri Array içine ekler.
-    * @param {string} key Veri
+    * @param {string} value Değer
     * @example db.startsWith("key");
     * @returns {Array<{ ID: string, data: any }>}
     */
-    startsWith(key) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
-        return this.all().filter(x => x.ID.startsWith(key))
+    startsWith(value) {
+        if (!value || value === "") return Error("Bir Değer Belirtmelisin.")
+        return this.all().filter(x => x.ID.startsWith(value))
     };
 
     /**
     * Belirttiğiniz değer ile biten verileri Array içine ekler.
-    * @param {string} key Veri
+    * @param {string} value Değer
     * @example db.endsWith("key");
     * @returns {Array<{ ID: string, data: any }>}
     */
-    endsWith(key) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
-        return this.all().filter(x => x.ID.endsWith(key))
+    endsWith(value) {
+        if (!value || value === "") return Error("Bir Değer Belirtmelisin.")
+        return this.all().filter(x => x.ID.endsWith(value))
     };
 
     /**
     * Belirttiğiniz değeri içeren verileri Array içine ekler.
-    * @param {string} key Veri
+    * @param {string} value Değer
     * @example db.includes("key");
     * @returns {Array<{ ID: string, data: any }>}
     */
-    includes(key) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
-        return this.all().filter(x => x.ID.includes(key))
+    includes(value) {
+        if (!value || value === "") return Error("Bir Değer Belirtmelisin.")
+        return this.all().filter(x => x.ID.includes(value))
     };
 
     /**
@@ -287,7 +287,7 @@ module.exports = class JsonDatabase {
     /**
       * Database bilgilerini öğrenirsiniz.
       * @example db.info();
-      * @returns {object}
+      * @returns {{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "json" | "yaml" | "sqlite" }}
       */
     info() {
         let p = require("../package.json")
@@ -302,27 +302,26 @@ module.exports = class JsonDatabase {
 
     /**
      * Belirttiğiniz değeri içeren verileri siler.
-     * @param {string} key Veri
+     * @param {string} value Değer
      * @example db.deleteEach("key");
      * @returns {boolean}
      */
-    deleteEach(key) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
-        this.includes(key).forEach(veri => {
-            this.delete(veri.ID)
+    deleteEach(value) {
+        if (!value || value === "") return Error("Bir Değer Belirtmelisin.")
+        this.includes(value).forEach(data => {
+            this.delete(data.ID)
         })
         return true
-
     }
 
     /**
-    * Belirttiğiniz verinin Array'ından belirttiğiniz değer varsa siler.
+    * Belirttiğiniz verinin Array'ında belirttiğiniz değer varsa siler.
     * @param {string} key Veri
     * @param {any} value Değer
-    * @example db.unpush("key", "value");
+    * @example db.pull("key", "value");
     * @returns {Array<any>}
     */
-    unpush(key, value) {
+    pull(key, value) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false) return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!"
@@ -353,11 +352,37 @@ module.exports = class JsonDatabase {
 
     /**
     * Verileri filtrelersiniz.
-    * @param {(key: string) => boolean} callbackfn Callbackfn
+    * @param {(element: { ID: string, data: any }, index: number, array: Array<{ ID: string, data: any }>) => boolean} callbackfn Callbackfn
     * @example db.filter(x => x.ID.startsWith("key"));
     * @returns {Array<{ ID: string, data: any }>}
     */
     filter(callbackfn) {
         return this.all().filter(callbackfn)
     }
+
+    /**
+    * Tüm verilerin adını Array içine ekler.
+    * @example db.keyArray()
+    * @returns {Array<string>}
+    */
+    keyArray() {
+        let arr = []
+        this.all().forEach(data => {
+            arr.push(data.ID)
+        })
+        return arr
+    };
+
+    /**
+    * Tüm verilerin değerini Array içine ekler.
+    * @example db.valueArray()
+    * @returns {Array<any>}
+    */
+    valueArray() {
+        let arr = []
+        this.all().forEach(data => {
+            arr.push(data.data)
+        })
+        return arr
+    };
 };
