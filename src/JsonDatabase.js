@@ -199,7 +199,7 @@ module.exports = class JsonDatabase {
       * @param {any} value Değer
       * @param {boolean} valueIgnoreIfPresent Belirtilen verinin Array'ında belirtilen Value varsa otomatik yoksay, default olarak true.
       * @example db.push("key", "value");
-      * @returns {Array<any>}
+      * @returns {Array<any[]>}
       */
     push(key, value, valueIgnoreIfPresent = true) {
         if (this.has(key) === false) return this.set(key, [value]);
@@ -217,7 +217,7 @@ module.exports = class JsonDatabase {
     /**
     * Matematik işlemi yaparak veri kaydedersiniz.
     * @param {string} key Veri
-    * @param {"+" | "-" | "*" | "/"} operator Operator
+    * @param {"+" | "-" | "*" | "/" | "%"} operator Operator
     * @param {number} value Değer
     * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
     * @example db.math("key", "+", "1");
@@ -233,15 +233,17 @@ module.exports = class JsonDatabase {
         let data = this.get(key)
 
         if (operator === "-") {
-            if (goToNegative === false && data < 1) data = Number("0")
             data = data - Number(value);
+            if (goToNegative === false && data < 1) data = Number("0")
         } else if (operator === "+") {
             data = data + Number(value);
         } else if (operator === "*") {
             data = data * Number(value);
         } else if (operator === "/") {
-            if (goToNegative === false && data < 1) data = Number("0")
             data = data / Number(value);
+            if (goToNegative === false && data < 1) data = Number("0")
+        } else if (operator === "%") {
+            data = data % Number(value);
         } else {
             return Error("Geçersiz İşlem!");
         };
@@ -319,7 +321,7 @@ module.exports = class JsonDatabase {
     * @param {string} key Veri
     * @param {any} value Değer
     * @example db.pull("key", "value");
-    * @returns {Array<any>}
+    * @returns {Array<any[]>}
     */
     pull(key, value) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
@@ -363,7 +365,7 @@ module.exports = class JsonDatabase {
     /**
     * Tüm verilerin adını Array içine ekler.
     * @example db.keyArray()
-    * @returns {Array<string>}
+    * @returns {Array<string[]>}
     */
     keyArray() {
         let arr = []
@@ -376,7 +378,7 @@ module.exports = class JsonDatabase {
     /**
     * Tüm verilerin değerini Array içine ekler.
     * @example db.valueArray()
-    * @returns {Array<any>}
+    * @returns {Array<any[]>}
     */
     valueArray() {
         let arr = []

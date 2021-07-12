@@ -34,7 +34,7 @@ module.exports = class SqliteDatabase {
       * @param {string} key Veri
       * @param {any} value Değer
       * @example await db.set("key", "value");
-      * @returns {any}
+      * @returns {Promise<any>}
       */
     async set(key, value) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -60,7 +60,7 @@ module.exports = class SqliteDatabase {
      * Belirttiğiniz veri varmı/yokmu kontrol eder.
      * @param {string} key Veri
      * @example await db.has("key");
-     * @returns {boolean}
+     * @returns {Promise<boolean>}
      */
     async has(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -71,7 +71,7 @@ module.exports = class SqliteDatabase {
     /**
     * Tüm verileri silersiniz.
     * @example await db.deleteAll();
-    * @returns {boolean}
+    * @returns {Promise<boolean>}
     */
     async deleteAll() {
         await this.sql.findAll().then(async datas => {
@@ -88,7 +88,7 @@ module.exports = class SqliteDatabase {
     * Belirttiğiniz veriyi çekersiniz.
     * @param {string} key Veri
     * @example await db.fetch("key");
-    * @returns {any}
+    * @returns {Promise<any>}
     */
     async fetch(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -101,7 +101,7 @@ module.exports = class SqliteDatabase {
     * Belirttiğiniz veriyi çekersiniz.
     * @param {string} key Veri
     * @example await db.get("key");
-    * @returns {any}
+    * @returns {Promise<any>}
     */
     async get(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -112,7 +112,7 @@ module.exports = class SqliteDatabase {
     * Belirttiğiniz verinin tipini öğrenirsiniz.
     * @param {string} key Veri
     * @example await db.type("key");
-    * @returns {"array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint"}
+    * @returns {Promise<"array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint">}
     */
     async type(key) {
         if (!key || key === "") return Error(`Bir Veri Belirmelisin.`)
@@ -125,7 +125,7 @@ module.exports = class SqliteDatabase {
     * Belirttiğiniz veriyi silersiniz.
     * @param {string} key Veri
     * @example await db.delete("key");
-    * @returns {boolean}
+    * @returns {Promise<boolean>}
     */
     async delete(key) {
         if (!key || key === "") return Error(`Bir Veri Belirmelisin.`)
@@ -137,7 +137,7 @@ module.exports = class SqliteDatabase {
     /**
     * Tüm verileri Array içine ekler.
     * @example await db.fetchAll();
-    * @returns {Array<{ ID: string, data: any }>}
+    * @returns {Promise<Array<{ ID: string, data: any }>>}
     */
     async fetchAll() {
         let arr = [];
@@ -162,7 +162,7 @@ module.exports = class SqliteDatabase {
     /**
     * Tüm verileri Array içine ekler.
     * @example await db.all();
-    * @returns {Array<{ ID: string, data: any }>}
+    * @returns {Promise<Array<{ ID: string, data: any }>>}
     */
     async all() {
         let arr = [];
@@ -187,11 +187,11 @@ module.exports = class SqliteDatabase {
     /**
     * Matematik işlemi yaparak veri kaydedersiniz.
     * @param {string} key Veri
-    * @param {"+" | "-" | "*" | "/"} operator Operator
+    * @param {"+" | "-" | "*" | "/" | "%"} operator Operator
     * @param {number} value Değer
     * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
     * @example await db.math("key", "+", "1");
-    * @returns {any}
+    * @returns {Promise<any>}
     */
     async math(key, operator, value, goToNegative = false) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
@@ -203,15 +203,17 @@ module.exports = class SqliteDatabase {
         let data = await this.get(key)
 
         if (operator === "-") {
-            if (goToNegative === false && data < 1) data = Number("0")
             data = data - Number(value);
+            if (goToNegative === false && data < 1) data = Number("0")
         } else if (operator === "+") {
             data = data + Number(value);
         } else if (operator === "*") {
             data = data * Number(value);
         } else if (operator === "/") {
-            if (goToNegative === false && data < 1) data = Number("0")
             data = data / Number(value);
+            if (goToNegative === false && data < 1) data = Number("0")
+        } else if (operator === "%") {
+            data = data % Number(value);
         } else {
             return Error("Geçersiz İşlem!");
         };
@@ -224,7 +226,7 @@ module.exports = class SqliteDatabase {
       * @param {string} key Veri
       * @param {number} value Değer
       * @example await db.add("key", 1);
-      * @returns {any}
+      * @returns {Promise<any>}
       */
     async add(key, value) {
         return await this.math(key, "+", value)
@@ -235,7 +237,7 @@ module.exports = class SqliteDatabase {
       * @param {string} key Veri
       * @param {number} value Değer
       * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
-      * @returns {any}
+      * @returns {Promise<any>}
       * @example await db.subtract("key", 1);
       */
     async subtract(key, value, goToNegative = false) {
@@ -262,7 +264,7 @@ module.exports = class SqliteDatabase {
     * Belirttiğiniz değer ile başlayan verileri Array içine ekler.
     * @param {string} value Değer
     * @example await db.startsWith("key");
-    * @returns {Array<{ ID: string, data: any }>}
+    * @returns {Promise<Array<{ ID: string, data: any }>>}
     */
     async startsWith(value) {
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.")
@@ -273,7 +275,7 @@ module.exports = class SqliteDatabase {
     * Belirttiğiniz değer ile biten verileri Array içine ekler.
     * @param {string} value Değer
     * @example await db.endsWith("key");
-    * @returns {Array<{ ID: string, data: any }>}
+    * @returns {Promise<Array<{ ID: string, data: any }>>}
     */
     async endsWith(value) {
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.")
@@ -284,7 +286,7 @@ module.exports = class SqliteDatabase {
     * Belirttiğiniz değeri içeren verileri Array içine ekler.
     * @param {string} value Değer
     * @example await db.includes("key");
-    * @returns {Array<{ ID: string, data: any }>}
+    * @returns {Promise<Array<{ ID: string, data: any }>>}
     */
     async includes(value) {
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.")
@@ -295,7 +297,7 @@ module.exports = class SqliteDatabase {
      * Belirttiğiniz değeri içeren verileri siler.
      * @param {string} value Değer
      * @example await db.deleteEach("key");
-     * @returns {boolean}
+     * @returns {Promise<boolean>}
      */
     async deleteEach(value) {
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.")
@@ -316,7 +318,7 @@ module.exports = class SqliteDatabase {
     * Verileri filtrelersiniz.
     * @param {(element: { ID: string, data: any }, index: number, array: Array<{ ID: string, data: any }>) => boolean} callbackfn Callbackfn
     * @example await db.filter((element) => element.ID.startsWith("key"));
-    * @returns {Array<{ ID: string, data: any }>}
+    * @returns {Promise<Array<{ ID: string, data: any }>>}
     */
     async filter(callbackfn) {
         let arr = []
@@ -343,7 +345,7 @@ module.exports = class SqliteDatabase {
       * @param {any} value Değer
       * @param {boolean} valueIgnoreIfPresent Belirtilen verinin Array'ında belirtilen Value varsa otomatik yoksay, default olarak true.
       * @example await db.push("key", "value");
-      * @returns {Array<any>}
+      * @returns {Promise<Array<string[]>>}
       */
     async push(key, value, valueIgnoreIfPresent = true) {
         if (await this.has(key) === false) return await this.set(key, [value]);
@@ -365,7 +367,7 @@ module.exports = class SqliteDatabase {
     * Belirttiğiniz veri Array'lı ise true, Array'sız ise false olarak cevap verir.
     * @param {string} key Veri
     * @example await db.arrayHas("key");
-    * @returns {boolean}
+    * @returns {Promise<boolean>}
     */
     async arrayHas(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
@@ -380,7 +382,7 @@ module.exports = class SqliteDatabase {
     * @param {string} key Veri
     * @param {any} value Değer
     * @example await db.arrayHasValue("key", "value");
-    * @returns {boolean}
+    * @returns {Promise<boolean>}
     * 
     */
     async arrayHasValue(key, value) {
@@ -399,7 +401,7 @@ module.exports = class SqliteDatabase {
     * @param {string} key Veri
     * @param {any} value Değer
     * @example await db.pull("key", "value");
-    * @returns {Array<any}
+    * @returns {Promise<Array<any>>}
     */
     async pull(key, value) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.")
@@ -419,7 +421,7 @@ module.exports = class SqliteDatabase {
     /**
     * Database'de ki verilerin sayısını atar.
     * @example await db.size();
-    * @returns {number}
+    * @returns {Promise<number>}
     */
     async size() {
         let arr = [];
@@ -438,7 +440,7 @@ module.exports = class SqliteDatabase {
     /**
     * Tüm verilerin adını Array içine ekler.
     * @example db.keyArray()
-    * @returns {Array<string>}
+    * @returns {Promise<Array<string[]>>}
     */
     async keyArray() {
         let arr = [];
@@ -457,7 +459,7 @@ module.exports = class SqliteDatabase {
     /**
     * Tüm verilerin değerini Array içine ekler.
     * @example db.valueArray()
-    * @returns {Array<any>}
+    * @returns {Promise<Array<string[]>>}
     */
     async valueArray() {
         let arr = [];
