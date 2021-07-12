@@ -14,11 +14,8 @@ yarn add erax.db
 
 # Yenilikler
 ```npm
-- TypeScript'teki Bir Hata Düzeltildi.
-- filter Methodundaki Hata Düzeltildi.
-- unpush Methodu pull Olarak Değiştirildi.
-- Sqlite'deki Uzun Kodlar Kısaltıldı.
-- keyArray Ve valueArray Methodları Eklendi.
+- math Methoduna % Operatörü Eklendi.
+- Bilinen Hatalar Düzeltildi.
 ```
 
 # Uyarı
