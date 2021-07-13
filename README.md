@@ -29,34 +29,27 @@ yarn add erax.db
 - Node.JS'nin Sürümü 14'den Büyük Olmalıdır.
 ```
 
-# JSON Database
+# Kullanım
 
 ```js
+//JSON:
 const { JsonDatabase } = require("erax.db");
-const db = new JsonDatabase({ databasePath: "./MyJsonDatabase.json" });
-```
+const jsondb = new JsonDatabase({ databasePath: "./MyJsonDatabase.json" });
 
-# Yaml Database
-
-```js
+//Yaml
 const { YamlDatabase } = require("erax.db");
 const db = new YamlDatabase({ databasePath: "./MyYamlDatabase.yml" });
-```
 
-# Sqlite Database
-
-```js
+//SQlite
 const { SqliteDatabase } = require("erax.db");
 const db = new SqliteDatabase({ databasePath: "./MySqliteDatabase.sqlite" });
 
-//NOT: Bazen Hata Alabilirsiniz, Kafanıza Takmayın.
-```
-
-# Mongo Database
-
-```js
+//Mongo
 const { MongoDatabase } = require("erax.db");
 const db = new MongoDatabase({ mongoURL: "MongoDB URL'si" });
+
+
+//NOT: SQlite'de Hata Alırsanız Umursamayınız.
 ```
 
 # Methodlar
