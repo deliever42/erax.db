@@ -1,50 +1,54 @@
 {
-    "name": "erax.db",
-    "version": "2.6.5",
-    "description": "Gelişmiş Türkçe JSON, Yaml, Sqlite ve Mongo Database Modülü",
-    "main": "index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "emirhanbaltas34",
-    "license": "Apache-2.0",
-    "types": "index.ts",
-    "keywords": [
-        "erax.db",
-        "quick.db",
-        "wio.db",
-        "fast",
-        "quick",
-        "database",
-        "db",
-        "storage",
-        "turkish",
-        "json",
-        "yaml",
-        "sqlite3",
-        "sqlite",
-        "mongo",
-        "mongodb",
-        "mongoose",
-        "easy"
-    ],
-    "dependencies": {
-        "fs": "0.0.1-security",
-        "lodash": "^4.17.21",
-        "mongoose": "^5.13.2",
-        "sequelize": "^6.6.5",
-        "sqlite3": "^5.0.2",
-        "yaml": "^1.10.2"
-    },
-    "devDependencies": {
-        "@types/lodash": "^4.14.169",
-        "@types/mongoose": "^5.11.97",
-        "@types/node": "^14.14.45",
-        "@types/sequelize": "^4.28.10",
-        "@types/sqlite3": "^3.1.7"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/emirhanbaltas34/erax.db"
-    }
+  "name": "erax.db",
+  "version": "2.6.5",
+  "description": "Gelişmiş Türkçe JSON, Yaml, Sqlite ve Mongo Database Modülü",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "types": "index.ts",
+  "keywords": [
+     "erax.db",
+     "quick.db",
+     "wio.db",
+     "fast",
+     "quick",
+     "database",
+     "db",
+     "storage",
+     "turkish",
+     "json",
+     "yaml",
+     "sqlite3",
+     "sqlite",
+     "mongo",
+     "mongodb",
+     "mongoose",
+     "easy"
+  ],
+  "author": "emirhanbaltas34",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emirhanbaltas34/erax.db.git"
+  },
+  "bugs": {
+    "url": "https://github.com/emirhanbaltas34/erax.db/issues"
+  },
+  "homepage": "https://github.com/emirhanbaltas34/erax.db#readme",
+  "dependencies": {
+     "fs": "0.0.1-security",
+     "lodash": "^4.17.21",
+     "mongoose": "^5.13.2",
+     "sequelize": "^6.6.5",
+     "sqlite3": "^5.0.2",
+     "yaml": "^1.10.2"
+   },
+  "devDependencies": {
+     "@types/lodash": "^4.14.169",
+     "@types/mongoose": "^5.11.97",
+     "@types/node": "^14.14.45",
+     "@types/sequelize": "^4.28.10",
+     "@types/sqlite3": "^3.1.7"
+   }
 }
