@@ -20,12 +20,12 @@ module.exports = class SqliteDatabase {
             storage: this.dbPath
         });
 
-        const Config = sequelize.define("EraxDB", {
+        const table = sequelize.define("EraxDB", {
             key: { type: Sequelize.DataTypes.STRING, unique: true, allowNull: false },
             value: { type: Sequelize.DataTypes.JSON, unique: true, allowNull: false }
         })
 
-        this.sql = Config
+        this.sql = table
         this.sql.sync()
     };
 
