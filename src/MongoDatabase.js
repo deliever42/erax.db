@@ -19,8 +19,7 @@ module.exports = class MongoDatabase {
                 useUnifiedTopology: true,
                 useCreateIndex: true,
                 useFindAndModify: false,
-            })
-            .then(() => console.log("EraxDB => MongoDB'ye Bağlanıldı."));
+            });
 
         const Schema = new mongoose.Schema({
             key: {
@@ -35,7 +34,7 @@ module.exports = class MongoDatabase {
             },
         });
 
-        this.mongo = mongoose.model("EraxDB", Schema);
+        this.mongo = mongoose.models.EraxDB || mongoose.model("EraxDB", Schema);
     }
 
     /**
