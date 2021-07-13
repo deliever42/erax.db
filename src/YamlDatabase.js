@@ -8,8 +8,7 @@ module.exports = class YamlDatabase {
     this.dbPath = options.databasePath;
 
     if (!this.dbPath.startsWith("./")) this.dbPath = "./" + this.dbPath;
-    if (this.dbPath.endsWith(".yaml"))
-      this.dbPath = this.dbPath.split(".yaml")[0];
+    if (this.dbPath.endsWith(".yaml")) this.dbPath = this.dbPath.split(".yaml")[0];
     if (!this.dbPath.endsWith(".yml")) this.dbPath = this.dbPath + ".yml";
 
     this.dbName = this.dbPath.split("./").pop().split(".yml")[0];

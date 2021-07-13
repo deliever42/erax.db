@@ -30,7 +30,7 @@ module.exports = class JsonDatabase {
     if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
     if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
     _.set(this.data, key, value);
-    fs.writeFileSync(this.dbPath, JSON.stringify(this.data, null, 4));
+    fs.writeFileSync(this.dbPath, JSON.stringify(this.data, null, 2));
     return value;
   }
 
@@ -119,7 +119,7 @@ module.exports = class JsonDatabase {
     if (!key || key === "") return Error(`Bir Veri Belirmelisin.`);
     if (this.has(key) === false) return null;
     _.unset(this.data, key);
-    fs.writeFileSync(this.dbPath, JSON.stringify(this.data, null, 4));
+    fs.writeFileSync(this.dbPath, JSON.stringify(this.data, null, 2));
     return true;
   }
 
