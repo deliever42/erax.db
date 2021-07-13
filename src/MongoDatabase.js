@@ -414,7 +414,7 @@ module.exports = class MongoDatabase {
         if (this.arrayHas(key) === false) return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!"
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
 
-        let tag = await this.sql.findOne({ where: { key: key } })
+        let tag = await this.mongo.findOne({ key: key })
         let datavalue = await tag.get("value")
 
         if (await this.arrayHasValue(key, value) === false) return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Değer Belirttiğiniz Verinin Array'ında Bulunmuyor."
