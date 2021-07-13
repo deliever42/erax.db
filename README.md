@@ -1,9 +1,12 @@
-![Image](https://img.shields.io/npm/v/erax.db?color=%2351F9C0&label=erax.db) 
-![Image](https://img.shields.io/npm/dt/erax.db.svg?color=%2351FC0&maxAge=3600) 
+![Image](https://img.shields.io/npm/v/erax.db?color=%2351F9C0&label=erax.db)
+![Image](https://img.shields.io/npm/dt/erax.db.svg?color=%2351FC0&maxAge=3600)
+
 #
+
 ![Image](https://nodei.co/npm/erax.db.png?downloads=true&downloadRank=true&stars=true)
 
 # Nasıl Mı Yüklenir?
+
 ```npm
 NPM:
 npm install erax.db
@@ -13,6 +16,7 @@ yarn add erax.db
 ```
 
 # Yenilikler
+
 ```npm
 - math Methoduna % Operatörü Eklendi.
 - Bilinen Hatalar Düzeltildi.
@@ -20,37 +24,43 @@ yarn add erax.db
 ```
 
 # Uyarı
+
 ```npm
 - Node.JS'nin Sürümü 12'den Büyük Olmalıdır.
 ```
 
 # JSON Database
+
 ```js
-const { JsonDatabase } = require("erax.db")
-const db = new JsonDatabase({ databasePath: "./MyJsonDatabase.json" })
+const { JsonDatabase } = require("erax.db");
+const db = new JsonDatabase({ databasePath: "./MyJsonDatabase.json" });
 ```
 
 # Yaml Database
+
 ```js
-const { YamlDatabase } = require("erax.db")
-const db = new YamlDatabase({ databasePath: "./MyYamlDatabase.yml" })
+const { YamlDatabase } = require("erax.db");
+const db = new YamlDatabase({ databasePath: "./MyYamlDatabase.yml" });
 ```
 
 # Sqlite Database
+
 ```js
-const { SqliteDatabase } = require("erax.db")
-const db = new SqliteDatabase({ databasePath: "./MySqliteDatabase.sqlite" })
+const { SqliteDatabase } = require("erax.db");
+const db = new SqliteDatabase({ databasePath: "./MySqliteDatabase.sqlite" });
 
 //NOT: Bazen Hata Alabilirsiniz, Kafanıza Takmayın.
 ```
 
 # Mongo Database
+
 ```js
-const { MongoDatabase } = require("erax.db")
-const db = new MongoDatabase({ mongoURL: "MongoDB URL'si" })
+const { MongoDatabase } = require("erax.db");
+const db = new MongoDatabase({ mongoURL: "MongoDB URL'si" });
 ```
 
 # Methodlar
+
 ```js
 //Set & Fetch Methodları
 db.set("veri", "değer") //Belirttiğiniz veriyi kaydedersiniz.
