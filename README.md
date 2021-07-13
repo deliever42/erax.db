@@ -44,7 +44,7 @@ const db = new SqliteDatabase({ databasePath: "./MySqliteDatabase.sqlite" })
 //NOT: Bazen Hata Alabilirsiniz, Kafanıza Takmayın.
 ```
 
-# Sqlite Database
+# Mongo Database
 ```js
 const { MongoDatabase } = require("erax.db")
 const db = new MongoDatabase({ mongoURL: "MongoDB URL'si" })
