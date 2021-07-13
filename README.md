@@ -18,9 +18,7 @@ yarn add erax.db
 # Yenilikler
 
 ```npm
-- math Methoduna % Operatörü Eklendi.
-- Bilinen Hatalar Düzeltildi.
-- MongoDB Eklendi.
+- Mongo'daki Küçük Bir Hata Düzeltildi.
 ```
 
 # Uyarı
