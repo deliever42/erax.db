@@ -49,7 +49,7 @@ const { MongoDatabase } = require("erax.db");
 const db = new MongoDatabase({ mongoURL: "MongoDB URL'si" });
 
 
-//NOT: SQlite'de Hata Alırsanız Umursamayınız.
+//NOT: SQlite'de Hata Alırsanız Umursamayın.
 ```
 
 # Methodlar
