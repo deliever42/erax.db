@@ -22,7 +22,11 @@
         "json",
         "yaml",
         "sqlite3",
-        "sqlite"
+        "sqlite",
+        "mongo",
+        "mongodb",
+        "mongoose",
+        "easy"
     ],
     "dependencies": {
         "fs": "0.0.1-security",
