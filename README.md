@@ -26,7 +26,7 @@ yarn add erax.db
 # Uyarı
 
 ```npm
-- Node.JS'nin Sürümü 12'den Büyük Olmalıdır.
+- Node.JS'nin Sürümü 14'den Büyük Olmalıdır.
 ```
 
 # JSON Database
