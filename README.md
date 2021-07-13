@@ -32,21 +32,19 @@ yarn add erax.db
 # Kullanım
 
 ```js
-//JSON:
-const { JsonDatabase } = require("erax.db");
+const { JsonDatabase, YamlDatabase, SqliteDatabase, MongoDatabase } = require("erax.db");
+
+//JSON
 const jsondb = new JsonDatabase({ databasePath: "./MyJsonDatabase.json" });
 
 //Yaml
-const { YamlDatabase } = require("erax.db");
-const db = new YamlDatabase({ databasePath: "./MyYamlDatabase.yml" });
+const yamldb = new YamlDatabase({ databasePath: "./MyYamlDatabase.yml" });
 
 //SQlite
-const { SqliteDatabase } = require("erax.db");
-const db = new SqliteDatabase({ databasePath: "./MySqliteDatabase.sqlite" });
+const sqlitedb = new SqliteDatabase({ databasePath: "./MySqliteDatabase.sqlite" });
 
 //Mongo
-const { MongoDatabase } = require("erax.db");
-const db = new MongoDatabase({ mongoURL: "MongoDB URL'si" });
+const mongodb = new MongoDatabase({ mongoURL: "MongoDB URL'si" });
 
 
 //NOT: SQlite'de Hata Alırsanız Umursamayın.
