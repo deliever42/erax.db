@@ -16,6 +16,7 @@ yarn add erax.db
 ```npm
 - math Methoduna % Operatörü Eklendi.
 - Bilinen Hatalar Düzeltildi.
+- MongoDB Eklendi.
 ```
 
 # Uyarı
@@ -41,6 +42,12 @@ const { SqliteDatabase } = require("erax.db")
 const db = new SqliteDatabase({ databasePath: "./MySqliteDatabase.sqlite" })
 
 //NOT: Bazen Hata Alabilirsiniz, Kafanıza Takmayın.
+```
+
+# Sqlite Database
+```js
+const { MongoDatabase } = require("erax.db")
+const db = new MongoDatabase({ mongoURL: "MongoDB URL'si" })
 ```
 
 # Methodlar

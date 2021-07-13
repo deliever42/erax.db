@@ -1,7 +1,7 @@
 {
   "name": "erax.db",
   "version": "2.6.5",
-  "description": "Gelişmiş Türkçe JSON, Yaml ve Sqlite Database Modülü",
+  "description": "Gelişmiş Türkçe JSON, Yaml, Sqlite ve Mongo Database Modülü",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -27,6 +27,7 @@
   "dependencies": {
     "fs": "0.0.1-security",
     "lodash": "^4.17.21",
+    "mongoose": "^5.13.2",
     "sequelize": "^6.6.5",
     "sqlite3": "^5.0.2",
     "yaml": "^1.10.2"
@@ -35,7 +36,8 @@
     "@types/lodash": "^4.14.169",
     "@types/node": "^14.14.45",
     "@types/sqlite3": "^3.1.7",
-    "@types/sequelize": "^4.28.10"
+    "@types/sequelize": "^4.28.10",
+    "@types/mongoose": "^5.11.97"
   },
   "repository": {
     "type": "git",
