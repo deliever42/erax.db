@@ -197,6 +197,7 @@ declare module "erax.db" {
         public dbName: string;
         public data: { [key: string]: any };
         private mongo: string;
+        public url: string;
         public set(key: string, value: any): Promise<any>;
         public fetch(key: string): Promise<any>;
         public get(key: string): Promise<any>;
