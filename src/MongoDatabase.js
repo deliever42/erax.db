@@ -1,33 +1,42 @@
-const Sequelize = require("sequelize");
+const mongoose = require("mongoose");
 const Error = require("./Error");
 const _ = require("lodash")
 
-module.exports = class SqliteDatabase {
-    constructor(options = { databasePath: "./database.sqlite" }) {
+module.exports = class MongoDatabase {
+    constructor(options = { mongoURL }) {
 
-        this.dbPath = options.databasePath;
+        if (!options.mongoURL) return Error("MongoDB URL'si Bulunamadı!")
+        if (!options.mongoURL.match(/^mongodb([a-z+]{0,15})?.+/g)) return Error("Geçersiz MongoDB URL'si!")
 
-        if (!this.dbPath.startsWith('./')) this.dbPath = "./" + this.dbPath
-        if (!this.dbPath.endsWith(".sqlite")) this.dbPath = this.dbPath + ".sqlite"
-
-        this.dbName = this.dbPath.split("./").pop().split(".sqlite")[0];
+        this.url = options.mongoURL;
         this.data = {};
 
-        const sequelize = new Sequelize.Sequelize("database", "user", "password", {
-            host: "localhost",
-            dialect: "sqlite",
-            logging: false,
-            storage: this.dbPath
-        });
+        this.dbName = this.url.split("mongodb.net/")[1].split("?")[0]
 
-        const table = sequelize.define("EraxDB", {
-            key: { type: Sequelize.DataTypes.STRING, unique: true, allowNull: false },
-            value: { type: Sequelize.DataTypes.JSON, unique: true, allowNull: false }
+        mongoose.connect(this.url, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useCreateIndex: true,
+            useFindAndModify: false
+        }).then(() => console.log("EraxDB => MongoDB'ye Bağlanıldı."))
+
+        const Schema = new mongoose.Schema({
+            key: {
+                type: mongoose.Schema.Types.String,
+                unique: true,
+                required: true
+            },
+            value: {
+                type: mongoose.Schema.Types.Mixed,
+                unique: true,
+                required: true
+            }
         })
 
-        this.sql = table
-        this.sql.sync()
+        this.mongo = mongoose.model("EraxDB", Schema)
+
     };
+
 
     /**
       * Belirttiğiniz veriyi kaydedersiniz.
@@ -43,13 +52,13 @@ module.exports = class SqliteDatabase {
         Object.entries(this.data).forEach(async entry => {
             let [key, value] = entry
 
-            let tag = await this.sql.findOne({ where: { key: key } })
+            let tag = await this.mongo.findOne({ key: key })
             if (!tag) {
-                await this.sql.create({ key: key, value: value })
+                await this.mongo.create({ key: key, value: value })
                 this.data = {}
                 return value
             } else {
-                await this.sql.update({ value: value }, { where: { key: key } })
+                await this.mongo.updateOne({ key: key }, { value: value })
                 this.data = {}
                 return value
             }
@@ -57,11 +66,11 @@ module.exports = class SqliteDatabase {
     };
 
     /**
-     * Belirttiğiniz veri varmı/yokmu kontrol eder.
-     * @param {string} key Veri
-     * @example await db.has("key");
-     * @returns {Promise<boolean>}
-     */
+    * Belirttiğiniz veri varmı/yokmu kontrol eder.
+    * @param {string} key Veri
+    * @example await db.has("key");
+    * @returns {Promise<boolean>}
+    */
     async has(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
         if (await this.get(key)) return true;
@@ -74,13 +83,7 @@ module.exports = class SqliteDatabase {
     * @returns {Promise<boolean>}
     */
     async deleteAll() {
-        await this.sql.findAll().then(async datas => {
-            datas.forEach(async obj => {
-
-                let key = await obj.dataValues.key
-                await this.delete(key)
-            })
-        })
+        await this.mongo.deleteMany({});
         return true;
     };
 
@@ -92,7 +95,7 @@ module.exports = class SqliteDatabase {
     */
     async fetch(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
-        let tag = await this.sql.findOne({ where: { key: key } })
+        let tag = await this.mongo.findOne({ key: key })
         if (!tag) return null
         return await tag.get("value")
     };
@@ -129,8 +132,10 @@ module.exports = class SqliteDatabase {
     */
     async delete(key) {
         if (!key || key === "") return Error(`Bir Veri Belirmelisin.`)
-        if (this.has(key) === false) return null;
-        await this.sql.destroy({ where: { key: key } })
+        let tag = await this.mongo.findOne({ key: key })
+        if (!tag) return null
+        let value = await tag.get("value")
+        await this.mongo.deleteOne({ key: key }, { value: value })
         return true
     };
 
@@ -142,11 +147,11 @@ module.exports = class SqliteDatabase {
     async fetchAll() {
         let arr = [];
 
-        await this.sql.findAll().then(async data => {
+        await this.mongo.find().then(async data => {
             data.forEach(async obj => {
 
-                let key = await obj.dataValues.key
-                let value = await obj.dataValues.value
+                let key = await obj.key
+                let value = await obj.value
 
                 const data = {
                     ID: key,
@@ -157,7 +162,7 @@ module.exports = class SqliteDatabase {
         })
 
         return arr;
-    };
+    }
 
     /**
     * Tüm verileri Array içine ekler.
@@ -167,11 +172,11 @@ module.exports = class SqliteDatabase {
     async all() {
         let arr = [];
 
-        await this.sql.findAll().then(async data => {
+        await this.mongo.find().then(async data => {
             data.forEach(async obj => {
 
-                let key = await obj.dataValues.key
-                let value = await obj.dataValues.value
+                let key = await obj.key
+                let value = await obj.value
 
                 const data = {
                     ID: key,
@@ -249,14 +254,14 @@ module.exports = class SqliteDatabase {
       * @example db.info();
       * @returns {{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "json" | "yaml" | "sqlite" }}
       */
-    info() {
+    async info() {
         let p = require("../package.json")
 
         return {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
             ToplamVeriSayısı: this.size(),
-            DatabaseTürü: "sqlite"
+            DatabaseTürü: "mongo"
         }
     }
 
@@ -301,10 +306,10 @@ module.exports = class SqliteDatabase {
      */
     async deleteEach(value) {
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.")
-        await this.sql.findAll().then(async data => {
+        await this.mongo.find().then(async data => {
             data.forEach(async obj => {
 
-                let key = await obj.dataValues.key
+                let key = await obj.key
                 if (!key.includes(value)) return
 
                 this.delete(key)
@@ -322,11 +327,11 @@ module.exports = class SqliteDatabase {
     */
     async filter(callbackfn) {
         let arr = []
-        await this.sql.findAll().then(async data => {
+        await this.mongo.find().then(async data => {
             data.forEach(async obj => {
 
-                let key = await obj.dataValues.key
-                let datavalue = await obj.dataValues.value
+                let key = await obj.key
+                let datavalue = await obj.value
 
                 const data = {
                     ID: key,
@@ -351,7 +356,7 @@ module.exports = class SqliteDatabase {
         if (await this.has(key) === false) return await this.set(key, [value]);
         else if (await this.arrayHas(key) === true && await this.has(key) === true) {
 
-            let tag = await this.sql.findOne({ where: { key: key } })
+            let tag = await this.mongo.findOne({ key: key })
             let yenivalue = await tag.get("value")
 
             yenivalue.push(value)
@@ -371,7 +376,7 @@ module.exports = class SqliteDatabase {
     */
     async arrayHas(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
-        let tag = await this.sql.findOne({ where: { key: key } })
+        let tag = await this.mongo.findOne({ key: key })
         let datavalue = await tag.get("value")
         if (Array.isArray(await datavalue)) return true;
         return false;
@@ -390,7 +395,7 @@ module.exports = class SqliteDatabase {
         if (await this.has(key) === false) return null;
         if (await this.arrayHas(key) === false) return "EraxDB => Bir Hata Oluştu: Belirtilen Verinin Tipi Array Olmak Zorundadır!"
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
-        let tag = await this.sql.findOne({ where: { key: key } })
+        let tag = await this.mongo.findOne({ key: key })
         let datavalue = await tag.get("value")
         if (await datavalue.indexOf(value) > -1) return true
         return false
@@ -426,10 +431,10 @@ module.exports = class SqliteDatabase {
     async size() {
         let arr = [];
 
-        await this.sql.findAll().then(async data => {
+        await this.mongo.find().then(async data => {
             data.forEach(async obj => {
 
-                let key = await obj.dataValues.key
+                let key = await obj.key
                 arr.push(key)
             })
         })
@@ -445,10 +450,10 @@ module.exports = class SqliteDatabase {
     async keyArray() {
         let arr = [];
 
-        await this.sql.findAll().then(async data => {
+        await this.mongo.find().then(async data => {
             data.forEach(async obj => {
 
-                let key = await obj.dataValues.key
+                let key = await obj.key
                 arr.push(key)
             })
         })
@@ -464,10 +469,10 @@ module.exports = class SqliteDatabase {
     async valueArray() {
         let arr = [];
 
-        await this.sql.findAll().then(async data => {
+        await this.mongo.find().then(async data => {
             data.forEach(async obj => {
 
-                let value = await obj.dataValues.value
+                let value = await obj.value
                 arr.push(value)
             })
         })
