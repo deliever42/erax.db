@@ -19,6 +19,7 @@ yarn add erax.db
 
 ```npm
 - Bilinen Hatalar Düzeltildi.
+- SQlite ve Mongo'ya import ve export Methodları Eklendi.
 ```
 
 # Uyarı
@@ -44,8 +45,7 @@ const sqlitedb = new SqliteDatabase({ databasePath: "./MySqliteDatabase.sqlite" 
 //Mongo
 const mongodb = new MongoDatabase({ mongoURL: "MongoDB URL'si" });
 
-
-//NOT: SQlite'de Hata Alırsanız Umursamayın.
+//NOT: SQlite'de İlk Kullanım Sırasında Hata Alabilirsiniz.
 ```
 
 # Methodlar
@@ -88,6 +88,12 @@ db.subtract("veri" 1) //Belirttiğiniz veriden 1 çıkarır.
 db.info() //Database bilgilerini öğrenirsiniz.
 db.size() //Database'deki verilerin sayısını atar.
 db.type("veri") //Belirttiğiniz verinin tipini öğrenirsiniz.
+
+//SQlite ve Mongo İçin Methodlar
+await db.export() //Belirtilen JSON dosyasına verileri export eder.
+await db.import() //Belirtilen JSON dosyasından verileri import eder.
+
+//NOT: Mongo ve SQlite'de Methodları Kullanırken await Kullanmayı Unutmayın.
 ```
 
 #### Hata Bildirmek İçin Discord Üzerinden Emirhan77#0001'e Ulaşabilirsiniz.

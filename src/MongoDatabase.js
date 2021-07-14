@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Error = require("./Error");
 const _ = require("lodash");
+const fs = require("fs");
 
 module.exports = class MongoDatabase {
     constructor(options = { mongoURL }) {
@@ -325,11 +326,11 @@ module.exports = class MongoDatabase {
         await this.mongo.find().then(async (data) => {
             data.forEach(async (obj) => {
                 let key = await obj.key;
-                let datavalue = await obj.value;
+                let value = await obj.value;
 
                 const data = {
                     ID: key,
-                    data: datavalue
+                    data: value
                 };
                 arr.push(data);
             });
@@ -370,8 +371,8 @@ module.exports = class MongoDatabase {
     async arrayHas(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
         let tag = await this.mongo.findOne({ key: key });
-        let datavalue = await tag.get("value");
-        if (Array.isArray(await datavalue)) return true;
+        let value = await tag.get("value");
+        if (Array.isArray(await value)) return true;
         return false;
     }
 
@@ -471,5 +472,48 @@ module.exports = class MongoDatabase {
         });
 
         return arr;
+    }
+
+    /**
+     * Belirtilen JSON dosyasından verileri import eder.
+     * @param {string} path Dosya
+     * @example await db.import("./database.json")
+     * @returns {Promise<boolean>}
+     */
+    async import(path = "./database.json") {
+        if (!path.startsWith("./")) path = "./" + path;
+        if (!path.endsWith(".json")) path = path + ".json";
+
+        let file = JSON.parse(fs.readFileSync(path, "utf-8"));
+
+        Object.entries(file).forEach(async (entry) => {
+            let [key, value] = entry;
+            await this.set(key, value);
+        });
+        return true;
+    }
+
+    /**
+     * Belirtilen JSON dosyasına verileri export eder.
+     * @param {string} path Dosya
+     * @example await db.export("./database.json")
+     * @returns {Promise<boolean>}
+     */
+    async export(path = "./database.json") {
+        if (!path.startsWith("./")) path = "./" + path;
+        if (!path.endsWith(".json")) path = path + ".json";
+
+        await this.mongo.find().then(async (data) => {
+            data.forEach(async (obj) => {
+                let key = await obj.key;
+                let value = await obj.value;
+
+                _.set(this.data, key, value);
+                fs.writeFileSync(path, JSON.stringify(this.data, null, 4));
+            });
+        });
+
+        this.data = {};
+        return true;
     }
 };

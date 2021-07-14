@@ -1,6 +1,7 @@
 const Sequelize = require("sequelize");
 const Error = require("./Error");
 const _ = require("lodash");
+const fs = require("fs");
 
 module.exports = class SqliteDatabase {
     constructor(options = { databasePath: "./database.sqlite" }) {
@@ -328,11 +329,11 @@ module.exports = class SqliteDatabase {
         await this.sql.findAll().then(async (data) => {
             data.forEach(async (obj) => {
                 let key = await obj.dataValues.key;
-                let datavalue = await obj.dataValues.value;
+                let value = await obj.dataValues.value;
 
                 const data = {
                     ID: key,
-                    data: datavalue
+                    data: value
                 };
                 arr.push(data);
             });
@@ -373,8 +374,8 @@ module.exports = class SqliteDatabase {
     async arrayHas(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
         let tag = await this.sql.findOne({ where: { key: key } });
-        let datavalue = await tag.get("value");
-        if (Array.isArray(await datavalue)) return true;
+        let value = await tag.get("value");
+        if (Array.isArray(await value)) return true;
         return false;
     }
 
@@ -474,5 +475,48 @@ module.exports = class SqliteDatabase {
         });
 
         return arr;
+    }
+
+    /**
+     * Belirtilen JSON dosyasından verileri import eder.
+     * @param {string} path Dosya
+     * @example await db.import("./database.json")
+     * @returns {Promise<boolean>}
+     */
+    async import(path = "./database.json") {
+        if (!path.startsWith("./")) path = "./" + path;
+        if (!path.endsWith(".json")) path = path + ".json";
+
+        let file = JSON.parse(fs.readFileSync(path, "utf-8"));
+
+        Object.entries(file).forEach(async (entry) => {
+            let [key, value] = entry;
+            await this.set(key, value);
+        });
+        return true;
+    }
+
+    /**
+     * Belirtilen JSON dosyasına verileri export eder.
+     * @param {string} path Dosya
+     * @example await db.export("./database.json")
+     * @returns {Promise<boolean>}
+     */
+    async export(path = "./database.json") {
+        if (!path.startsWith("./")) path = "./" + path;
+        if (!path.endsWith(".json")) path = path + ".json";
+
+        await this.sql.findAll().then(async (data) => {
+            data.forEach(async (obj) => {
+                let key = await obj.dataValues.key;
+                let value = await obj.dataValues.value;
+
+                _.set(this.data, key, value);
+                fs.writeFileSync(path, JSON.stringify(this.data, null, 4));
+            });
+        });
+
+        this.data = {};
+        return true;
     }
 };

@@ -207,6 +207,8 @@ declare module "erax.db" {
         public info(): Promise<Info<"mongo">>;
         public keyArray(): Promise<Array<string[]>>;
         public valueArray(): Promise<Array<any[]>>;
+        public import(path: string): Promise<boolean>;
+        public export(path: string): Promise<boolean>;
     }
 
     export interface Info<T> {
