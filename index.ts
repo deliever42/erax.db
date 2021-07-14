@@ -58,7 +58,7 @@ declare module "erax.db" {
                 array: Array<allData>
             ) => boolean
         ): Array<allData>;
-        public info(): Info;
+        public info(): Info<"json">;
         public keyArray(): Array<string[]>;
         public valueArray(): Array<any[]>;
     }
@@ -122,7 +122,7 @@ declare module "erax.db" {
                 array: Array<allData>
             ) => boolean
         ): Array<allData>;
-        public info(): Info;
+        public info(): Info<"yaml">;
         public keyArray(): Array<string[]>;
         public valueArray(): Array<any[]>;
     }
@@ -187,7 +187,7 @@ declare module "erax.db" {
                 array: Array<allData>
             ) => boolean
         ): Promise<Array<allData>>;
-        public info(): Info;
+        public info(): Promise<Info<"sqlite">>;
         public keyArray(): Promise<Array<string[]>>;
         public valueArray(): Promise<Array<any[]>>;
     }
@@ -252,16 +252,16 @@ declare module "erax.db" {
                 array: Array<allData>
             ) => boolean
         ): Promise<Array<allData>>;
-        public info(): Info;
+        public info(): Promise<Info<"mongo">>;
         public keyArray(): Promise<Array<string[]>>;
         public valueArray(): Promise<Array<any[]>>;
     }
 
-    export interface Info {
+    export interface Info<T> {
         Sürüm: number;
         DatabaseAdı: string;
         ToplamVeriSayısı: number;
-        DatabaseTürü: "json" | "yaml" | "sqlite";
+        DatabaseTürü: T;
     }
 
     export interface allData {
