@@ -17,20 +17,20 @@ module.exports = class MongoDatabase {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useCreateIndex: true,
-            useFindAndModify: false,
+            useFindAndModify: false
         });
 
         const Schema = new mongoose.Schema({
             key: {
                 type: mongoose.Schema.Types.String,
                 unique: true,
-                required: true,
+                required: true
             },
             value: {
                 type: mongoose.Schema.Types.Mixed,
                 unique: true,
-                required: true,
-            },
+                required: true
+            }
         });
 
         this.mongo = mongoose.models.EraxDB || mongoose.model("EraxDB", Schema);
@@ -152,7 +152,7 @@ module.exports = class MongoDatabase {
 
                 const data = {
                     ID: key,
-                    data: value,
+                    data: value
                 };
                 arr.push(data);
             });
@@ -176,7 +176,7 @@ module.exports = class MongoDatabase {
 
                 const data = {
                     ID: key,
-                    data: value,
+                    data: value
                 };
                 arr.push(data);
             });
@@ -196,8 +196,7 @@ module.exports = class MongoDatabase {
      */
     async math(key, operator, value, goToNegative = false) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
-        if (!operator || operator === "")
-            return Error("Bir İşlem Belirtmelisin. (- + * /)");
+        if (!operator || operator === "") return Error("Bir İşlem Belirtmelisin. (- + * /)");
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
         if (isNaN(value)) return Error(`Değer Sadece Sayıdan Oluşabilir!`);
 
@@ -258,7 +257,7 @@ module.exports = class MongoDatabase {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
             ToplamVeriSayısı: await this.size(),
-            DatabaseTürü: "mongo",
+            DatabaseTürü: "mongo"
         };
     }
 
@@ -330,7 +329,7 @@ module.exports = class MongoDatabase {
 
                 const data = {
                     ID: key,
-                    data: datavalue,
+                    data: datavalue
                 };
                 arr.push(data);
             });
@@ -348,20 +347,13 @@ module.exports = class MongoDatabase {
      * @returns {Promise<Array<string[]>>}
      */
     async push(key, value, valueIgnoreIfPresent = true) {
-        if ((await this.has(key)) === false)
-            return await this.set(key, [value]);
-        else if (
-            (await this.arrayHas(key)) === true &&
-            (await this.has(key)) === true
-        ) {
+        if ((await this.has(key)) === false) return await this.set(key, [value]);
+        else if ((await this.arrayHas(key)) === true && (await this.has(key)) === true) {
             let tag = await this.mongo.findOne({ key: key });
             let yenivalue = await tag.get("value");
 
             yenivalue.push(value);
-            if (
-                (await this.arrayHasValue(key, value)) === true &&
-                valueIgnoreIfPresent === true
-            )
+            if ((await this.arrayHasValue(key, value)) === true && valueIgnoreIfPresent === true)
                 return "EraxDB => Bir Hata Oluştu: Şartlar Uygun Olmadığı İçin Veri Pushlanmadı.";
             return await this.set(key, yenivalue);
         } else {

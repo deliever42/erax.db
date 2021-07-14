@@ -8,8 +8,7 @@ module.exports = class YamlDatabase {
         this.dbPath = options.databasePath;
 
         if (!this.dbPath.startsWith("./")) this.dbPath = "./" + this.dbPath;
-        if (this.dbPath.endsWith(".yaml"))
-            this.dbPath = this.dbPath.split(".yaml")[0];
+        if (this.dbPath.endsWith(".yaml")) this.dbPath = this.dbPath.split(".yaml")[0];
         if (!this.dbPath.endsWith(".yml")) this.dbPath = this.dbPath + ".yml";
 
         this.dbName = this.dbPath.split("./").pop().split(".yml")[0];
@@ -146,7 +145,7 @@ module.exports = class YamlDatabase {
             const [key, value] = entry;
             const data = {
                 ID: key,
-                data: value,
+                data: value
             };
             arr.push(data);
         });
@@ -208,10 +207,7 @@ module.exports = class YamlDatabase {
         else if (this.arrayHas(key) === true && this.has(key) === true) {
             let yenivalue = this.get(key);
             yenivalue.push(value);
-            if (
-                this.arrayHasValue(key, yenivalue) &&
-                valueIgnoreIfPresent === true
-            )
+            if (this.arrayHasValue(key, yenivalue) && valueIgnoreIfPresent === true)
                 return "EraxDB => Bir Hata Oluştu: Şartlar Uygun Olmadığı İçin Veri Pushlanmadı.";
             return this.set(key, yenivalue);
         } else {
@@ -230,8 +226,7 @@ module.exports = class YamlDatabase {
      */
     math(key, operator, value, goToNegative = false) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
-        if (!operator || operator === "")
-            return Error("Bir İşlem Belirtmelisin. (- + * /)");
+        if (!operator || operator === "") return Error("Bir İşlem Belirtmelisin. (- + * /)");
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
         if (isNaN(value)) return Error(`Değer Sadece Sayıdan Oluşabilir!`);
 
@@ -304,7 +299,7 @@ module.exports = class YamlDatabase {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
             ToplamVeriSayısı: this.size(),
-            DatabaseTürü: "yaml",
+            DatabaseTürü: "yaml"
         };
     }
 

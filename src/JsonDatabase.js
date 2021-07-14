@@ -143,7 +143,7 @@ module.exports = class JsonDatabase {
             const [key, value] = entry;
             const data = {
                 ID: key,
-                data: value,
+                data: value
             };
             arr.push(data);
         });
@@ -205,10 +205,7 @@ module.exports = class JsonDatabase {
         else if (this.arrayHas(key) === true && this.has(key) === true) {
             let yenivalue = this.get(key);
             yenivalue.push(value);
-            if (
-                this.arrayHasValue(key, yenivalue) &&
-                valueIgnoreIfPresent === true
-            )
+            if (this.arrayHasValue(key, yenivalue) && valueIgnoreIfPresent === true)
                 return "EraxDB => Bir Hata Oluştu: Şartlar Uygun Olmadığı İçin Veri Pushlanmadı.";
             return this.set(key, yenivalue);
         } else {
@@ -227,8 +224,7 @@ module.exports = class JsonDatabase {
      */
     math(key, operator, value, goToNegative = false) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
-        if (!operator || operator === "")
-            return Error("Bir İşlem Belirtmelisin. (- + * /)");
+        if (!operator || operator === "") return Error("Bir İşlem Belirtmelisin. (- + * /)");
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
         if (isNaN(value)) return Error(`Değer Sadece Sayıdan Oluşabilir!`);
 
@@ -301,7 +297,7 @@ module.exports = class JsonDatabase {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
             ToplamVeriSayısı: this.size(),
-            DatabaseTürü: "json",
+            DatabaseTürü: "json"
         };
     }
 

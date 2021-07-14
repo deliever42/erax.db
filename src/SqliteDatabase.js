@@ -7,35 +7,29 @@ module.exports = class SqliteDatabase {
         this.dbPath = options.databasePath;
 
         if (!this.dbPath.startsWith("./")) this.dbPath = "./" + this.dbPath;
-        if (!this.dbPath.endsWith(".sqlite"))
-            this.dbPath = this.dbPath + ".sqlite";
+        if (!this.dbPath.endsWith(".sqlite")) this.dbPath = this.dbPath + ".sqlite";
 
         this.dbName = this.dbPath.split("./").pop().split(".sqlite")[0];
         this.data = {};
 
-        const sequelize = new Sequelize.Sequelize(
-            "database",
-            "user",
-            "password",
-            {
-                host: "localhost",
-                dialect: "sqlite",
-                logging: false,
-                storage: this.dbPath,
-            }
-        );
+        const sequelize = new Sequelize.Sequelize("database", "user", "password", {
+            host: "localhost",
+            dialect: "sqlite",
+            logging: false,
+            storage: this.dbPath
+        });
 
         const table = sequelize.define("EraxDB", {
             key: {
                 type: Sequelize.DataTypes.STRING,
                 unique: true,
-                allowNull: false,
+                allowNull: false
             },
             value: {
                 type: Sequelize.DataTypes.JSON,
                 unique: true,
-                allowNull: false,
-            },
+                allowNull: false
+            }
         });
 
         this.sql = table;
@@ -62,10 +56,7 @@ module.exports = class SqliteDatabase {
                 this.data = {};
                 return value;
             } else {
-                await this.sql.update(
-                    { value: value },
-                    { where: { key: key } }
-                );
+                await this.sql.update({ value: value }, { where: { key: key } });
                 this.data = {};
                 return value;
             }
@@ -164,7 +155,7 @@ module.exports = class SqliteDatabase {
 
                 const data = {
                     ID: key,
-                    data: value,
+                    data: value
                 };
                 arr.push(data);
             });
@@ -188,7 +179,7 @@ module.exports = class SqliteDatabase {
 
                 const data = {
                     ID: key,
-                    data: value,
+                    data: value
                 };
                 arr.push(data);
             });
@@ -208,8 +199,7 @@ module.exports = class SqliteDatabase {
      */
     async math(key, operator, value, goToNegative = false) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
-        if (!operator || operator === "")
-            return Error("Bir İşlem Belirtmelisin. (- + * /)");
+        if (!operator || operator === "") return Error("Bir İşlem Belirtmelisin. (- + * /)");
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
         if (isNaN(value)) return Error(`Değer Sadece Sayıdan Oluşabilir!`);
 
@@ -270,7 +260,7 @@ module.exports = class SqliteDatabase {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
             ToplamVeriSayısı: await this.size(),
-            DatabaseTürü: "sqlite",
+            DatabaseTürü: "sqlite"
         };
     }
 
@@ -342,7 +332,7 @@ module.exports = class SqliteDatabase {
 
                 const data = {
                     ID: key,
-                    data: datavalue,
+                    data: datavalue
                 };
                 arr.push(data);
             });
@@ -360,20 +350,13 @@ module.exports = class SqliteDatabase {
      * @returns {Promise<Array<string[]>>}
      */
     async push(key, value, valueIgnoreIfPresent = true) {
-        if ((await this.has(key)) === false)
-            return await this.set(key, [value]);
-        else if (
-            (await this.arrayHas(key)) === true &&
-            (await this.has(key)) === true
-        ) {
+        if ((await this.has(key)) === false) return await this.set(key, [value]);
+        else if ((await this.arrayHas(key)) === true && (await this.has(key)) === true) {
             let tag = await this.sql.findOne({ where: { key: key } });
             let yenivalue = await tag.get("value");
 
             yenivalue.push(value);
-            if (
-                (await this.arrayHasValue(key, value)) === true &&
-                valueIgnoreIfPresent === true
-            )
+            if ((await this.arrayHasValue(key, value)) === true && valueIgnoreIfPresent === true)
                 return "EraxDB => Bir Hata Oluştu: Şartlar Uygun Olmadığı İçin Veri Pushlanmadı.";
             return await this.set(key, yenivalue);
         } else {

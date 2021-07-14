@@ -9,11 +9,7 @@ declare module "erax.db" {
         public get(key: string): any;
         public destroy(): boolean;
         public add(key: string, value: number): any;
-        public subtract(
-            key: string,
-            value: number,
-            goToNegative?: boolean
-        ): any;
+        public subtract(key: string, value: number, goToNegative?: boolean): any;
         public has(key: string): boolean;
         public arrayHas(key: string): boolean;
         public arrayHasValue(key: string, value: any): boolean;
@@ -21,11 +17,7 @@ declare module "erax.db" {
         public fetchAll(): Array<allData>;
         public all(): Array<allData>;
         public size(): number;
-        public push(
-            key: string,
-            value: any,
-            valueIgnoreIfPresent?: boolean
-        ): Array<any[]>;
+        public push(key: string, value: any, valueIgnoreIfPresent?: boolean): Array<any[]>;
         public math(
             key: string,
             operator: "+" | "-" | "*" | "/" | "%",
@@ -52,11 +44,7 @@ declare module "erax.db" {
             | "bigint";
         public pull(key: string, value: any): Array<any[]>;
         public filter(
-            callbackfn: (
-                element: allData,
-                index: number,
-                array: Array<allData>
-            ) => boolean
+            callbackfn: (element: allData, index: number, array: Array<allData>) => boolean
         ): Array<allData>;
         public info(): Info<"json">;
         public keyArray(): Array<string[]>;
@@ -73,11 +61,7 @@ declare module "erax.db" {
         public get(key: string): any;
         public destroy(): boolean;
         public add(key: string, value: number): any;
-        public subtract(
-            key: string,
-            value: number,
-            goToNegative?: boolean
-        ): any;
+        public subtract(key: string, value: number, goToNegative?: boolean): any;
         public has(key: string): boolean;
         public arrayHas(key: string): boolean;
         public arrayHasValue(key: string, value: any): boolean;
@@ -85,11 +69,7 @@ declare module "erax.db" {
         public fetchAll(): Array<allData>;
         public all(): Array<allData>;
         public size(): number;
-        public push(
-            key: string,
-            value: any,
-            valueIgnoreIfPresent?: boolean
-        ): Array<any[]>;
+        public push(key: string, value: any, valueIgnoreIfPresent?: boolean): Array<any[]>;
         public math(
             key: string,
             operator: "+" | "-" | "*" | "/" | "%",
@@ -116,11 +96,7 @@ declare module "erax.db" {
             | "bigint";
         public pull(key: string, value: any): Array<any[]>;
         public filter(
-            callbackfn: (
-                element: allData,
-                index: number,
-                array: Array<allData>
-            ) => boolean
+            callbackfn: (element: allData, index: number, array: Array<allData>) => boolean
         ): Array<allData>;
         public info(): Info<"yaml">;
         public keyArray(): Array<string[]>;
@@ -137,11 +113,7 @@ declare module "erax.db" {
         public fetch(key: string): Promise<any>;
         public get(key: string): Promise<any>;
         public add(key: string, value: number): Promise<any>;
-        public subtract(
-            key: string,
-            value: number,
-            goToNegative?: boolean
-        ): Promise<any>;
+        public subtract(key: string, value: number, goToNegative?: boolean): Promise<any>;
         public has(key: string): Promise<boolean>;
         public arrayHas(key: string): Promise<boolean>;
         public arrayHasValue(key: string, value: any): Promise<boolean>;
@@ -149,11 +121,7 @@ declare module "erax.db" {
         public fetchAll(): Promise<Array<allData>>;
         public all(): Promise<Array<allData>>;
         public size(): Promise<number>;
-        public push(
-            key: string,
-            value: any,
-            valueIgnoreIfPresent?: boolean
-        ): Promise<Array<any[]>>;
+        public push(key: string, value: any, valueIgnoreIfPresent?: boolean): Promise<Array<any[]>>;
         public math(
             key: string,
             operator: "+" | "-" | "*" | "/" | "%",
@@ -181,11 +149,7 @@ declare module "erax.db" {
         >;
         public pull(key: string, value: any): Promise<Array<any[]>>;
         public filter(
-            callbackfn: (
-                element: allData,
-                index: number,
-                array: Array<allData>
-            ) => boolean
+            callbackfn: (element: allData, index: number, array: Array<allData>) => boolean
         ): Promise<Array<allData>>;
         public info(): Promise<Info<"sqlite">>;
         public keyArray(): Promise<Array<string[]>>;
@@ -202,11 +166,7 @@ declare module "erax.db" {
         public fetch(key: string): Promise<any>;
         public get(key: string): Promise<any>;
         public add(key: string, value: number): Promise<any>;
-        public subtract(
-            key: string,
-            value: number,
-            goToNegative?: boolean
-        ): Promise<any>;
+        public subtract(key: string, value: number, goToNegative?: boolean): Promise<any>;
         public has(key: string): Promise<boolean>;
         public arrayHas(key: string): Promise<boolean>;
         public arrayHasValue(key: string, value: any): Promise<boolean>;
@@ -214,11 +174,7 @@ declare module "erax.db" {
         public fetchAll(): Promise<Array<allData>>;
         public all(): Promise<Array<allData>>;
         public size(): Promise<number>;
-        public push(
-            key: string,
-            value: any,
-            valueIgnoreIfPresent?: boolean
-        ): Promise<Array<any[]>>;
+        public push(key: string, value: any, valueIgnoreIfPresent?: boolean): Promise<Array<any[]>>;
         public math(
             key: string,
             operator: "+" | "-" | "*" | "/" | "%",
@@ -246,11 +202,7 @@ declare module "erax.db" {
         >;
         public pull(key: string, value: any): Promise<Array<any[]>>;
         public filter(
-            callbackfn: (
-                element: allData,
-                index: number,
-                array: Array<allData>
-            ) => boolean
+            callbackfn: (element: allData, index: number, array: Array<allData>) => boolean
         ): Promise<Array<allData>>;
         public info(): Promise<Info<"mongo">>;
         public keyArray(): Promise<Array<string[]>>;
