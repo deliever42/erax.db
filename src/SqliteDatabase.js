@@ -261,15 +261,15 @@ module.exports = class SqliteDatabase {
     /**
      * Database bilgilerini öğrenirsiniz.
      * @example db.info();
-     * @returns {{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "json" | "yaml" | "sqlite" }}
+     * @returns {Promise<{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "sqlite" }>}
      */
-    info() {
+    async info() {
         let p = require("../package.json");
 
         return {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
-            ToplamVeriSayısı: this.size(),
+            ToplamVeriSayısı: await this.size(),
             DatabaseTürü: "sqlite",
         };
     }

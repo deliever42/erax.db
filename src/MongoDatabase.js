@@ -13,13 +13,12 @@ module.exports = class MongoDatabase {
 
         this.dbName = this.url.split("mongodb.net/")[1].split("?")[0];
 
-        mongoose
-            .connect(this.url, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-                useCreateIndex: true,
-                useFindAndModify: false,
-            });
+        mongoose.connect(this.url, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useCreateIndex: true,
+            useFindAndModify: false,
+        });
 
         const Schema = new mongoose.Schema({
             key: {
@@ -249,8 +248,8 @@ module.exports = class MongoDatabase {
 
     /**
      * Database bilgilerini öğrenirsiniz.
-     * @example db.info();
-     * @returns {{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "json" | "yaml" | "sqlite" }}
+     * @example await db.info();
+     * @returns {Promise<{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "mongo" }>}
      */
     async info() {
         let p = require("../package.json");
@@ -258,7 +257,7 @@ module.exports = class MongoDatabase {
         return {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
-            ToplamVeriSayısı: this.size(),
+            ToplamVeriSayısı: await this.size(),
             DatabaseTürü: "mongo",
         };
     }

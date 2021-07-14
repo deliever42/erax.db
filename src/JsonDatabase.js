@@ -292,7 +292,7 @@ module.exports = class JsonDatabase {
     /**
      * Database bilgilerini öğrenirsiniz.
      * @example db.info();
-     * @returns {{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "json" | "yaml" | "sqlite" }}
+     * @returns {{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "json" }}
      */
     info() {
         let p = require("../package.json");

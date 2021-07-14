@@ -295,7 +295,7 @@ module.exports = class YamlDatabase {
     /**
      * Database bilgilerini öğrenirsiniz.
      * @example db.info();
-     * @returns {{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "json" | "yaml" | "sqlite" }}
+     * @returns {{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "yaml" }}
      */
     info() {
         let p = require("../package.json");
