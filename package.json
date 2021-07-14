@@ -1,7 +1,7 @@
 {
   "name": "erax.db",
   "version": "2.7.0",
-  "description": "Gelişmiş Türkçe JSON, Yaml, Sqlite ve Mongo Database Modülü",
+  "description": "Gelişmiş Türkçe JSON, Yaml, Sqlite ve Mongo Database Modülü.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

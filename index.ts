@@ -154,6 +154,8 @@ declare module "erax.db" {
         public info(): Promise<Info<"sqlite">>;
         public keyArray(): Promise<Array<string[]>>;
         public valueArray(): Promise<Array<any[]>>;
+        public import(path: string): Promise<boolean>;
+        public export(path: string): Promise<boolean>;
     }
 
     export class MongoDatabase {

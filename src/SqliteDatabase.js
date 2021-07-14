@@ -13,14 +13,13 @@ module.exports = class SqliteDatabase {
         this.dbName = this.dbPath.split("./").pop().split(".sqlite")[0];
         this.data = {};
 
-        const sequelize = new Sequelize.Sequelize("database", "user", "password", {
-            host: "localhost",
+        const sequelize = new Sequelize.Sequelize("database", null, null, {
             dialect: "sqlite",
             logging: false,
             storage: this.dbPath
         });
 
-        const table = sequelize.define("EraxDB", {
+        this.sql = sequelize.define("EraxDB", {
             key: {
                 type: Sequelize.DataTypes.STRING,
                 unique: true,
@@ -33,7 +32,6 @@ module.exports = class SqliteDatabase {
             }
         });
 
-        this.sql = table;
         this.sql.sync();
     }
 

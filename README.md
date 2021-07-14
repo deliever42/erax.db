@@ -45,7 +45,7 @@ const sqlitedb = new SqliteDatabase({ databasePath: "./MySqliteDatabase.sqlite" 
 //Mongo
 const mongodb = new MongoDatabase({ mongoURL: "MongoDB URL'si" });
 
-//NOT: SQlite'de İlk Kullanım Sırasında Hata Alabilirsiniz.
+//NOT: SQlite'de Hata Alırsanız Umursamayın.
 ```
 
 # Methodlar
