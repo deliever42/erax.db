@@ -10,7 +10,6 @@ module.exports = class MongoDatabase {
             return Error("Geçersiz MongoDB URL'si!");
 
         this.url = options.mongoURL;
-        this.data = {};
 
         this.dbName = this.url.split("mongodb.net/")[1].split("?")[0];
 
@@ -42,23 +41,28 @@ module.exports = class MongoDatabase {
      * @param {string} key Veri
      * @param {any} value Değer
      * @example await db.set("key", "value");
-     * @returns {Promise<any>}
+     * @returns {Promise<any |any[]>}
      */
     async set(key, value) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
+        if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
-        _.set(this.data, key, value);
-        Object.entries(this.data).forEach(async (entry) => {
+
+        let json = {};
+
+        _.set(json, key, value);
+
+        Object.entries(json).forEach(async (entry) => {
             let [key, value] = entry;
 
             let tag = await this.mongo.findOne({ key: key });
             if (!tag) {
                 await this.mongo.create({ key: key, value: value });
-                this.data = {};
+                json = {};
                 return value;
             } else {
                 await this.mongo.updateOne({ key: key }, { value: value });
-                this.data = {};
+                json = {};
                 return value;
             }
         });
@@ -71,7 +75,6 @@ module.exports = class MongoDatabase {
      * @returns {Promise<boolean>}
      */
     async has(key) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
         if (await this.get(key)) return true;
         return false;
     }
@@ -90,23 +93,37 @@ module.exports = class MongoDatabase {
      * Belirttiğiniz veriyi çekersiniz.
      * @param {string} key Veri
      * @example await db.fetch("key");
-     * @returns {Promise<any>}
+     * @returns {Promise<any | any[]>}
      */
     async fetch(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
-        let tag = await this.mongo.findOne({ key: key });
-        if (!tag) return null;
-        return await tag.get("value");
+        if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
+        if (key.includes(".")) {
+            let newkey = key.split(".").shift();
+            let json = {};
+
+            let tag = await this.mongo.findOne({ key: newkey });
+            if ((await this.has(key)) === false) return null;
+
+            let value = await tag.get("value");
+            _.set(json, newkey, value);
+            let newvalue = _.get(json, key);
+            json = {};
+            return newvalue;
+        } else {
+            let tag = await this.mongo.findOne({ key: key });
+            if ((await this.has(key)) === false) return null;
+            return await tag.get("value");
+        }
     }
 
     /**
      * Belirttiğiniz veriyi çekersiniz.
      * @param {string} key Veri
      * @example await db.get("key");
-     * @returns {Promise<any>}
+     * @returns {Promise<any | any[]>}
      */
     async get(key) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
         return await this.fetch(key);
     }
 
@@ -117,7 +134,6 @@ module.exports = class MongoDatabase {
      * @returns {Promise<"array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint">}
      */
     async type(key) {
-        if (!key || key === "") return Error(`Bir Veri Belirmelisin.`);
         if (this.has(key) === false) return null;
         if (Array.isArray(await this.get(key))) return "array";
         return typeof (await this.get(key));
@@ -130,18 +146,35 @@ module.exports = class MongoDatabase {
      * @returns {Promise<boolean>}
      */
     async delete(key) {
-        if (!key || key === "") return Error(`Bir Veri Belirmelisin.`);
-        let tag = await this.mongo.findOne({ key: key });
-        if (!tag) return null;
-        let value = await tag.get("value");
-        await this.mongo.deleteOne({ key: key }, { value: value });
-        return true;
+        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
+        if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
+        if (key.includes(".")) {
+            let newkey = key.split(".").shift();
+            if ((await this.has(newkey)) === false) return null;
+            let tag = await this.mongo.findOne({ key: newkey });
+            let value = await tag.get("value");
+            let json = {};
+
+            _.set(json, newkey, value);
+            _.unset(json, key);
+
+            let newvalue = _.get(json, newkey);
+            await this.set(newkey, newvalue);
+            json = {};
+            return true;
+        } else {
+            if ((await this.has(key)) === false) return null;
+            let tag = await this.mongo.findOne({ key: key });
+            let value = await tag.get("value");
+            await this.mongo.deleteOne({ key: key }, { value: value });
+            return true;
+        }
     }
 
     /**
      * Tüm verileri Array içine ekler.
      * @example await db.fetchAll();
-     * @returns {Promise<Array<{ ID: string, data: any }>>}
+     * @returns {Promise<{ ID: string, data: any | any[] }[]>}
      */
     async fetchAll() {
         let arr = [];
@@ -165,7 +198,7 @@ module.exports = class MongoDatabase {
     /**
      * Tüm verileri Array içine ekler.
      * @example await db.all();
-     * @returns {Promise<Array<{ ID: string, data: any }>>}
+     * @returns {Promise<{ ID: string, data: any | any[] }[]>}
      */
     async all() {
         let arr = [];
@@ -193,13 +226,11 @@ module.exports = class MongoDatabase {
      * @param {number} value Değer
      * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
      * @example await db.math("key", "+", "1");
-     * @returns {Promise<any>}
+     * @returns {Promise<number>}
      */
     async math(key, operator, value, goToNegative = false) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
-        if (!operator || operator === "") return Error("Bir İşlem Belirtmelisin. (- + * /)");
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
-        if (isNaN(value)) return Error(`Değer Sadece Sayıdan Oluşabilir!`);
+        if (!operator || operator === "") return Error("Bir İşlem Belirtmelisin. (-  +  *  /  %)");
+        if (isNaN(value)) return Error(`Belirtilen Değer Number Tipli Olmadılır!`);
 
         if (this.has(key) === false) return await this.set(key, Number(value));
         let data = await this.get(key);
@@ -228,7 +259,7 @@ module.exports = class MongoDatabase {
      * @param {string} key Veri
      * @param {number} value Değer
      * @example await db.add("key", 1);
-     * @returns {Promise<any>}
+     * @returns {Promise<number>}
      */
     async add(key, value) {
         return await this.math(key, "+", value);
@@ -239,7 +270,7 @@ module.exports = class MongoDatabase {
      * @param {string} key Veri
      * @param {number} value Değer
      * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
-     * @returns {Promise<any>}
+     * @returns {Promise<number>}
      * @example await db.subtract("key", 1);
      */
     async subtract(key, value, goToNegative = false) {
@@ -266,7 +297,7 @@ module.exports = class MongoDatabase {
      * Belirttiğiniz değer ile başlayan verileri Array içine ekler.
      * @param {string} value Değer
      * @example await db.startsWith("key");
-     * @returns {Promise<Array<{ ID: string, data: any }>>}
+     * @returns {Promise<{ ID: string, data: any | any[] }[]>}
      */
     async startsWith(value) {
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
@@ -277,7 +308,7 @@ module.exports = class MongoDatabase {
      * Belirttiğiniz değer ile biten verileri Array içine ekler.
      * @param {string} value Değer
      * @example await db.endsWith("key");
-     * @returns {Promise<Array<{ ID: string, data: any }>>}
+     * @returns {Promise<{ ID: string, data: any | any[] }[]>}
      */
     async endsWith(value) {
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
@@ -288,7 +319,7 @@ module.exports = class MongoDatabase {
      * Belirttiğiniz değeri içeren verileri Array içine ekler.
      * @param {string} value Değer
      * @example await db.includes("key");
-     * @returns {Promise<Array<{ ID: string, data: any }>>}
+     * @returns {Promise<{ ID: string, data: any | any[] }[]>}
      */
     async includes(value) {
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
@@ -317,9 +348,9 @@ module.exports = class MongoDatabase {
 
     /**
      * Verileri filtrelersiniz.
-     * @param {(element: { ID: string, data: any }, index: number, array: Array<{ ID: string, data: any }>) => boolean} callbackfn Callbackfn
+     * @param {(element: { ID: string, data: any | any[] }, index: number, array: { ID: string, data: any | any[] }[]) => boolean} callbackfn Callbackfn
      * @example await db.filter((element) => element.ID.startsWith("key"));
-     * @returns {Promise<Array<{ ID: string, data: any }>>}
+     * @returns {Promise<{ ID: string, data: any | any[] }[]>}
      */
     async filter(callbackfn) {
         let arr = [];
@@ -345,18 +376,17 @@ module.exports = class MongoDatabase {
      * @param {any} value Değer
      * @param {boolean} valueIgnoreIfPresent Belirtilen verinin Array'ında belirtilen Value varsa otomatik yoksay, default olarak true.
      * @example await db.push("key", "value");
-     * @returns {Promise<Array<string[]>>}
+     * @returns {Promise<any[]>}
      */
     async push(key, value, valueIgnoreIfPresent = true) {
         if ((await this.has(key)) === false) return await this.set(key, [value]);
         else if ((await this.arrayHas(key)) === true && (await this.has(key)) === true) {
-            let tag = await this.mongo.findOne({ key: key });
-            let yenivalue = await tag.get("value");
+            let datavalue = await this.get(key);
 
-            yenivalue.push(value);
+            datavalue.push(value);
             if ((await this.arrayHasValue(key, value)) === true && valueIgnoreIfPresent === true)
                 return "EraxDB => Bir Hata Oluştu: Şartlar Uygun Olmadığı İçin Veri Pushlanmadı.";
-            return await this.set(key, yenivalue);
+            return await this.set(key, datavalue);
         } else {
             return "EraxDB => Bir Hata Oluştu: Şartlar Uygun Olmadığı İçin Veri Pushlanmadı.";
         }
@@ -370,8 +400,7 @@ module.exports = class MongoDatabase {
      */
     async arrayHas(key) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
-        let tag = await this.mongo.findOne({ key: key });
-        let value = await tag.get("value");
+        let value = await this.get(key);
         if (Array.isArray(await value)) return true;
         return false;
     }
@@ -385,13 +414,11 @@ module.exports = class MongoDatabase {
      *
      */
     async arrayHasValue(key, value) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
         if ((await this.has(key)) === false) return null;
         if ((await this.arrayHas(key)) === false)
             return "EraxDB => Bir Hata Oluştu: Belirtilen Verinin Tipi Array Olmak Zorundadır!";
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
-        let tag = await this.mongo.findOne({ key: key });
-        let datavalue = await tag.get("value");
+        let datavalue = await this.get(key);
         if ((await datavalue.indexOf(value)) > -1) return true;
         return false;
     }
@@ -401,23 +428,21 @@ module.exports = class MongoDatabase {
      * @param {string} key Veri
      * @param {any} value Değer
      * @example await db.pull("key", "value");
-     * @returns {Promise<Array<any>>}
+     * @returns {Promise<any[]>}
      */
     async pull(key, value) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!";
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
 
-        let tag = await this.mongo.findOne({ key: key });
-        let datavalue = await tag.get("value");
+        let datavalue = await this.get(key);
 
         if ((await this.arrayHasValue(key, value)) === false)
             return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Değer Belirttiğiniz Verinin Array'ında Bulunmuyor.";
 
-        let yenivalue = datavalue.filter((x) => x !== value);
-        return await this.set(key, yenivalue);
+        let datavalue = datavalue.filter((x) => x !== value);
+        return await this.set(key, datavalue);
     }
 
     /**
@@ -441,7 +466,7 @@ module.exports = class MongoDatabase {
     /**
      * Tüm verilerin adını Array içine ekler.
      * @example db.keyArray()
-     * @returns {Promise<Array<string[]>>}
+     * @returns {Promise<string[]>}
      */
     async keyArray() {
         let arr = [];
@@ -459,7 +484,7 @@ module.exports = class MongoDatabase {
     /**
      * Tüm verilerin değerini Array içine ekler.
      * @example db.valueArray()
-     * @returns {Promise<Array<string[]>>}
+     * @returns {Promise<any[]>}
      */
     async valueArray() {
         let arr = [];
@@ -503,17 +528,19 @@ module.exports = class MongoDatabase {
         if (!path.startsWith("./")) path = "./" + path;
         if (!path.endsWith(".json")) path = path + ".json";
 
+        let json = {};
+
         await this.mongo.find().then(async (data) => {
             data.forEach(async (obj) => {
                 let key = await obj.key;
                 let value = await obj.value;
 
-                _.set(this.data, key, value);
-                fs.writeFileSync(path, JSON.stringify(this.data, null, 4));
+                _.set(json, key, value);
+                fs.writeFileSync(path, JSON.stringify(json, null, 4));
             });
         });
 
-        this.data = {};
+        json = {};
         return true;
     }
 };

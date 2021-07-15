@@ -18,8 +18,7 @@ yarn add erax.db
 # Yenilikler
 
 ```npm
-- Bilinen Hatalar Düzeltildi.
-- SQlite ve Mongo'ya import ve export Methodları Eklendi.
+- Hata Düzeltmeleri.
 ```
 
 # Uyarı
