@@ -18,7 +18,7 @@ yarn add erax.db
 # Yenilikler
 
 ```npm
-- Hata Düzeltmeleri.
+- Mongo'daki Hata Düzeltildi.
 ```
 
 # Uyarı
