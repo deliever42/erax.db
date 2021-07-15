@@ -441,8 +441,8 @@ module.exports = class MongoDatabase {
         if ((await this.arrayHasValue(key, value)) === false)
             return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Değer Belirttiğiniz Verinin Array'ında Bulunmuyor.";
 
-        let datavalue = datavalue.filter((x) => x !== value);
-        return await this.set(key, datavalue);
+        let yenivalue = datavalue.filter((x) => x !== value);
+        return await this.set(key, yenivalue);
     }
 
     /**
