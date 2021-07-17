@@ -389,7 +389,7 @@ module.exports = class JsonDatabase {
      * @returns {boolean}
      */
     #save() {
-        fs.writeFileSync(this.dbPath, JSON.stringify(this.data));
+        fs.writeFileSync(this.dbPath, JSON.stringify(this.data, null, 4));
         return true;
     }
 };
