@@ -18,7 +18,7 @@ yarn add erax.db
 # Yenilikler
 
 ```npm
-- Json'daki Hata Düzeltildi.
+- push Methodu Düzeltildi.
 ```
 
 # Uyarı

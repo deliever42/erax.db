@@ -383,12 +383,11 @@ module.exports = class SqliteDatabase {
     async push(key, value, valueIgnoreIfPresent = true) {
         if ((await this.has(key)) === false) return await this.set(key, [value]);
         else if ((await this.arrayHas(key)) === true && (await this.has(key)) === true) {
-            let datavalue = await this.get(key);
-
-            datavalue.push(value);
-            if ((await this.arrayHasValue(key, value)) === true && valueIgnoreIfPresent === true)
+            let yenivalue = await this.get(key);
+            if (yenivalue.includes(value) && valueIgnoreIfPresent === true)
                 return "EraxDB => Bir Hata Oluştu: Şartlar Uygun Olmadığı İçin Veri Pushlanmadı.";
-            return await this.set(key, datavalue);
+            yenivalue.push(value);
+            return await this.set(key, yenivalue);
         } else {
             return "EraxDB => Bir Hata Oluştu: Şartlar Uygun Olmadığı İçin Veri Pushlanmadı.";
         }
@@ -437,14 +436,12 @@ module.exports = class SqliteDatabase {
         if (this.arrayHas(key) === false)
             return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!";
         if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
-
-        let datavalue = await this.get(key);
-
         if ((await this.arrayHasValue(key, value)) === false)
             return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Değer Belirttiğiniz Verinin Array'ında Bulunmuyor.";
 
-        let yenivalue = datavalue.filter((x) => x !== value);
-        return await this.set(key, yenivalue);
+        let oldArr = await this.get(key);
+        let newArr = oldArr.filter((x) => x !== value);
+        return await this.set(key, newArr);
     }
 
     /**

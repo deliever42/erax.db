@@ -204,9 +204,9 @@ module.exports = class YamlDatabase {
         if (this.has(key) === false) return this.set(key, [value]);
         else if (this.arrayHas(key) === true && this.has(key) === true) {
             let yenivalue = this.get(key);
-            yenivalue.push(value);
-            if (this.arrayHasValue(key, yenivalue) && valueIgnoreIfPresent === true)
+            if (yenivalue.includes(value) && valueIgnoreIfPresent === true)
                 return "EraxDB => Bir Hata Oluştu: Şartlar Uygun Olmadığı İçin Veri Pushlanmadı.";
+            yenivalue.push(value);
             return this.set(key, yenivalue);
         } else {
             return "EraxDB => Bir Hata Oluştu: Şartlar Uygun Olmadığı İçin Veri Pushlanmadı.";
