@@ -31,7 +31,7 @@ module.exports = class YamlDatabase {
     set(key, value) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
         if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        
         _.set(this.data, key, value);
         this.#save();
         return value;
@@ -322,7 +322,7 @@ module.exports = class YamlDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!";
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        
         if (this.arrayHasValue(key, value) === false)
             return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Değer Belirttiğiniz Verinin Array'ında Bulunmuyor.";
 
@@ -343,7 +343,7 @@ module.exports = class YamlDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return "EraxDB => Bir Hata Oluştu: Belirtilen Verinin Tipi Array Olmak Zorundadır!";
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        
         if (this.get(key).indexOf(value) > -1) return true;
         return false;
     }

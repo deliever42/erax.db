@@ -46,7 +46,6 @@ module.exports = class MongoDatabase {
     async set(key, value) {
         if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
         if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
 
         let json = {};
 
@@ -416,7 +415,6 @@ module.exports = class MongoDatabase {
         if ((await this.has(key)) === false) return null;
         if ((await this.arrayHas(key)) === false)
             return "EraxDB => Bir Hata Oluştu: Belirtilen Verinin Tipi Array Olmak Zorundadır!";
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
         let datavalue = await this.get(key);
         if ((await datavalue.indexOf(value)) > -1) return true;
         return false;
@@ -433,7 +431,7 @@ module.exports = class MongoDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!";
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+
         if ((await this.arrayHasValue(key, value)) === false)
             return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Değer Belirttiğiniz Verinin Array'ında Bulunmuyor.";
 
