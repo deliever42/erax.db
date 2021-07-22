@@ -1,53 +1,39 @@
 {
-    "name": "erax.db",
-    "version": "2.7.7",
-    "description": "Gelişmiş Türkçe JSON, Yaml, Sqlite ve Mongo Database Modülü.",
+    "name": "backup.djs",
+    "version": "1.0.0",
+    "description": "Discord.JS V12 | Backup Module",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
-    "types": "index.ts",
     "keywords": [
         "erax.db",
+        "backup.djs",
         "quick.db",
         "wio.db",
         "fast",
         "quick",
-        "database",
-        "db",
-        "storage",
+        "backup",
         "turkish",
-        "json",
-        "yaml",
-        "sqlite3",
-        "sqlite",
-        "mongo",
-        "mongodb",
-        "mongoose",
         "easy"
     ],
     "author": "emirhanbaltas34",
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/emirhanbaltas34/erax.db.git"
+        "url": "git+https://github.com/emirhanbaltas34/backup.djs.git"
     },
     "bugs": {
-        "url": "https://github.com/emirhanbaltas34/erax.db/issues"
+        "url": "https://github.com/emirhanbaltas34/backup.djs/issues"
     },
-    "homepage": "https://github.com/emirhanbaltas34/erax.db#readme",
+    "homepage": "https://github.com/emirhanbaltas34/backup.djs#readme",
     "dependencies": {
         "fs": "0.0.1-security",
-        "yaml": "^1.10.2",
-        "lodash": "^4.17.21",
-        "mongoose": "^5.13.2",
-        "sequelize": "^6.6.5",
-        "sqlite3": "^5.0.2",
-        "@types/node": "^14.14.45",
-        "@types/lodash": "^4.14.169",
-        "@types/mongoose": "^5.11.97",
-        "@types/sequelize": "^4.28.10",
-        "@types/sqlite3": "^3.1.7"
+        "discord.js": "^12.5.3"
     },
-    "devDependencies": {}
+    "devDependencies": {
+        "eslint": "^7.31.0",
+        "prettier": "^2.3.2",
+        "typescript": "^4.3.5"
+    }
 }

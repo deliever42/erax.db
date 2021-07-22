@@ -1,98 +1,167 @@
-![Image](https://img.shields.io/npm/v/erax.db?color=%2351F9C0&label=erax.db)
-![Image](https://img.shields.io/npm/dt/erax.db.svg?color=%2351FC0&maxAge=3600)
+![Image](https://img.shields.io/npm/v/backup.djs?color=%2351F9C0&label=backup.djs)
+![Image](https://img.shields.io/npm/dt/backup.djs.svg?color=%2351FC0&maxAge=3600)
 
 #
 
-![Image](https://nodei.co/npm/erax.db.png?downloads=true&downloadRank=true&stars=true)
+![Image](https://nodei.co/npm/backup.djs.png?downloads=true&downloadRank=true&stars=true)
 
-# Nasıl Mı Yüklenir?
-
+# Warn
 ```npm
-NPM:
-npm install erax.db
-
-YARN:
-yarn add erax.db
+- Discord.JS Version V12 Required.
 ```
 
-# Yenilikler
-
-```npm
-- push Methodu Düzeltildi.
-```
-
-# Uyarı
-
-```npm
-- Node.JS'nin Sürümü 14'den Büyük Olmalıdır.
-```
-
-# Kullanım
-
+# Backup Use
 ```js
-const { JsonDatabase, YamlDatabase, SqliteDatabase, MongoDatabase } = require("erax.db");
+const Discord = require("discord.js");
+const client = new Discord.Client();
+const {
+    createBackup,
+    loadBackup,
+    deleteBackup,
+    fetchBackup,
+    backupHas
+    } = require("backup.djs");
 
-//JSON
-const jsondb = new JsonDatabase({ databasePath: "./MyJsonDatabase.json" });
+client.on("ready", () => console.log("Bot Online!"));
 
-//Yaml
-const yamldb = new YamlDatabase({ databasePath: "./MyYamlDatabase.yml" });
+client.on("message", async (message) => {
+    let prefix = "!";
 
-//SQlite
-const sqlitedb = new SqliteDatabase({ databasePath: "./MySqliteDatabase.sqlite" });
+    if (!message.content.startsWith(prefix)
+    || message.channel.type === "dm"
+    || message.author.bot) return;
 
-//Mongo
-const mongodb = new MongoDatabase({ mongoURL: "MongoDB URL'si" });
+    let args = message.content.slice(prefix.length).trim().split(/ +/);
+    let commandName = args.shift().toLocaleLowerCase();
 
-//NOT: SQlite'de Hata Alırsanız Umursamayın.
+    if (commandName === "backup") {
+        let option = args[0];
+        if (!option)
+        return message.reply(
+            "You must specify an option. **(create, load, info**"
+        );
+
+        //backup create
+        if (option === "create") {
+            await createBackup(
+                message.guild,
+                message.author.id,
+                {
+                    doNotBackup: ["bans"] //options: ["bans", "channels", "roles", "emojis"]
+                })
+                .then((backupData) => {
+                    //backupData: { id: backupID, author: backupAuthorID }
+                    return message.reply(
+                        `Backup successfuly created, Backup ID: ${backupData.id}, Backup Author: <@${backupData.author}>`
+                    );
+                });
+        }
+
+        //backup load
+        else if (option === "load") {
+            let backupid = args[1];
+            if (!backupid) 
+            return message.reply(
+                "You must specify a backup ID."
+            );
+
+            await loadBackup(
+                backupid,
+                message.guild,
+                {
+                    clearGuild: true //true/false
+                })
+                .then((data) => {
+                    if (data === null)
+                    return message.reply(
+                    "The specified Backup ID could not be found in the database."
+                    )
+                    else if (data !== null)
+                    return message.author.send(
+                        "Backup successfuly loaded."
+                    );
+                });
+        }
+
+        //backup info
+        else if (option === "info") {
+            let backupid = args[1];
+            if (!backupid) 
+            return message.reply(
+                "You must specify a backup ID."
+            );
+
+            await fetchBackup(backupid).then((data) => {
+                if (data === null)
+                return message.reply(
+                    "The specified Backup ID could not be found in the database."
+                )
+                else if (data !== null) {
+
+                let roles;
+                roles = data.roles.map(r => r.name).join("\n");
+
+                let others;
+                others = data.channels.others.map(c => c.name).join("\n  ") || "\n"
+
+                let categories;
+                categories = data.channels.categories.map(c => `• ${c.name}\n  ${c.children.map(c => c.name).join("\n  ")}`).join("\n\n")
+
+                if (roles.length > 1024) {
+                    roles = `${roles.slice(0, 300)} ...`
+                };
+
+                if (others.length > 1024) {
+                    others = `${others.slice(0, 300)} ...`
+                }
+
+                if (categories.length > 1024) {
+                    categories = `${categories.slice(0, 300)} ...`
+                }
+
+                return message.channel.send(new Discord.MessageEmbed()
+                    .setColor("RANDOM")
+                    .setTitle("Backup Info")
+                    .addField("Channels", `\`\`\`${others} \n\n${categories}\`\`\``, true)
+                    .addField("Roles", `\`\`\`${roles}\`\`\``, true)
+                    .setFooter(`Created: ${data.created}`))
+                    .catch((err) => { });
+                };
+            })
+        }
+
+        //backup delete
+        else if (option === "delete") {
+            let backupid = args[1];
+            if (!backupid) 
+            return message.reply(
+                "You must specify a backup ID."
+            );
+
+            await deleteBackup(backupid, message.author.id).then((data) => {
+                if (data === null)
+                return message.reply(
+                    "The specified Backup ID could not be found in the database."
+                )
+                else if (data === false)
+                return message.reply(
+                    "You can't delete it because you're not the one creating the backup."
+                )
+                else if (data === true)
+                return message.reply(
+                    "Backup successfuly deleted."
+                );
+            })
+        }
+        else {
+            return message.reply(
+                "Invalid option! **(create, load, info)**"
+            )
+        }
+    };
+});
+
+client.login("BOT TOKEN");
 ```
 
-# Methodlar
-
-```js
-//Set & Fetch Methodları
-db.set("veri", "değer") //Belirttiğiniz veriyi kaydedersiniz.
-db.fetch("veri") //Belirttiğiniz veriyi çekersiniz.
-db.get("veri") //Belirttiğiniz veriyi çekersiniz.
-db.push("veri", "değer") //Belirttiğiniz veriyi Array'lı kaydedersiniz.
-
-//Delete Methodları
-db.delete("veri") //Belirttiğiniz veriyi silersiniz.
-db.deleteAll() //Tüm verileri silersiniz.
-db.deleteEach("değer") //Belirttiğiniz değeri içeren verileri siler.
-db.destroy() //Database dosyasını siler.
-db.pull("veri", "değer") //Belirttiğiniz verinin Array'ında belirttiğiniz değer varsa siler.
-
-//Boolean Methodları
-db.has("veri") //Belirttiğiniz veri varmı/yokmu kontrol eder.
-db.arrayHas("veri") //Belirttiğiniz veri Array'lı ise true, Array'sız ise false olarak cevap verir.
-db.arrayHasValue("veri", "değer") //Belirttiğiniz verinin Array'ında belirttiğiniz değer varmı/yokmu kontrol eder.
-
-//Array Methodları
-db.all() //Tüm verileri Array içine ekler.
-db.fetchAll() //Tüm verileri Array içine ekler.
-db.startsWith("değer") //Belirttiğiniz değer ile başlayan verileri Array içine ekler.
-db.endsWith("değer") //Belirttiğiniz değer ile biten verileri Array içine ekler.
-db.includes("değer") //Belirttiğiniz değeri içeren verileri Array içine ekler.
-db.filter((element, index, array) => element.ID.startsWith("veri")) //Verileri filtrelersiniz.
-db.keyArray() //Tüm verilerin adını Array içine ekler.
-db.valueArray() //Tüm verilerin değerini Array içine ekler.
-
-//Matematik İşlemi Methodları
-db.math("veri", "işlem", "değer") //Matematik işlemi yaparak veri kaydedersiniz.
-db.add("veri", 1) //Belirttiğiniz veriye 1 ekler.
-db.subtract("veri" 1) //Belirttiğiniz veriden 1 çıkarır.
-
-//Normal Methodlar
-db.info() //Database bilgilerini öğrenirsiniz.
-db.size() //Database'deki verilerin sayısını atar.
-db.type("veri") //Belirttiğiniz verinin tipini öğrenirsiniz.
-
-//SQlite ve Mongo İçin Methodlar
-await db.export() //Belirtilen JSON dosyasına verileri export eder.
-await db.import() //Belirtilen JSON dosyasından verileri import eder.
-
-//NOT: Mongo ve SQlite'de Methodları Kullanırken await Kullanmayı Unutmayın.
-```
-
-#### Hata Bildirmek İçin Discord Üzerinden Emirhan77#0001'e Ulaşabilirsiniz.
+### To Report a Bug: Emirhan77#0001 Via Discord
