@@ -3,19 +3,27 @@ const Error = require("./Error");
 const _ = require("lodash");
 const YAML = require("yaml");
 
+/**
+ * Class YamlDatabase
+ * @class
+ */
 module.exports = class YamlDatabase {
+    /**
+     * Options
+     * @constructor
+     * @param {{ databasePath: string }} options
+     */
     constructor(options = { databasePath: "./database.yml" }) {
         this.dbPath = options.databasePath;
 
         if (!this.dbPath.startsWith("./")) this.dbPath = "./" + this.dbPath;
-        if (this.dbPath.endsWith(".yaml")) this.dbPath = this.dbPath.split(".yaml")[0];
         if (!this.dbPath.endsWith(".yml")) this.dbPath = this.dbPath + ".yml";
 
         this.dbName = this.dbPath.split("./").pop().split(".yml")[0];
         this.data = {};
 
         if (!fs.existsSync(this.dbPath)) {
-            fs.writeFileSync(this.dbPath, "");
+            fs.writeFileSync(this.dbPath, "{}");
         } else {
             this.data = YAML.parse(fs.readFileSync(this.dbPath, "utf-8"));
         }
@@ -29,11 +37,13 @@ module.exports = class YamlDatabase {
      * @returns {any | any[]}
      */
     set(key, value) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
+        if (key === "" || key === null || key === undefined)
+            return Error("Bir Veri Belirtmelisin.");
         if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
-        
+        if (value === "" || value === null || value === undefined)
+            return Error("Bir Değer Belirtmelisin.");
         _.set(this.data, key, value);
-        this.#save();
+        fs.writeFileSync(this.dbPath, YAML.stringify(this.data));
         return value;
     }
 
@@ -44,8 +54,7 @@ module.exports = class YamlDatabase {
      * @returns {boolean}
      */
     has(key) {
-        if (this.get(key)) return true;
-        return false;
+        return this.get(key) ? true : false;
     }
 
     /**
@@ -58,7 +67,7 @@ module.exports = class YamlDatabase {
             _.unset(this.data, data.ID);
         });
 
-        fs.writeFileSync(this.dbPath, "");
+        fs.writeFileSync(this.dbPath, "{}");
         return true;
     }
 
@@ -83,7 +92,8 @@ module.exports = class YamlDatabase {
      * @returns {any | any[]}
      */
     fetch(key) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
+        if (key === "" || key === null || key === undefined)
+            return Error("Bir Veri Belirtmelisin.");
         if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
         return _.get(this.data, key);
     }
@@ -119,7 +129,7 @@ module.exports = class YamlDatabase {
     delete(key) {
         if (this.has(key) === false) return null;
         _.unset(this.data, key);
-        this.#save();
+        fs.writeFileSync(this.dbPath, YAML.stringify(this.data));
         return true;
     }
 
@@ -166,7 +176,8 @@ module.exports = class YamlDatabase {
      * @returns {{ ID: string, data: any | any[] }[]}
      */
     startsWith(value) {
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        if (value === "" || value === null || value === undefined)
+            return Error("Bir Değer Belirtmelisin.");
         return this.all().filter((x) => x.ID.startsWith(value));
     }
 
@@ -177,7 +188,8 @@ module.exports = class YamlDatabase {
      * @returns {{ ID: string, data: any | any[] }[]}
      */
     endsWith(value) {
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        if (value === "" || value === null || value === undefined)
+            return Error("Bir Değer Belirtmelisin.");
         return this.all().filter((x) => x.ID.endsWith(value));
     }
 
@@ -188,7 +200,8 @@ module.exports = class YamlDatabase {
      * @returns {{ ID: string, data: any | any[] }[]}
      */
     includes(value) {
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        if (value === "" || value === null || value === undefined)
+            return Error("Bir Değer Belirtmelisin.");
         return this.all().filter((x) => x.ID.includes(value));
     }
 
@@ -223,8 +236,9 @@ module.exports = class YamlDatabase {
      * @returns {number}
      */
     math(key, operator, value, goToNegative = false) {
-        if (!operator || operator === "") return Error("Bir İşlem Belirtmelisin. (-  +  *  /  %)");
-        if (isNaN(value)) return Error(`Belirtilen Değer Number Tipli Olmadılır!`);
+        if (operator === null || operator === undefined || operator === "")
+            return Error("Bir İşlem Belirtmelisin. (-  +  *  /  %)");
+        if (isNaN(value)) return Error(`Belirtilen Değer Sadece Sayıdan Oluşabilir!`);
 
         if (this.has(key) === false) return this.set(key, Number(value));
         let data = this.get(key);
@@ -322,7 +336,6 @@ module.exports = class YamlDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!";
-        
         if (this.arrayHasValue(key, value) === false)
             return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Değer Belirttiğiniz Verinin Array'ında Bulunmuyor.";
 
@@ -343,7 +356,7 @@ module.exports = class YamlDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return "EraxDB => Bir Hata Oluştu: Belirtilen Verinin Tipi Array Olmak Zorundadır!";
-        
+
         if (this.get(key).indexOf(value) > -1) return true;
         return false;
     }
@@ -382,16 +395,5 @@ module.exports = class YamlDatabase {
             arr.push(data.data);
         });
         return arr;
-    }
-
-    /**
-     * Veri kaydedersiniz.
-     * @private
-     * @example this.#save()
-     * @returns {boolean}
-     */
-    #save() {
-        fs.writeFileSync(this.dbPath, YAML.stringify(this.data));
-        return true;
     }
 };

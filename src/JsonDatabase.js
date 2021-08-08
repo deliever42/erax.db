@@ -2,7 +2,16 @@ const fs = require("fs");
 const Error = require("./Error");
 const _ = require("lodash");
 
+/**
+ * Class JsonDatabase
+ * @class
+ */
 module.exports = class JsonDatabase {
+    /**
+     * Options
+     * @constructor
+     * @param {{ databasePath: string }} options 
+     */
     constructor(options = { databasePath: "./database.json" }) {
         this.dbPath = options.databasePath;
 
@@ -27,11 +36,13 @@ module.exports = class JsonDatabase {
      * @returns {any | any[]}
      */
     set(key, value) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
+        if (key === "" || key === null || key === undefined)
+            return Error("Bir Veri Belirtmelisin.");
         if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
-        
+        if (value === "" || value === null || value === undefined)
+            return Error("Bir Değer Belirtmelisin.");
         _.set(this.data, key, value);
-        this.#save();
+        fs.writeFileSync(this.dbPath, JSON.stringify(this.data, null, 4));
         return value;
     }
 
@@ -42,8 +53,7 @@ module.exports = class JsonDatabase {
      * @returns {boolean}
      */
     has(key) {
-        if (this.get(key)) return true;
-        return false;
+        return this.get(key) ? true : false;
     }
 
     /**
@@ -81,7 +91,8 @@ module.exports = class JsonDatabase {
      * @returns {any | any[]}
      */
     fetch(key) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
+        if (key === "" || key === null || key === undefined)
+            return Error("Bir Veri Belirtmelisin.");
         if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
         return _.get(this.data, key);
     }
@@ -117,7 +128,7 @@ module.exports = class JsonDatabase {
     delete(key) {
         if (this.has(key) === false) return null;
         _.unset(this.data, key);
-        this.#save();
+        fs.writeFileSync(this.dbPath, JSON.stringify(this.data, null, 4));
         return true;
     }
 
@@ -164,7 +175,8 @@ module.exports = class JsonDatabase {
      * @returns {{ ID: string, data: any | any[] }[]}
      */
     startsWith(value) {
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        if (value === "" || value === null || value === undefined)
+            return Error("Bir Değer Belirtmelisin.");
         return this.all().filter((x) => x.ID.startsWith(value));
     }
 
@@ -175,7 +187,8 @@ module.exports = class JsonDatabase {
      * @returns {{ ID: string, data: any | any[] }[]}
      */
     endsWith(value) {
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        if (value === "" || value === null || value === undefined)
+            return Error("Bir Değer Belirtmelisin.");
         return this.all().filter((x) => x.ID.endsWith(value));
     }
 
@@ -186,7 +199,8 @@ module.exports = class JsonDatabase {
      * @returns {{ ID: string, data: any | any[] }[]}
      */
     includes(value) {
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        if (value === "" || value === null || value === undefined)
+            return Error("Bir Değer Belirtmelisin.");
         return this.all().filter((x) => x.ID.includes(value));
     }
 
@@ -221,8 +235,9 @@ module.exports = class JsonDatabase {
      * @returns {number}
      */
     math(key, operator, value, goToNegative = false) {
-        if (!operator || operator === "") return Error("Bir İşlem Belirtmelisin. (-  +  *  /  %)");
-        if (isNaN(value)) return Error(`Belirtilen Değer Number Tipli Olmadılır!`);
+        if (operator === null || operator === undefined || operator === "")
+            return Error("Bir İşlem Belirtmelisin. (-  +  *  /  %)");
+        if (isNaN(value)) return Error(`Belirtilen Değer Sadece Sayıdan Oluşabilir!`);
 
         if (this.has(key) === false) return this.set(key, Number(value));
         let data = this.get(key);
@@ -340,7 +355,7 @@ module.exports = class JsonDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return "EraxDB => Bir Hata Oluştu: Belirtilen Verinin Tipi Array Olmak Zorundadır!";
-        
+
         if (this.get(key).indexOf(value) > -1) return true;
         return false;
     }
@@ -379,16 +394,5 @@ module.exports = class JsonDatabase {
             arr.push(data.data);
         });
         return arr;
-    }
-
-    /**
-     * Veri kaydedersiniz.
-     * @private
-     * @example this.#save()
-     * @returns {boolean}
-     */
-    #save() {
-        fs.writeFileSync(this.dbPath, JSON.stringify(this.data, null, 4));
-        return true;
     }
 };

@@ -3,7 +3,16 @@ const Error = require("./Error");
 const _ = require("lodash");
 const fs = require("fs");
 
+/**
+ * Class SqliteDatabase
+ * @class
+ */
 module.exports = class SqliteDatabase {
+    /**
+     * Options
+     * @constructor
+     * @param {{ databasePath: string }} options
+     */
     constructor(options = { databasePath: "./database.sqlite" }) {
         this.dbPath = options.databasePath;
 
@@ -42,9 +51,11 @@ module.exports = class SqliteDatabase {
      * @returns {Promise<any | any[]>}
      */
     async set(key, value) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
+        if (key === "" || key === null || key === undefined)
+            return Error("Bir Veri Belirtmelisin.");
         if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
-        
+        if (value === "" || value === null || value === undefined)
+            return Error("Bir Değer Belirtmelisin.");
 
         let json = {};
 
@@ -72,8 +83,7 @@ module.exports = class SqliteDatabase {
      * @returns {Promise<boolean>}
      */
     async has(key) {
-        if (await this.get(key)) return true;
-        return false;
+        return (await this.get(key)) ? true : false;
     }
 
     /**
@@ -98,7 +108,8 @@ module.exports = class SqliteDatabase {
      * @returns {Promise<any | any[]>}
      */
     async fetch(key) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
+        if (key === "" || key === null || key === undefined)
+            return Error("Bir Veri Belirtmelisin.");
         if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
 
         if (key.includes(".")) {
@@ -149,7 +160,8 @@ module.exports = class SqliteDatabase {
      * @returns {Promise<boolean>}
      */
     async delete(key) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
+        if (key === "" || key === null || key === undefined)
+            return Error("Bir Veri Belirtmelisin.");
         if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
 
         if (key.includes(".")) {
@@ -231,8 +243,9 @@ module.exports = class SqliteDatabase {
      * @returns {Promise<number>}
      */
     async math(key, operator, value, goToNegative = false) {
-        if (!operator || operator === "") return Error("Bir İşlem Belirtmelisin. (-  +  *  /  %)");
-        if (isNaN(value)) return Error(`Belirtilen Değer Number Tipli Olmadılır!`);
+        if (operator === null || operator === undefined || operator === "")
+            return Error("Bir İşlem Belirtmelisin. (-  +  *  /  %)");
+        if (isNaN(value)) return Error(`Belirtilen Değer Sadece Sayıdan Oluşabilir!`);
 
         if (this.has(key) === false) return await this.set(key, Number(value));
         let data = await this.get(key);
@@ -302,7 +315,8 @@ module.exports = class SqliteDatabase {
      * @returns {Promise<{ ID: string, data: any | any[] }[]>}
      */
     async startsWith(value) {
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        if (value === "" || value === null || value === undefined)
+            return Error("Bir Değer Belirtmelisin.");
         return await this.filter((x) => x.ID.startsWith(value));
     }
 
@@ -313,7 +327,8 @@ module.exports = class SqliteDatabase {
      * @returns {Promise<{ ID: string, data: any | any[] }[]>}
      */
     async endsWith(value) {
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        if (value === "" || value === null || value === undefined)
+            return Error("Bir Değer Belirtmelisin.");
         return await this.filter((x) => x.ID.endsWith(value));
     }
 
@@ -324,7 +339,8 @@ module.exports = class SqliteDatabase {
      * @returns {Promise<{ ID: string, data: any | any[] }[]>}
      */
     async includes(value) {
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        if (value === "" || value === null || value === undefined)
+            return Error("Bir Değer Belirtmelisin.");
         return await this.filter((x) => x.ID.includes(value));
     }
 
@@ -335,7 +351,8 @@ module.exports = class SqliteDatabase {
      * @returns {Promise<boolean>}
      */
     async deleteEach(value) {
-        if (!value || value === "") return Error("Bir Değer Belirtmelisin.");
+        if (value === "" || value === null || value === undefined)
+            return Error("Bir Değer Belirtmelisin.");
         await this.sql.findAll().then(async (data) => {
             data.forEach(async (obj) => {
                 let key = await obj.dataValues.key;
@@ -400,7 +417,6 @@ module.exports = class SqliteDatabase {
      * @returns {Promise<boolean>}
      */
     async arrayHas(key) {
-        if (!key || key === "") return Error("Bir Veri Belirtmelisin.");
         let value = await this.get(key);
         if (Array.isArray(await value)) return true;
         return false;
@@ -418,7 +434,7 @@ module.exports = class SqliteDatabase {
         if ((await this.has(key)) === false) return null;
         if ((await this.arrayHas(key)) === false)
             return "EraxDB => Bir Hata Oluştu: Belirtilen Verinin Tipi Array Olmak Zorundadır!";
-        
+
         let datavalue = await this.get(key);
         if ((await datavalue.indexOf(value)) > -1) return true;
         return false;
@@ -435,7 +451,7 @@ module.exports = class SqliteDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!";
-        
+
         if ((await this.arrayHasValue(key, value)) === false)
             return "EraxDB => Bir Hata Oluştu: Belirttiğiniz Değer Belirttiğiniz Verinin Array'ında Bulunmuyor.";
 

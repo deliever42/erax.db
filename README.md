@@ -5,16 +5,6 @@
 
 ![Image](https://nodei.co/npm/erax.db.png?downloads=true&downloadRank=true&stars=true)
 
-# Nasıl Mı Yüklenir?
-
-```npm
-NPM:
-npm install erax.db
-
-YARN:
-yarn add erax.db
-```
-
 # Yenilikler
 
 ```npm

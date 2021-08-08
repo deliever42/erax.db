@@ -1,6 +1,6 @@
 {
     "name": "erax.db",
-    "version": "2.7.8",
+    "version": "2.8.0",
     "description": "Gelişmiş Türkçe JSON, Yaml, Sqlite ve Mongo Database Modülü.",
     "main": "index.js",
     "scripts": {
