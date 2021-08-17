@@ -20,7 +20,12 @@ module.exports = class JsonDatabase {
      * @param {{ databasePath: string }} options Database Options
      */
     constructor(options = { databasePath: "./database.json" }) {
-        if (typeof options.databasePath !== "string" || options.databasePath === undefined || options.databasePath === null) throw Error("Geçersiz Database İsmi!")
+        if (
+            typeof options.databasePath !== "string" ||
+            options.databasePath === undefined ||
+            options.databasePath === null
+        )
+            return Error("Geçersiz Database İsmi!");
 
         this.dbPath = options.databasePath.endsWith(".json")
             ? options.databasePath
@@ -250,25 +255,52 @@ module.exports = class JsonDatabase {
     math(key, operator, value, goToNegative = false) {
         if (operator === null || operator === undefined || operator === "")
             return Error("Bir İşlem Belirtmelisin. (-  +  *  /  %)");
+        if (value === null || value === undefined || value === "")
+            return Error("Bir Değer Belirtmelisin.");
         if (isNaN(value)) return Error(`Belirtilen Değer Sadece Sayıdan Oluşabilir!`);
 
         if (this.has(key) === false) return this.set(key, Number(value));
         let data = this.get(key);
 
-        if (operator === "-") {
-            data = data - Number(value);
-            if (goToNegative === false && data < 1) data = Number("0");
-        } else if (operator === "+") {
-            data = data + Number(value);
-        } else if (operator === "*") {
-            data = data * Number(value);
-        } else if (operator === "/") {
-            data = data / Number(value);
-            if (goToNegative === false && data < 1) data = Number("0");
-        } else if (operator === "%") {
-            data = data % Number(value);
-        } else {
-            return Error("Geçersiz İşlem!");
+        switch (operator) {
+            case "+":
+            case "add":
+            case "addition":
+            case "ekle":
+                data = data + Number(value);
+                break;
+            case "-":
+            case "subtract":
+            case "subtraction":
+            case "subtr":
+            case "çıkar":
+            case "sub":
+            case "substr":
+                data = data - Number(value);
+                if (goToNegative === false && data < 1) data = Number("0");
+                break;
+            case "*":
+            case "multiplication":
+            case "çarp":
+            case "çarpma":
+                data = data * Number(value);
+                break;
+            case "bölme":
+            case ".":
+            case "division":
+            case "div":
+            case "/":
+                data = data / Number(value);
+                if (goToNegative === false && data < 1) data = Number("0");
+                break;
+            case "%":
+            case "yüzde":
+            case "percentage":
+            case "percent":
+                data = data % Number(value);
+                break;
+            default:
+                return Error("Geçersiz İşlem!");
         }
 
         return this.set(key, data);
@@ -414,15 +446,15 @@ module.exports = class JsonDatabase {
      * @example db.DBCollectionSize()
      * @returns {number}
      */
-     DBCollectionSize() {
+    DBCollectionSize() {
         return JsonDatabase.DBCollection.length;
     }
-    
+
     /**
-    * Database adını gönderir.
-    * @example db.getDBName()
-    * @returns {string}
-    */
+     * Database adını gönderir.
+     * @example db.getDBName()
+     * @returns {string}
+     */
     getDBName() {
         return this.dbName;
     }
