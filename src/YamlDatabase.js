@@ -421,10 +421,10 @@ module.exports = class YamlDatabase {
     
     /**
     * Database adını gönderir.
-    * @example db.getDatabaseName()
+    * @example db.getDBName()
     * @returns {string}
     */
-    getDatabaseName() {
+    getDBName() {
         return this.dbName;
     }
 };
