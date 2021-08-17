@@ -39,7 +39,7 @@ declare module "erax.db" {
         public keyArray(): string[];
         public valueArray(): any[];
         public DBCollectionSize(): number;
-        public getDatabaseName(): string;
+        public getDBName(): string;
     }
 
     export class YamlDatabase {
@@ -82,7 +82,7 @@ declare module "erax.db" {
         public keyArray(): string[];
         public valueArray(): any[];
         public DBCollectionSize(): number;
-        public getDatabaseName(): string;
+        public getDBName(): string;
     }
 
     export class SqliteDatabase {
@@ -126,7 +126,7 @@ declare module "erax.db" {
         public import(path: string): Promise<boolean>;
         public export(path: string): Promise<boolean>;
         public DBCollectionSize(): number;
-        public getDatabaseName(): string;
+        public getDBName(): string;
     }
 
     export class MongoDatabase {
@@ -170,7 +170,7 @@ declare module "erax.db" {
         public import(path: string): Promise<boolean>;
         public export(path: string): Promise<boolean>;
         public DBCollectionSize(): number;
-        public getDatabaseName(): string;
+        public getDBName(): string;
     }
 
 
