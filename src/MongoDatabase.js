@@ -50,6 +50,10 @@ module.exports = class MongoDatabase {
         });
 
         this.mongo = mongoose.models.EraxDB || mongoose.model("EraxDB", Schema);
+
+        if (!MongoDatabase.DBCollection.includes(this.dbName)) {
+            MongoDatabase.DBCollection.push(this.dbName);
+        }
     }
 
     /**
@@ -57,7 +61,7 @@ module.exports = class MongoDatabase {
      * @param {string} key Veri
      * @param {any} value Değer
      * @example await db.set("key", "value");
-     * @returns {Promise<any |any[]>}
+     * @returns {Promise<any | any[]>}
      */
     async set(key, value) {
         if (key === "" || key === null || key === undefined)
