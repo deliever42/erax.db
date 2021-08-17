@@ -58,12 +58,12 @@ console.log(MongoDatabase.DBCollection) //Konsola MongoDB için oluşturulmuş t
 <db>.deleteAll() //Tüm verileri silersiniz.
 <db>.deleteEach("değer") //Belirttiğiniz değeri içeren verileri siler.
 <db>.destroy() //Database dosyasını siler.
-<db>.pull("veri", "değer") //Belirttiğiniz verinin Array'ında belirttiğiniz değer varsa siler.
+<db>.pull("veri", "değer") //Belirttiğiniz verinin değerinde belirttiğiniz değer varsa siler.
 
 //Boolean Methodları
 <db>.has("veri") //Belirttiğiniz veri varmı/yokmu kontrol eder.
-<db>.arrayHas("veri") //Belirttiğiniz veri Array'lı ise true, Array'sız ise false olarak cevap verir.
-<db>.arrayHasValue("veri", "değer") //Belirttiğiniz verinin Array'ında belirttiğiniz değer varmı/yokmu kontrol eder.
+<db>.arrayHas("veri") //Belirttiğiniz verinin değeri Array'lı ise true, Array'sız ise false olarak cevap verir.
+<db>.arrayHasValue("veri", "değer") //Belirttiğiniz verinin değerinde belirttiğiniz değer varmı/yokmu kontrol eder.
 
 //Array Methodları
 <db>.all() //Tüm verileri Array içine ekler.
