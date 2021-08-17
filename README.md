@@ -78,7 +78,7 @@ console.log(MongoDatabase.DBCollection) //Konsola MongoDB için oluşturulmuş t
 //Matematik İşlemi Methodları
 <db>.math("veri", "işlem", "değer") //Matematik işlemi yaparak veri kaydedersiniz.
 <db>.add("veri", 1) //Belirttiğiniz veriye 1 ekler.
-<db>.subtract("veri" 1) //Belirttiğiniz veriden 1 çıkarır.
+<db>.subtract("veri", 1) //Belirttiğiniz veriden 1 çıkarır.
 
 //Normal Methodlar
 <db>.info() //Database bilgilerini öğrenirsiniz.
