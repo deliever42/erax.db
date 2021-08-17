@@ -1,8 +1,9 @@
 /**
  * Error Util
- * @param {any} msg
- * @returns {error}
+ * @private
+ * @param {string} message Hata Mesajı
+ * @returns {Error}
  */
-module.exports = (msg) => {
-    throw new Error(`EraxDB => Bir Hata Oluştu: ${msg}`);
+module.exports = (message) => {
+    throw new Error(`EraxDB => Bir Hata Oluştu: ${message}`);
 };

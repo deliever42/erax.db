@@ -4,28 +4,37 @@ const _ = require("lodash");
 const fs = require("fs");
 
 /**
- * Class SqliteDatabase
+ * Sqlite Database
  * @class
  */
 module.exports = class SqliteDatabase {
     /**
+     * Oluşturulmuş tüm Database'leri Array içinde gönderir.
+     * @static
+     * @type {SqliteDatabase<string[]>}
+     */
+    static DBCollection = [];
+
+    /**
      * Options
      * @constructor
-     * @param {{ databasePath: string }} options
+     * @param {{ databasePath: string }} options Database Options
      */
     constructor(options = { databasePath: "./database.sqlite" }) {
-        this.dbPath = options.databasePath;
-
-        if (!this.dbPath.startsWith("./")) this.dbPath = "./" + this.dbPath;
-        if (!this.dbPath.endsWith(".sqlite")) this.dbPath = this.dbPath + ".sqlite";
+        if (typeof options.databasePath !== "string" || options.databasePath === undefined || options.databasePath === null) throw Error("Geçersiz Database İsmi!")
+        
+        this.dbPath = options.databasePath.endsWith(".sqlite")
+            ? options.databasePath
+            : options.databasePath + ".sqlite";
 
         this.dbName = this.dbPath.split("./").pop().split(".sqlite")[0];
+        this.dbPath = process.cwd() + "/" + this.dbPath;
 
         const sequelize = new Sequelize.Sequelize("database", null, null, {
             dialect: "sqlite",
             logging: false,
             storage: this.dbPath
-        });
+        })
 
         this.sql = sequelize.define("EraxDB", {
             key: {
@@ -38,9 +47,13 @@ module.exports = class SqliteDatabase {
                 unique: true,
                 allowNull: false
             }
-        });
+        })
 
         this.sql.sync();
+
+        if (!SqliteDatabase.DBCollection.includes(this.dbName)) {
+            SqliteDatabase.DBCollection.push(this.dbName);
+        }
     }
 
     /**
@@ -294,7 +307,7 @@ module.exports = class SqliteDatabase {
 
     /**
      * Database bilgilerini öğrenirsiniz.
-     * @example db.info();
+     * @example await db.info();
      * @returns {Promise<{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "sqlite" }>}
      */
     async info() {
@@ -303,7 +316,7 @@ module.exports = class SqliteDatabase {
         return {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
-            ToplamVeriSayısı: await this.size(),
+            ToplamVeriSayısı: await this.size,
             DatabaseTürü: "sqlite"
         };
     }
@@ -557,5 +570,23 @@ module.exports = class SqliteDatabase {
 
         json = {};
         return true;
+    }
+
+    /**
+     * Oluşturulmuş tüm Database'lerin sayısını gönderir.
+     * @example db.DBCollectionSize()
+     * @returns {number}
+     */
+     DBCollectionSize() {
+        return SqliteDatabase.DBCollection.length;
+    }
+    
+    /**
+    * Database adını gönderir.
+    * @example db.getDatabaseName()
+    * @returns {string}
+    */
+    getDatabaseName() {
+        return this.dbName;
     }
 };

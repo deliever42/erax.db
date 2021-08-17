@@ -1,5 +1,6 @@
 declare module "erax.db" {
     export class JsonDatabase {
+        public static DBCollection: JsonDatabase<string[]>;
         public constructor(options?: { databasePath: string });
         public dbPath: string;
         public dbName: string;
@@ -37,10 +38,12 @@ declare module "erax.db" {
         public info(): Info<"json">;
         public keyArray(): string[];
         public valueArray(): any[];
-        private save(): boolean;
+        public DBCollectionSize(): number;
+        public getDatabaseName(): string;
     }
 
     export class YamlDatabase {
+        public static DBCollection: YamlDatabase<string[]>;
         public constructor(options?: { databasePath: string });
         public dbPath: string;
         public dbName: string;
@@ -78,10 +81,12 @@ declare module "erax.db" {
         public info(): Info<"yaml">;
         public keyArray(): string[];
         public valueArray(): any[];
-        private save(): boolean;
+        public DBCollectionSize(): number;
+        public getDatabaseName(): string;
     }
 
     export class SqliteDatabase {
+        public static DBCollection: SqliteDatabase<string[]>;
         public constructor(options?: { databasePath: string });
         public dbPath: string;
         public dbName: string;
@@ -120,9 +125,12 @@ declare module "erax.db" {
         public valueArray(): Promise<any[]>;
         public import(path: string): Promise<boolean>;
         public export(path: string): Promise<boolean>;
+        public DBCollectionSize(): number;
+        public getDatabaseName(): string;
     }
 
     export class MongoDatabase {
+        public static DBCollection: MongoDatabase<string[]>;
         public constructor(options?: { mongoURL: string });
         public dbName: string;
         private mongo: string;
@@ -161,13 +169,16 @@ declare module "erax.db" {
         public valueArray(): Promise<any[]>;
         public import(path: string): Promise<boolean>;
         public export(path: string): Promise<boolean>;
+        public DBCollectionSize(): number;
+        public getDatabaseName(): string;
     }
 
-    export interface Info<Type> {
+
+    export interface Info<T> {
         Sürüm: number;
         DatabaseAdı: string;
         ToplamVeriSayısı: number;
-        DatabaseTürü: Type;
+        DatabaseTürü: T;
     }
 
     export interface AllData {

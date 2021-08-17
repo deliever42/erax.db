@@ -3,28 +3,41 @@ const Error = require("./Error");
 const _ = require("lodash");
 
 /**
- * Class JsonDatabase
+ * Json Database
  * @class
  */
 module.exports = class JsonDatabase {
     /**
+     * Oluşturulmuş tüm Database'leri Array içinde gönderir.
+     * @static
+     * @type {JsonDatabase<string[]>}
+     */
+    static DBCollection = [];
+
+    /**
      * Options
      * @constructor
-     * @param {{ databasePath: string }} options 
+     * @param {{ databasePath: string }} options Database Options
      */
     constructor(options = { databasePath: "./database.json" }) {
-        this.dbPath = options.databasePath;
+        if (typeof options.databasePath !== "string" || options.databasePath === undefined || options.databasePath === null) throw Error("Geçersiz Database İsmi!")
 
-        if (!this.dbPath.startsWith("./")) this.dbPath = "./" + this.dbPath;
-        if (!this.dbPath.endsWith(".json")) this.dbPath = this.dbPath + ".json";
+        this.dbPath = options.databasePath.endsWith(".json")
+            ? options.databasePath
+            : options.databasePath + ".json";
 
         this.dbName = this.dbPath.split("./").pop().split(".json")[0];
+        this.dbPath = process.cwd() + "/" + this.dbPath;
         this.data = {};
 
         if (!fs.existsSync(this.dbPath)) {
             fs.writeFileSync(this.dbPath, "{}");
         } else {
             this.data = JSON.parse(fs.readFileSync(this.dbPath, "utf-8"));
+        }
+
+        if (!JsonDatabase.DBCollection.includes(this.dbName)) {
+            JsonDatabase.DBCollection.push(this.dbName);
         }
     }
 
@@ -161,7 +174,7 @@ module.exports = class JsonDatabase {
 
     /**
      * Database'de ki verilerin sayısını atar.
-     * @example db.size();
+     * @example db.size()
      * @returns {number}
      */
     size() {
@@ -306,7 +319,7 @@ module.exports = class JsonDatabase {
         return {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
-            ToplamVeriSayısı: this.size(),
+            ToplamVeriSayısı: this.size,
             DatabaseTürü: "json"
         };
     }
@@ -362,7 +375,7 @@ module.exports = class JsonDatabase {
 
     /**
      * Verileri filtrelersiniz.
-     * @param {(element: { ID: string, data: any | any[] }, index: number, array: { ID: string, data: any | any[] }[]) => boolean} callbackfn Callbackfn
+     * @param {(element: { ID: string, data: any | any[] }, index: number, array: { ID: string, data: any | any[] }[]) => boolean} callbackfn Callback
      * @example db.filter(x => x.ID.startsWith("key"));
      * @returns {{ ID: string, data: any | any[] }[]}
      */
@@ -377,9 +390,9 @@ module.exports = class JsonDatabase {
      */
     keyArray() {
         let arr = [];
-        this.all().forEach((data) => {
-            arr.push(data.ID);
-        });
+        Object.keys(JSON.parse(fs.readFileSync(this.dbPath, "utf-8"))).forEach((key) =>
+            arr.push(key)
+        );
         return arr;
     }
 
@@ -390,9 +403,27 @@ module.exports = class JsonDatabase {
      */
     valueArray() {
         let arr = [];
-        this.all().forEach((data) => {
-            arr.push(data.data);
-        });
+        Object.values(JSON.parse(fs.readFileSync(this.dbPath, "utf-8"))).forEach((value) =>
+            arr.push(value)
+        );
         return arr;
+    }
+
+    /**
+     * Oluşturulmuş tüm Database'lerin sayısını gönderir.
+     * @example db.DBCollectionSize()
+     * @returns {number}
+     */
+     DBCollectionSize() {
+        return JsonDatabase.DBCollection.length;
+    }
+    
+    /**
+    * Database adını gönderir.
+    * @example db.getDatabaseName()
+    * @returns {string}
+    */
+    getDatabaseName() {
+        return this.dbName;
     }
 };

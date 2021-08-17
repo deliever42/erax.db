@@ -4,14 +4,21 @@ const _ = require("lodash");
 const fs = require("fs");
 
 /**
- * Class MongoDatabase
+ * Mongo Database
  * @class
  */
 module.exports = class MongoDatabase {
     /**
+     * Oluşturulmuş tüm Database'leri Array içinde gönderir.
+     * @static
+     * @type {MongoDatabase<string[]>}
+     */
+     static DBCollection = [];
+
+    /**
      * Options
      * @constructor
-     * @param {{ mongoURL: string }} options
+     * @param {{ mongoURL: string }} options Database Options
      */
     constructor(options = { mongoURL }) {
         if (!options.mongoURL) return Error("MongoDB URL'si Bulunamadı!");
@@ -20,7 +27,7 @@ module.exports = class MongoDatabase {
 
         this.url = options.mongoURL;
 
-        this.dbName = this.url.split("mongodb.net/")[1].split("?")[0];
+        this.dbName = this.url.split("mongodb.net/").pop().split("?")[0];
 
         mongoose.connect(this.url, {
             useNewUrlParser: true,
@@ -303,7 +310,7 @@ module.exports = class MongoDatabase {
         return {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
-            ToplamVeriSayısı: await this.size(),
+            ToplamVeriSayısı: await this.size,
             DatabaseTürü: "mongo"
         };
     }
@@ -558,5 +565,23 @@ module.exports = class MongoDatabase {
 
         json = {};
         return true;
+    }
+
+    /**
+     * Oluşturulmuş tüm Database'lerin sayısını gönderir.
+     * @example db.DBCollectionSize()
+     * @returns {number}
+     */
+    DBCollectionSize() {
+        return MongoDatabase.DBCollection.length;
+    }
+    
+    /**
+    * Database adını gönderir.
+    * @example db.getDatabaseName()
+    * @returns {string}
+    */
+    getDatabaseName() {
+        return this.dbName;
     }
 };

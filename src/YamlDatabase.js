@@ -4,28 +4,41 @@ const _ = require("lodash");
 const YAML = require("yaml");
 
 /**
- * Class YamlDatabase
+ * Yaml Database
  * @class
  */
 module.exports = class YamlDatabase {
     /**
+     * Oluşturulmuş tüm Database'leri Array içinde gönderir.
+     * @static
+     * @type {YamlDatabase<string[]>}
+     */
+    static DBCollection = [];
+
+    /**
      * Options
      * @constructor
-     * @param {{ databasePath: string }} options
+     * @param {{ databasePath: string }} options Database Options
      */
     constructor(options = { databasePath: "./database.yml" }) {
-        this.dbPath = options.databasePath;
+        if (typeof options.databasePath !== "string" || options.databasePath === undefined || options.databasePath === null) throw Error("Geçersiz Database İsmi!")
 
-        if (!this.dbPath.startsWith("./")) this.dbPath = "./" + this.dbPath;
-        if (!this.dbPath.endsWith(".yml")) this.dbPath = this.dbPath + ".yml";
+        this.dbPath = options.databasePath.endsWith(".yml")
+            ? options.databasePath
+            : options.databasePath + ".yml";
 
         this.dbName = this.dbPath.split("./").pop().split(".yml")[0];
+        this.dbPath = process.cwd() + "/" + this.dbPath;
         this.data = {};
 
         if (!fs.existsSync(this.dbPath)) {
             fs.writeFileSync(this.dbPath, "{}");
         } else {
             this.data = YAML.parse(fs.readFileSync(this.dbPath, "utf-8"));
+        }
+
+        if (!YamlDatabase.DBCollection.includes(this.dbName)) {
+            YamlDatabase.DBCollection.push(this.dbName);
         }
     }
 
@@ -307,7 +320,7 @@ module.exports = class YamlDatabase {
         return {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
-            ToplamVeriSayısı: this.size(),
+            ToplamVeriSayısı: this.size,
             DatabaseTürü: "yaml"
         };
     }
@@ -395,5 +408,23 @@ module.exports = class YamlDatabase {
             arr.push(data.data);
         });
         return arr;
+    }
+
+    /**
+     * Oluşturulmuş tüm Database'lerin sayısını gönderir.
+     * @example db.DBCollectionSize()
+     * @returns {number}
+     */
+     DBCollectionSize() {
+        return YamlDatabase.DBCollection.length;
+    }
+    
+    /**
+    * Database adını gönderir.
+    * @example db.getDatabaseName()
+    * @returns {string}
+    */
+    getDatabaseName() {
+        return this.dbName;
     }
 };
