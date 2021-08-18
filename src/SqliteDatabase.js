@@ -525,7 +525,7 @@ module.exports = class SqliteDatabase {
 
     /**
      * Tüm verilerin adını Array içine ekler.
-     * @example db.keyArray()
+     * @example await db.keyArray()
      * @returns {Promise<string[]>}
      */
     async keyArray() {
@@ -543,7 +543,7 @@ module.exports = class SqliteDatabase {
 
     /**
      * Tüm verilerin değerini Array içine ekler.
-     * @example db.valueArray()
+     * @example await db.valueArray()
      * @returns {Promise<any[]>}
      */
     async valueArray() {
