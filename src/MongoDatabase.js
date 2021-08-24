@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Error = require("./Error");
 const _ = require("lodash");
 const fs = require("fs");
+const path = require("path");
 
 /**
  * Mongo Database
@@ -11,7 +12,7 @@ module.exports = class MongoDatabase {
     /**
      * Oluşturulmuş tüm Database'leri Array içinde gönderir.
      * @static
-     * @type {MongoDatabase<string[]>}
+     * @type {string[]}
      */
     static DBCollection = [];
 
@@ -268,7 +269,7 @@ module.exports = class MongoDatabase {
             case "add":
             case "addition":
             case "ekle":
-                data = data + Number(value);
+                data += Number(value);
                 break;
             case "-":
             case "subtract":
@@ -277,28 +278,28 @@ module.exports = class MongoDatabase {
             case "çıkar":
             case "sub":
             case "substr":
-                data = data - Number(value);
+                data -= Number(value);
                 if (goToNegative === false && data < 1) data = Number("0");
                 break;
             case "*":
             case "multiplication":
             case "çarp":
             case "çarpma":
-                data = data * Number(value);
+                data *= Number(value);
                 break;
             case "bölme":
             case ".":
             case "division":
             case "div":
             case "/":
-                data = data / Number(value);
+                data /= Number(value);
                 if (goToNegative === false && data < 1) data = Number("0");
                 break;
             case "%":
             case "yüzde":
             case "percentage":
             case "percent":
-                data = data % Number(value);
+                data %= Number(value);
                 break;
             default:
                 return Error("Geçersiz İşlem!");
@@ -341,7 +342,7 @@ module.exports = class MongoDatabase {
         return {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
-            ToplamVeriSayısı: await this.size,
+            ToplamVeriSayısı: await this.size(),
             DatabaseTürü: "mongo"
         };
     }
@@ -405,11 +406,11 @@ module.exports = class MongoDatabase {
 
     /**
      * Verileri filtrelersiniz.
-     * @param {(element: { ID: string, data: any | any[] }, index: number, array: { ID: string, data: any | any[] }[]) => boolean} callbackfn Callbackfn
+     * @param {(element: { ID: string, data: any | any[] }, index: number, array: { ID: string, data: any | any[] }[]) => boolean} callback Callback
      * @example await db.filter((element) => element.ID.startsWith("key"));
      * @returns {Promise<{ ID: string, data: any | any[] }[]>}
      */
-    async filter(callbackfn) {
+    async filter(callback) {
         let arr = [];
         await this.mongo.find().then(async (data) => {
             data.forEach(async (obj) => {
@@ -424,7 +425,7 @@ module.exports = class MongoDatabase {
             });
         });
 
-        return arr.filter(callbackfn);
+        return arr.filter(callback);
     }
 
     /**
@@ -559,11 +560,19 @@ module.exports = class MongoDatabase {
      * @example await db.import("./database.json")
      * @returns {Promise<boolean>}
      */
-    async import(path = "./database.json") {
-        if (!path.startsWith("./")) path = "./" + path;
-        if (!path.endsWith(".json")) path = path + ".json";
+    async import(pathh = "./database.json") {
+        let processFolder = process.cwd();
+        let databasePath = pathh;
 
-        let file = JSON.parse(fs.readFileSync(path, "utf-8"));
+        if (!databasePath.endsWith(".json")) {
+            databasePath += ".json";
+        }
+
+        if (!fs.existsSync(`${processFolder}${path.sep}${databasePath}`)) return null;
+
+        let file = JSON.parse(
+            fs.readFileSync(`${processFolder}${path.sep}${databasePath}`, "utf-8")
+        );
 
         Object.entries(file).forEach(async (entry) => {
             let [key, value] = entry;
@@ -578,9 +587,38 @@ module.exports = class MongoDatabase {
      * @example await db.export("./database.json")
      * @returns {Promise<boolean>}
      */
-    async export(path = "./database.json") {
-        if (!path.startsWith("./")) path = "./" + path;
-        if (!path.endsWith(".json")) path = path + ".json";
+    async export(pathh = "./database.json") {
+        let processFolder = process.cwd();
+        let databasePath = pathh;
+
+        if (databasePath.endsWith(path.sep)) {
+            databasePath += "database.json";
+        } else {
+            if (!databasePath.endsWith(".json")) {
+                databasePath += ".json";
+            }
+        }
+
+        let dirs = databasePath.split(path.sep).filter((dir) => dir !== "");
+        let dbName = "";
+        let dirNames = "";
+
+        for (let i = 0; i < dirs.length; i++) {
+            if (!dirs[i].endsWith(".json")) {
+                dirNames += `${dirs[i]}${path.sep}`;
+                if (!fs.existsSync(`${processFolder}${path.sep}${dirNames}`)) {
+                    fs.mkdirSync(`${processFolder}${path.sep}${dirNames}`);
+                }
+            } else {
+                dbName = `${dirs[i]}`;
+
+                if (!fs.existsSync(`${processFolder}${path.sep}${dirNames}${dbName}`)) {
+                    fs.writeFileSync(`${processFolder}${path.sep}${dirNames}${dbName}`, "{}");
+                }
+            }
+        }
+
+        let dbPath = `${process.cwd()}${path.sep}${dirNames}${dbName}`;
 
         let json = {};
 
@@ -590,7 +628,7 @@ module.exports = class MongoDatabase {
                 let value = await obj.value;
 
                 _.set(json, key, value);
-                fs.writeFileSync(path, JSON.stringify(json, null, 4));
+                fs.writeFileSync(dbPath, JSON.stringify(json, null, 4));
             });
         });
 

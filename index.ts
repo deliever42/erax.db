@@ -1,6 +1,6 @@
 declare module "erax.db" {
     export class JsonDatabase {
-        public static DBCollection: JsonDatabase<string[]>;
+        public static DBCollection: string[];
         public constructor(options?: { databasePath: string });
         public dbPath: string;
         public dbName: string;
@@ -43,7 +43,7 @@ declare module "erax.db" {
     }
 
     export class YamlDatabase {
-        public static DBCollection: YamlDatabase<string[]>;
+        public static DBCollection: string[];
         public constructor(options?: { databasePath: string });
         public dbPath: string;
         public dbName: string;
@@ -86,7 +86,7 @@ declare module "erax.db" {
     }
 
     export class SqliteDatabase {
-        public static DBCollection: SqliteDatabase<string[]>;
+        public static DBCollection: string[];
         public constructor(options?: { databasePath: string });
         public dbPath: string;
         public dbName: string;
@@ -130,7 +130,7 @@ declare module "erax.db" {
     }
 
     export class MongoDatabase {
-        public static DBCollection: MongoDatabase<string[]>;
+        public static DBCollection: string[];
         public constructor(options?: { mongoURL: string });
         public dbName: string;
         private mongo: string;
@@ -172,7 +172,6 @@ declare module "erax.db" {
         public DBCollectionSize(): number;
         public getDBName(): string;
     }
-
 
     export interface Info<T> {
         Sürüm: number;

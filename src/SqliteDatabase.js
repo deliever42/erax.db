@@ -2,6 +2,7 @@ const Sequelize = require("sequelize");
 const Error = require("./Error");
 const _ = require("lodash");
 const fs = require("fs");
+const path = require("path");
 
 /**
  * Sqlite Database
@@ -11,7 +12,7 @@ module.exports = class SqliteDatabase {
     /**
      * Oluşturulmuş tüm Database'leri Array içinde gönderir.
      * @static
-     * @type {SqliteDatabase<string[]>}
+     * @type {string[]}
      */
     static DBCollection = [];
 
@@ -20,7 +21,7 @@ module.exports = class SqliteDatabase {
      * @constructor
      * @param {{ databasePath: string }} options Database Options
      */
-    constructor(options = { databasePath: "./database.sqlite" }) {
+    constructor(options = { databasePath: "database.sqlite" }) {
         if (
             typeof options.databasePath !== "string" ||
             options.databasePath === undefined ||
@@ -28,17 +29,38 @@ module.exports = class SqliteDatabase {
         )
             return Error("Geçersiz Database İsmi!");
 
-        this.dbPath = options.databasePath.endsWith(".sqlite")
-            ? options.databasePath
-            : options.databasePath + ".sqlite";
+        let processFolder = process.cwd();
+        let databasePath = options.databasePath;
 
-        this.dbName = this.dbPath.split("./").pop().split(".sqlite")[0];
-        this.dbPath = process.cwd() + "/" + this.dbPath;
+        if (databasePath.endsWith(path.sep)) {
+            databasePath += "database.sqlite";
+        } else {
+            if (!databasePath.endsWith(".sqlite")) {
+                databasePath += ".sqlite";
+            }
+        }
+
+        let dirs = databasePath.split(path.sep).filter((dir) => dir !== "");
+        let dbName = "";
+        let dirNames = "";
+
+        for (let i = 0; i < dirs.length; i++) {
+            if (!dirs[i].endsWith(".sqlite")) {
+                dirNames += `${dirs[i]}${path.sep}`;
+                if (!fs.existsSync(`${processFolder}${path.sep}${dirNames}`)) {
+                    fs.mkdirSync(`${processFolder}${path.sep}${dirNames}`);
+                }
+            } else {
+                dbName = `${dirs[i]}`;
+            }
+        }
+
+        this.dbName = `${dirNames}${dbName}`;
 
         const sequelize = new Sequelize.Sequelize("database", null, null, {
             dialect: "sqlite",
             logging: false,
-            storage: this.dbPath
+            storage: `${process.cwd()}${path.sep}${dirNames}${dbName}`
         });
 
         this.sql = sequelize.define("EraxDB", {
@@ -275,7 +297,7 @@ module.exports = class SqliteDatabase {
             case "add":
             case "addition":
             case "ekle":
-                data = data + Number(value);
+                data += Number(value);
                 break;
             case "-":
             case "subtract":
@@ -284,28 +306,28 @@ module.exports = class SqliteDatabase {
             case "çıkar":
             case "sub":
             case "substr":
-                data = data - Number(value);
+                data -= Number(value);
                 if (goToNegative === false && data < 1) data = Number("0");
                 break;
             case "*":
             case "multiplication":
             case "çarp":
             case "çarpma":
-                data = data * Number(value);
+                data *= Number(value);
                 break;
             case "bölme":
             case ".":
             case "division":
             case "div":
             case "/":
-                data = data / Number(value);
+                data /= Number(value);
                 if (goToNegative === false && data < 1) data = Number("0");
                 break;
             case "%":
             case "yüzde":
             case "percentage":
             case "percent":
-                data = data % Number(value);
+                data %= Number(value);
                 break;
             default:
                 return Error("Geçersiz İşlem!");
@@ -348,7 +370,7 @@ module.exports = class SqliteDatabase {
         return {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
-            ToplamVeriSayısı: await this.size,
+            ToplamVeriSayısı: await this.size(),
             DatabaseTürü: "sqlite"
         };
     }
@@ -412,11 +434,11 @@ module.exports = class SqliteDatabase {
 
     /**
      * Verileri filtrelersiniz.
-     * @param {(element: { ID: string, data: any | any[] }, index: number, array: Array<{ ID: string, data: any | any[] }>) => boolean} callbackfn Callbackfn
+     * @param {(element: { ID: string, data: any | any[] }, index: number, array: Array<{ ID: string, data: any | any[] }>) => boolean} callback Callback
      * @example await db.filter((element) => element.ID.startsWith("key"));
      * @returns {Promise<{ ID: string, data: any | any[] }[]>}
      */
-    async filter(callbackfn) {
+    async filter(callback) {
         let arr = [];
         await this.sql.findAll().then(async (data) => {
             data.forEach(async (obj) => {
@@ -431,7 +453,7 @@ module.exports = class SqliteDatabase {
             });
         });
 
-        return arr.filter(callbackfn);
+        return arr.filter(callback);
     }
 
     /**
@@ -565,11 +587,19 @@ module.exports = class SqliteDatabase {
      * @example await db.import("./database.json")
      * @returns {Promise<boolean>}
      */
-    async import(path = "./database.json") {
-        if (!path.startsWith("./")) path = "./" + path;
-        if (!path.endsWith(".json")) path = path + ".json";
+    async import(pathh = "./database.json") {
+        let processFolder = process.cwd();
+        let databasePath = pathh;
 
-        let file = JSON.parse(fs.readFileSync(path, "utf-8"));
+        if (!databasePath.endsWith(".json")) {
+            databasePath += ".json";
+        }
+
+        if (!fs.existsSync(`${processFolder}${path.sep}${databasePath}`)) return null;
+
+        let file = JSON.parse(
+            fs.readFileSync(`${processFolder}${path.sep}${databasePath}`, "utf-8")
+        );
 
         Object.entries(file).forEach(async (entry) => {
             let [key, value] = entry;
@@ -584,9 +614,38 @@ module.exports = class SqliteDatabase {
      * @example await db.export("./database.json")
      * @returns {Promise<boolean>}
      */
-    async export(path = "./database.json") {
-        if (!path.startsWith("./")) path = "./" + path;
-        if (!path.endsWith(".json")) path = path + ".json";
+    async export(pathh = "database.json") {
+        let processFolder = process.cwd();
+        let databasePath = pathh;
+
+        if (databasePath.endsWith(path.sep)) {
+            databasePath += "database.json";
+        } else {
+            if (!databasePath.endsWith(".json")) {
+                databasePath += ".json";
+            }
+        }
+
+        let dirs = databasePath.split(path.sep).filter((dir) => dir !== "");
+        let dbName = "";
+        let dirNames = "";
+
+        for (let i = 0; i < dirs.length; i++) {
+            if (!dirs[i].endsWith(".json")) {
+                dirNames += `${dirs[i]}${path.sep}`;
+                if (!fs.existsSync(`${processFolder}${path.sep}${dirNames}`)) {
+                    fs.mkdirSync(`${processFolder}${path.sep}${dirNames}`);
+                }
+            } else {
+                dbName = `${dirs[i]}`;
+
+                if (!fs.existsSync(`${processFolder}${path.sep}${dirNames}${dbName}`)) {
+                    fs.writeFileSync(`${processFolder}${path.sep}${dirNames}${dbName}`, "{}");
+                }
+            }
+        }
+
+        let dbPath = `${process.cwd()}${path.sep}${dirNames}${dbName}`;
 
         let json = {};
 
@@ -596,7 +655,7 @@ module.exports = class SqliteDatabase {
                 let value = await obj.dataValues.value;
 
                 _.set(json, key, value);
-                fs.writeFileSync(path, JSON.stringify(json, null, 4));
+                fs.writeFileSync(dbPath, JSON.stringify(json, null, 4));
             });
         });
 

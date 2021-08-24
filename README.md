@@ -9,9 +9,7 @@
 
 ```npm
 - Hata Düzeltmeleri.
-- DBCollection Eklendi.
-- DBCollectionSize Methodu Eklendi.
-- GetDBName Methodu Eklendi
+- Modül Geliştirildi.
 ```
 
 # Uyarı
@@ -26,15 +24,15 @@
 const { JsonDatabase, YamlDatabase, SqliteDatabase, MongoDatabase } = require("erax.db");
 
 //JSON
-const jsondb = new JsonDatabase({ databasePath: "./MyJsonDatabase.json" });
+const jsondb = new JsonDatabase({ databasePath: "MyJsonDatabase.json" });
 console.log(JsonDatabase.DBCollection) //Konsola Json için oluşturulmuş tüm Database'leri gönderir.
 
 //Yaml
-const yamldb = new YamlDatabase({ databasePath: "./MyYamlDatabase.yml" });
+const yamldb = new YamlDatabase({ databasePath: "MyYamlDatabase.yml" });
 console.log(YamlDatabase.DBCollection) //Konsola Yaml için oluşturulmuş tüm Database'leri gönderir.
 
 //SQlite
-const sqlitedb = new SqliteDatabase({ databasePath: "./MySqliteDatabase.sqlite" });
+const sqlitedb = new SqliteDatabase({ databasePath: "MySqliteDatabase.sqlite" });
 console.log(SqliteDatabase.DBCollection) //Konsola Sqlite için oluşturulmuş tüm Database'leri gönderir.
 
 //Mongo

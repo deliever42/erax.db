@@ -2,6 +2,7 @@ const fs = require("fs");
 const Error = require("./Error");
 const _ = require("lodash");
 const YAML = require("yaml");
+const path = require("path");
 
 /**
  * Yaml Database
@@ -11,7 +12,7 @@ module.exports = class YamlDatabase {
     /**
      * Oluşturulmuş tüm Database'leri Array içinde gönderir.
      * @static
-     * @type {YamlDatabase<string[]>}
+     * @type {string[]}
      */
     static DBCollection = [];
 
@@ -20,7 +21,7 @@ module.exports = class YamlDatabase {
      * @constructor
      * @param {{ databasePath: string }} options Database Options
      */
-    constructor(options = { databasePath: "./database.yml" }) {
+    constructor(options = { databasePath: "database.yml" }) {
         if (
             typeof options.databasePath !== "string" ||
             options.databasePath === undefined ||
@@ -28,19 +29,41 @@ module.exports = class YamlDatabase {
         )
             return Error("Geçersiz Database İsmi!");
 
-        this.dbPath = options.databasePath.endsWith(".yml")
-            ? options.databasePath
-            : options.databasePath + ".yml";
+        let processFolder = process.cwd();
+        let databasePath = options.databasePath;
 
-        this.dbName = this.dbPath.split("./").pop().split(".yml")[0];
-        this.dbPath = process.cwd() + "/" + this.dbPath;
-        this.data = {};
-
-        if (!fs.existsSync(this.dbPath)) {
-            fs.writeFileSync(this.dbPath, "{}");
+        if (databasePath.endsWith(path.sep)) {
+            databasePath += "database.yml";
         } else {
-            this.data = YAML.parse(fs.readFileSync(this.dbPath, "utf-8"));
+            if (!databasePath.endsWith(".yml")) {
+                databasePath += ".yml";
+            }
         }
+
+        let dirs = databasePath.split(path.sep).filter((dir) => dir !== "");
+        let dbName = "";
+        let dirNames = "";
+
+        for (let i = 0; i < dirs.length; i++) {
+            if (!dirs[i].endsWith(".yml")) {
+                dirNames += `${dirs[i]}${path.sep}`;
+                if (!fs.existsSync(`${processFolder}${path.sep}${dirNames}`)) {
+                    fs.mkdirSync(`${processFolder}${path.sep}${dirNames}`);
+                }
+            } else {
+                dbName = `${dirs[i]}`;
+
+                if (!fs.existsSync(`${processFolder}${path.sep}${dirNames}${dbName}`)) {
+                    fs.writeFileSync(`${processFolder}${path.sep}${dirNames}${dbName}`, "{}");
+                }
+            }
+        }
+
+        this.dbPath = `${process.cwd()}${path.sep}${dirNames}${dbName}`;
+
+        this.dbName = `${dirNames}${dbName}`;
+
+        this.data = YAML.parse(fs.readFileSync(this.dbPath, "utf-8"));
 
         if (!YamlDatabase.DBCollection.includes(this.dbName)) {
             YamlDatabase.DBCollection.push(this.dbName);
@@ -268,7 +291,7 @@ module.exports = class YamlDatabase {
             case "add":
             case "addition":
             case "ekle":
-                data = data + Number(value);
+                data += Number(value);
                 break;
             case "-":
             case "subtract":
@@ -277,28 +300,28 @@ module.exports = class YamlDatabase {
             case "çıkar":
             case "sub":
             case "substr":
-                data = data - Number(value);
+                data -= Number(value);
                 if (goToNegative === false && data < 1) data = Number("0");
                 break;
             case "*":
             case "multiplication":
             case "çarp":
             case "çarpma":
-                data = data * Number(value);
+                data *= Number(value);
                 break;
             case "bölme":
             case ".":
             case "division":
             case "div":
             case "/":
-                data = data / Number(value);
+                data /= Number(value);
                 if (goToNegative === false && data < 1) data = Number("0");
                 break;
             case "%":
             case "yüzde":
             case "percentage":
             case "percent":
-                data = data % Number(value);
+                data %= Number(value);
                 break;
             default:
                 return Error("Geçersiz İşlem!");
@@ -352,7 +375,7 @@ module.exports = class YamlDatabase {
         return {
             Sürüm: p.version,
             DatabaseAdı: this.dbName,
-            ToplamVeriSayısı: this.size,
+            ToplamVeriSayısı: this.size(),
             DatabaseTürü: "yaml"
         };
     }
@@ -408,12 +431,12 @@ module.exports = class YamlDatabase {
 
     /**
      * Verileri filtrelersiniz.
-     * @param {(element: { ID: string, data: any | any[] }, index: number, array: { ID: string, data: any | any[] }[]) => boolean} callbackfn Callbackfn
+     * @param {(element: { ID: string, data: any | any[] }, index: number, array: { ID: string, data: any | any[] }[]) => boolean} callback Callback
      * @example db.filter(x => x.ID.startsWith("key"));
      * @returns {{ ID: string, data: any | any[] }[]}
      */
-    filter(callbackfn) {
-        return this.all().filter(callbackfn);
+    filter(callback) {
+        return this.all().filter(callback);
     }
 
     /**

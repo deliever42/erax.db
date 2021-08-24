@@ -1,6 +1,6 @@
 {
     "name": "erax.db",
-    "version": "2.8.2",
+    "version": "2.8.5",
     "description": "Gelişmiş Türkçe JSON, Yaml, Sqlite ve Mongo Database Modülü.",
     "main": "index.js",
     "scripts": {
@@ -38,11 +38,12 @@
     "homepage": "https://github.com/emirhanbaltas34/erax.db#readme",
     "dependencies": {
         "fs": "0.0.1-security",
-        "yaml": "^1.10.2",
         "lodash": "^4.17.21",
         "mongoose": "^5.13.2",
+        "path": "^0.12.7",
         "sequelize": "^6.6.5",
-        "sqlite3": "^5.0.2"
+        "sqlite3": "^5.0.2",
+        "yaml": "^1.10.2"
     },
     "devDependencies": {
         "eslint": "^7.31.0",

@@ -1,5 +1,5 @@
 /**
- * Error Util
+ * Hata Yöneticisi
  * @private
  * @param {string} message Hata Mesajı
  * @returns {Error}
