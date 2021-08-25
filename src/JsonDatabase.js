@@ -103,10 +103,7 @@ module.exports = class JsonDatabase {
      * @returns {boolean}
      */
     deleteAll() {
-        this.all().forEach((data) => {
-            _.unset(this.data, data.ID);
-        });
-
+        this.data = {}
         fs.writeFileSync(this.dbPath, "{}");
         return true;
     }
@@ -117,10 +114,7 @@ module.exports = class JsonDatabase {
      * @returns {boolean}
      */
     destroy() {
-        this.all().forEach((data) => {
-            _.unset(this.data, data.ID);
-        });
-
+        this.data = {}
         fs.unlinkSync(this.dbPath);
         return true;
     }

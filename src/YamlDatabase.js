@@ -1,8 +1,8 @@
 const fs = require("fs");
 const Error = require("./Error");
 const _ = require("lodash");
-const YAML = require("yaml");
 const path = require("path");
+const YAML = require("yaml");
 
 /**
  * Yaml Database
@@ -104,10 +104,7 @@ module.exports = class YamlDatabase {
      * @returns {boolean}
      */
     deleteAll() {
-        this.all().forEach((data) => {
-            _.unset(this.data, data.ID);
-        });
-
+        this.data = {}
         fs.writeFileSync(this.dbPath, "{}");
         return true;
     }
@@ -118,10 +115,7 @@ module.exports = class YamlDatabase {
      * @returns {boolean}
      */
     destroy() {
-        this.all().forEach((data) => {
-            _.unset(this.data, data.ID);
-        });
-
+        this.data = {}
         fs.unlinkSync(this.dbPath);
         return true;
     }
@@ -203,7 +197,7 @@ module.exports = class YamlDatabase {
 
     /**
      * Database'de ki verilerin sayısını atar.
-     * @example db.size();
+     * @example db.size()
      * @returns {number}
      */
     size() {
@@ -446,9 +440,9 @@ module.exports = class YamlDatabase {
      */
     keyArray() {
         let arr = [];
-        this.all().forEach((data) => {
-            arr.push(data.ID);
-        });
+        Object.keys(YAML.parse(fs.readFileSync(this.dbPath, "utf-8"))).forEach((key) =>
+            arr.push(key)
+        );
         return arr;
     }
 
@@ -459,9 +453,9 @@ module.exports = class YamlDatabase {
      */
     valueArray() {
         let arr = [];
-        this.all().forEach((data) => {
-            arr.push(data.data);
-        });
+        Object.values(YAML.parse(fs.readFileSync(this.dbPath, "utf-8"))).forEach((value) =>
+            arr.push(value)
+        );
         return arr;
     }
 
