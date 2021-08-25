@@ -9,7 +9,6 @@
 
 ```npm
 - Hata Düzeltmeleri.
-- Modül Geliştirildi.
 ```
 
 # Uyarı
