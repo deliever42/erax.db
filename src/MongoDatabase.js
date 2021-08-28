@@ -62,7 +62,7 @@ module.exports = class MongoDatabase {
      * @param {string} key Veri
      * @param {any} value Değer
      * @example await db.set("key", "value");
-     * @returns {Promise<any | any[]>}
+     * @returns {Promise<any>}
      */
     async set(key, value) {
         if (key === "" || key === null || key === undefined)
@@ -115,7 +115,7 @@ module.exports = class MongoDatabase {
      * Belirttiğiniz veriyi çekersiniz.
      * @param {string} key Veri
      * @example await db.fetch("key");
-     * @returns {Promise<any | any[]>}
+     * @returns {Promise<any>}
      */
     async fetch(key) {
         if (key === "" || key === null || key === undefined)
@@ -145,7 +145,7 @@ module.exports = class MongoDatabase {
      * Belirttiğiniz veriyi çekersiniz.
      * @param {string} key Veri
      * @example await db.get("key");
-     * @returns {Promise<any | any[]>}
+     * @returns {Promise<any>}
      */
     async get(key) {
         return await this.fetch(key);
@@ -200,7 +200,7 @@ module.exports = class MongoDatabase {
     /**
      * Tüm verileri Array içine ekler.
      * @example await db.fetchAll();
-     * @returns {Promise<{ ID: string, data: any | any[] }[]>}
+     * @returns {Promise<{ ID: string, data: any }[]>}
      */
     async fetchAll() {
         let arr = [];
@@ -224,7 +224,7 @@ module.exports = class MongoDatabase {
     /**
      * Tüm verileri Array içine ekler.
      * @example await db.all();
-     * @returns {Promise<{ ID: string, data: any | any[] }[]>}
+     * @returns {Promise<{ ID: string, data: any }[]>}
      */
     async all() {
         let arr = [];
@@ -351,7 +351,7 @@ module.exports = class MongoDatabase {
      * Belirttiğiniz değer ile başlayan verileri Array içine ekler.
      * @param {string} value Değer
      * @example await db.startsWith("key");
-     * @returns {Promise<{ ID: string, data: any | any[] }[]>}
+     * @returns {Promise<{ ID: string, data: any }[]>}
      */
     async startsWith(value) {
         if (value === "" || value === null || value === undefined)
@@ -363,7 +363,7 @@ module.exports = class MongoDatabase {
      * Belirttiğiniz değer ile biten verileri Array içine ekler.
      * @param {string} value Değer
      * @example await db.endsWith("key");
-     * @returns {Promise<{ ID: string, data: any | any[] }[]>}
+     * @returns {Promise<{ ID: string, data: any }[]>}
      */
     async endsWith(value) {
         if (value === "" || value === null || value === undefined)
@@ -375,7 +375,7 @@ module.exports = class MongoDatabase {
      * Belirttiğiniz değeri içeren verileri Array içine ekler.
      * @param {string} value Değer
      * @example await db.includes("key");
-     * @returns {Promise<{ ID: string, data: any | any[] }[]>}
+     * @returns {Promise<{ ID: string, data: any }[]>}
      */
     async includes(value) {
         if (value === "" || value === null || value === undefined)
@@ -386,18 +386,36 @@ module.exports = class MongoDatabase {
     /**
      * Belirttiğiniz değeri içeren verileri siler.
      * @param {string} value Değer
+     * @param {number} maxDeletedSize Silinecek maksimum veri sayısı.
      * @example await db.deleteEach("key");
      * @returns {Promise<boolean>}
      */
-    async deleteEach(value) {
+    async deleteEach(value, maxDeletedSize = 0) {
         if (value === "" || value === null || value === undefined)
             return Error("Bir Değer Belirtmelisin.");
+
+        let deleted = 0;
+        maxDeletedSize = Number(maxDeletedSize);
+
+        maxDeletedSize === null ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
+        maxDeletedSize === undefined ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
+        maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
+
         await this.mongo.find().then(async (data) => {
             data.forEach(async (obj) => {
                 let key = await obj.key;
+                let dval = await obj.value;
                 if (!key.includes(value)) return;
 
-                this.delete(key);
+                if (maxDeletedSize === 0) {
+                    await this.mongo.deleteOne({ key: key }, { value: dval });
+                    deleted++;
+                } else {
+                    if (deleted < maxDeletedSize) {
+                        await this.mongo.deleteOne({ key: key }, { value: dval });
+                        deleted++;
+                    }
+                }
             });
         });
 
@@ -406,9 +424,9 @@ module.exports = class MongoDatabase {
 
     /**
      * Verileri filtrelersiniz.
-     * @param {(element: { ID: string, data: any | any[] }, index: number, array: { ID: string, data: any | any[] }[]) => boolean} callback Callback
+     * @param {(element: { ID: string, data: any }, index: number, array: { ID: string, data: any }[]) => boolean} callback Callback
      * @example await db.filter((element) => element.ID.startsWith("key"));
-     * @returns {Promise<{ ID: string, data: any | any[] }[]>}
+     * @returns {Promise<{ ID: string, data: any }[]>}
      */
     async filter(callback) {
         let arr = [];
@@ -652,5 +670,35 @@ module.exports = class MongoDatabase {
      */
     getDBName() {
         return this.dbName;
+    }
+
+    /**
+     * Verileri filteleyip silersiniz.
+     * @param {(element: { ID: string, data: any }) => boolean} callback Callback
+     * @param {number} maxDeletedSize Silinecek maksimum veri sayısı.
+     * @example await db.filterAndDelete((element) => element.ID.includes("test"));
+     * @returns {Promise<number>}
+     */
+    async filterAndDelete(callback, maxDeletedSize = 0) {
+        let deleted = 0;
+        maxDeletedSize = Number(maxDeletedSize);
+
+        maxDeletedSize === null ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
+        maxDeletedSize === undefined ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
+        maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
+
+        let filtered = await this.filter(callback);
+        filtered.forEach(async (obj) => {
+            if (maxDeletedSize === 0) {
+                await this.mongo.deleteOne({ key: obj.ID }, { value: obj.data });
+                deleted++;
+            } else {
+                if (deleted < maxDeletedSize) {
+                    await this.mongo.deleteOne({ key: obj.ID }, { value: obj.data });
+                    deleted++;
+                }
+            }
+        });
+        return deleted;
     }
 };

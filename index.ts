@@ -4,10 +4,10 @@ declare module "erax.db" {
         public constructor(options?: { databasePath: string });
         public dbPath: string;
         public dbName: string;
-        public data: { [key: string]: any | any[] };
-        public set(key: string, value: any): any | any[];
-        public fetch(key: string): any | any[];
-        public get(key: string): any | any[];
+        public data: { [key: string]: any };
+        public set(key: string, value: any): any;
+        public fetch(key: string): any;
+        public get(key: string): any;
         public destroy(): boolean;
         public add(key: string, value: number): number;
         public subtract(key: string, value: number, goToNegative?: boolean): number;
@@ -29,17 +29,21 @@ declare module "erax.db" {
         public includes(key: string): AllData[];
         public startsWith(key: string): AllData[];
         public endsWith(key: string): AllData[];
-        public deleteEach(key: string): boolean;
+        public deleteEach(key: string, maxDeletedSize?: number): boolean;
         public type(key: string): DataTypes;
         public pull(key: string, value: any): any[];
         public filter(
-            callbackfn: (element: AllData, index: number, array: AllData[]) => boolean
+            callback: (element: AllData, index: number, array: AllData[]) => boolean
         ): AllData[];
         public info(): Info<"json">;
         public keyArray(): string[];
         public valueArray(): any[];
         public DBCollectionSize(): number;
         public getDBName(): string;
+        public filterAndDelete(
+            callback: (element: AllData) => boolean,
+            maxDeletedSize?: number
+        ): number;
     }
 
     export class YamlDatabase {
@@ -47,10 +51,10 @@ declare module "erax.db" {
         public constructor(options?: { databasePath: string });
         public dbPath: string;
         public dbName: string;
-        public data: { [key: string]: any | any[] };
-        public set(key: string, value: any): any | any[];
-        public fetch(key: string): any | any[];
-        public get(key: string): any | any[];
+        public data: { [key: string]: any };
+        public set(key: string, value: any): any;
+        public fetch(key: string): any;
+        public get(key: string): any;
         public destroy(): boolean;
         public add(key: string, value: number): number;
         public subtract(key: string, value: number, goToNegative?: boolean): number;
@@ -72,17 +76,21 @@ declare module "erax.db" {
         public includes(key: string): AllData[];
         public startsWith(key: string): AllData[];
         public endsWith(key: string): AllData[];
-        public deleteEach(key: string): boolean;
+        public deleteEach(key: string, maxDeletedSize?: number): boolean;
         public type(key: string): DataTypes;
         public pull(key: string, value: any): any[];
         public filter(
-            callbackfn: (element: AllData, index: number, array: AllData[]) => boolean
+            callback: (element: AllData, index: number, array: AllData[]) => boolean
         ): AllData[];
         public info(): Info<"yaml">;
         public keyArray(): string[];
         public valueArray(): any[];
         public DBCollectionSize(): number;
         public getDBName(): string;
+        public filterAndDelete(
+            callback: (element: AllData) => boolean,
+            maxDeletedSize?: number
+        ): number;
     }
 
     export class SqliteDatabase {
@@ -91,9 +99,9 @@ declare module "erax.db" {
         public dbPath: string;
         public dbName: string;
         private sql: string;
-        public set(key: string, value: any): Promise<any | any[]>;
-        public fetch(key: string): Promise<any | any[]>;
-        public get(key: string): Promise<any | any[]>;
+        public set(key: string, value: any): Promise<any>;
+        public fetch(key: string): Promise<any>;
+        public get(key: string): Promise<any>;
         public add(key: string, value: number): Promise<number>;
         public subtract(key: string, value: number, goToNegative?: boolean): Promise<number>;
         public has(key: string): Promise<boolean>;
@@ -114,11 +122,11 @@ declare module "erax.db" {
         public includes(key: string): Promise<AllData[]>;
         public startsWith(key: string): Promise<AllData[]>;
         public endsWith(key: string): Promise<AllData[]>;
-        public deleteEach(key: string): Promise<boolean>;
+        public deleteEach(key: string, maxDeletedSize?: number): Promise<boolean>;
         public type(key: string): Promise<DataTypes>;
         public pull(key: string, value: any): Promise<any[]>;
         public filter(
-            callbackfn: (element: AllData, index: number, array: AllData[]) => boolean
+            callback: (element: AllData, index: number, array: AllData[]) => boolean
         ): Promise<AllData[]>;
         public info(): Promise<Info<"sqlite">>;
         public keyArray(): Promise<string[]>;
@@ -127,6 +135,10 @@ declare module "erax.db" {
         public export(path: string): Promise<boolean>;
         public DBCollectionSize(): number;
         public getDBName(): string;
+        public filterAndDelete(
+            callback: (element: AllData) => boolean,
+            maxDeletedSize?: number
+        ): Promise<number>;
     }
 
     export class MongoDatabase {
@@ -135,9 +147,9 @@ declare module "erax.db" {
         public dbName: string;
         private mongo: string;
         public url: string;
-        public set(key: string, value: any): Promise<any | any[]>;
-        public fetch(key: string): Promise<any | any[]>;
-        public get(key: string): Promise<any | any[]>;
+        public set(key: string, value: any): Promise<any>;
+        public fetch(key: string): Promise<any>;
+        public get(key: string): Promise<any>;
         public add(key: string, value: number): Promise<number>;
         public subtract(key: string, value: number, goToNegative?: boolean): Promise<number>;
         public has(key: string): Promise<boolean>;
@@ -158,11 +170,11 @@ declare module "erax.db" {
         public includes(key: string): Promise<AllData[]>;
         public startsWith(key: string): Promise<AllData[]>;
         public endsWith(key: string): Promise<AllData[]>;
-        public deleteEach(key: string): Promise<boolean>;
+        public deleteEach(key: string, maxDeletedSize?: number): Promise<boolean>;
         public type(key: string): Promise<DataTypes>;
         public pull(key: string, value: any): Promise<any[]>;
         public filter(
-            callbackfn: (element: AllData, index: number, array: AllData[]) => boolean
+            callback: (element: AllData, index: number, array: AllData[]) => boolean
         ): Promise<AllData[]>;
         public info(): Promise<Info<"mongo">>;
         public keyArray(): Promise<string[]>;
@@ -171,6 +183,10 @@ declare module "erax.db" {
         public export(path: string): Promise<boolean>;
         public DBCollectionSize(): number;
         public getDBName(): string;
+        public filterAndDelete(
+            callback: (element: AllData) => boolean,
+            maxDeletedSize?: number
+        ): Promise<number>;
     }
 
     export interface Info<T> {
@@ -182,7 +198,7 @@ declare module "erax.db" {
 
     export interface AllData {
         ID: string;
-        data: any | any[];
+        data: any;
     }
 
     export type DataTypes =

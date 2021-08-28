@@ -9,6 +9,8 @@
 
 ```npm
 - Hata Düzeltmeleri.
+- filterAndDelete Methodu Eklendi.
+- deleteEach Methoduna maxDeletedSize Options'u Eklendi.
 ```
 
 # Uyarı
@@ -54,6 +56,7 @@ console.log(MongoDatabase.DBCollection) //Konsola MongoDB için oluşturulmuş t
 <db>.delete("veri") //Belirttiğiniz veriyi silersiniz.
 <db>.deleteAll() //Tüm verileri silersiniz.
 <db>.deleteEach("değer") //Belirttiğiniz değeri içeren verileri siler.
+<db>.filterAndDelete((element) => element.ID.includes("test")) //Verileri filtreleyip silersiniz.
 <db>.destroy() //Database dosyasını siler.
 <db>.pull("veri", "değer") //Belirttiğiniz verinin değerinde belirttiğiniz değer varsa siler.
 

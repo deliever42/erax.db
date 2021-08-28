@@ -73,9 +73,9 @@ module.exports = class YamlDatabase {
     /**
      * Belirttiğiniz veriyi kaydedersiniz.
      * @param {string} key Veri
-     * @param {any | any[]} value Değer
+     * @param {any} value Değer
      * @example db.set("key", "value");
-     * @returns {any | any[]}
+     * @returns {any}
      */
     set(key, value) {
         if (key === "" || key === null || key === undefined)
@@ -104,7 +104,7 @@ module.exports = class YamlDatabase {
      * @returns {boolean}
      */
     deleteAll() {
-        this.data = {}
+        this.data = {};
         fs.writeFileSync(this.dbPath, "{}");
         return true;
     }
@@ -115,7 +115,7 @@ module.exports = class YamlDatabase {
      * @returns {boolean}
      */
     destroy() {
-        this.data = {}
+        this.data = {};
         fs.unlinkSync(this.dbPath);
         return true;
     }
@@ -124,7 +124,7 @@ module.exports = class YamlDatabase {
      * Belirttiğiniz veriyi çekersiniz.
      * @param {string} key Veri
      * @example db.fetch("key");
-     * @returns {any | any[]}
+     * @returns {any}
      */
     fetch(key) {
         if (key === "" || key === null || key === undefined)
@@ -137,7 +137,7 @@ module.exports = class YamlDatabase {
      * Belirttiğiniz veriyi çekersiniz.
      * @param {string} key Veri
      * @example db.get("key");
-     * @returns {any | any[]}
+     * @returns {any}
      */
     get(key) {
         return this.fetch(key);
@@ -171,7 +171,7 @@ module.exports = class YamlDatabase {
     /**
      * Tüm verileri Array içine ekler.
      * @example db.fetchAll();
-     * @returns {{ ID: string, data: any | any[] }[]}
+     * @returns {{ ID: string, data: any }[]}
      */
     fetchAll() {
         return this.all();
@@ -180,7 +180,7 @@ module.exports = class YamlDatabase {
     /**
      * Tüm verileri Array içine ekler.
      * @example db.all();
-     * @returns {{ ID: string, data: any | any[] }[]}
+     * @returns {{ ID: string, data: any }[]}
      */
     all() {
         let arr = [];
@@ -208,7 +208,7 @@ module.exports = class YamlDatabase {
      * Belirttiğiniz değer ile başlayan verileri Array içine ekler.
      * @param {string} value Değer
      * @example db.startsWith("key");
-     * @returns {{ ID: string, data: any | any[] }[]}
+     * @returns {{ ID: string, data: any }[]}
      */
     startsWith(value) {
         if (value === "" || value === null || value === undefined)
@@ -220,7 +220,7 @@ module.exports = class YamlDatabase {
      * Belirttiğiniz değer ile biten verileri Array içine ekler.
      * @param {string} value Değer
      * @example db.endsWith("key");
-     * @returns {{ ID: string, data: any | any[] }[]}
+     * @returns {{ ID: string, data: any }[]}
      */
     endsWith(value) {
         if (value === "" || value === null || value === undefined)
@@ -232,7 +232,7 @@ module.exports = class YamlDatabase {
      * Belirttiğiniz değeri içeren verileri Array içine ekler.
      * @param {string} value Değer
      * @example db.includes("key");
-     * @returns {{ ID: string, data: any | any[] }[]}
+     * @returns {{ ID: string, data: any }[]}
      */
     includes(value) {
         if (value === "" || value === null || value === undefined)
@@ -243,7 +243,7 @@ module.exports = class YamlDatabase {
     /**
      * Belirttiğiniz veriyi Array'lı kaydedersiniz.
      * @param {string} key Veri
-     * @param {any | any[]} value Değer
+     * @param {any} value Değer
      * @param {boolean} valueIgnoreIfPresent Belirtilen verinin Array'ında belirtilen Value varsa otomatik yoksay, default olarak true.
      * @example db.push("key", "value");
      * @returns {any[]}
@@ -377,12 +377,28 @@ module.exports = class YamlDatabase {
     /**
      * Belirttiğiniz değeri içeren verileri siler.
      * @param {string} value Değer
+     * @param {number} maxDeletedSize Silinecek maksimum veri sayısı.
      * @example db.deleteEach("key");
      * @returns {boolean}
      */
-    deleteEach(value) {
+    deleteEach(value, maxDeletedSize = 0) {
+        let deleted = 0;
+        maxDeletedSize = Number(maxDeletedSize);
+
+        maxDeletedSize === null ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
+        maxDeletedSize === undefined ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
+        maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
+
         this.includes(value).forEach((data) => {
-            this.delete(data.ID);
+            if (maxDeletedSize === 0) {
+                this.delete(data.ID);
+                deleted++;
+            } else {
+                if (deleted < maxDeletedSize) {
+                    this.delete(data.ID);
+                    deleted++;
+                }
+            }
         });
         return true;
     }
@@ -390,7 +406,7 @@ module.exports = class YamlDatabase {
     /**
      * Belirttiğiniz verinin Array'ında belirttiğiniz değer varsa siler.
      * @param {string} key Veri
-     * @param {any | any[]} value Değer
+     * @param {any} value Değer
      * @example db.pull("key", "value");
      * @returns {any[]}
      */
@@ -410,7 +426,7 @@ module.exports = class YamlDatabase {
     /**
      * Belirttiğiniz verinin Array'ında belirttiğiniz değer varmı/yokmu kontrol eder.
      * @param {string} key Veri
-     * @param {any | any[]} value Değer
+     * @param {any} value Değer
      * @example db.arrayHasValue("key", "value");
      * @returns {boolean}
      */
@@ -425,9 +441,9 @@ module.exports = class YamlDatabase {
 
     /**
      * Verileri filtrelersiniz.
-     * @param {(element: { ID: string, data: any | any[] }, index: number, array: { ID: string, data: any | any[] }[]) => boolean} callback Callback
+     * @param {(element: { ID: string, data: any }, index: number, array: { ID: string, data: any }[]) => boolean} callback Callback
      * @example db.filter(x => x.ID.startsWith("key"));
-     * @returns {{ ID: string, data: any | any[] }[]}
+     * @returns {{ ID: string, data: any }[]}
      */
     filter(callback) {
         return this.all().filter(callback);
@@ -475,5 +491,35 @@ module.exports = class YamlDatabase {
      */
     getDBName() {
         return this.dbName;
+    }
+
+    /**
+     * Verileri filteleyip silersiniz.
+     * @param {(element: { ID: string, data: any }) => boolean} callback Callback
+     * @param {number} maxDeletedSize Silinecek maksimum veri sayısı.
+     * @example db.filterAndDelete((element) => element.ID.includes("test"));
+     * @returns {number}
+     */
+    filterAndDelete(callback, maxDeletedSize = 0) {
+        let deleted = 0;
+        maxDeletedSize = Number(maxDeletedSize);
+
+        maxDeletedSize === null ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
+        maxDeletedSize === undefined ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
+        maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
+
+        let filtered = this.filter(callback);
+        filtered.forEach((obj) => {
+            if (maxDeletedSize === 0) {
+                this.delete(obj.ID);
+                deleted++;
+            } else {
+                if (deleted < maxDeletedSize) {
+                    this.delete(obj.ID);
+                    deleted++;
+                }
+            }
+        });
+        return deleted;
     }
 };

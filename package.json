@@ -39,7 +39,7 @@
     "dependencies": {
         "fs": "0.0.1-security",
         "lodash": "^4.17.21",
-        "mongoose": "^5.13.2",
+        "mongoose": "^5.13.8",
         "path": "^0.12.7",
         "sequelize": "^6.6.5",
         "sqlite3": "^5.0.2",
