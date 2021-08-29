@@ -10,7 +10,7 @@ declare module "erax.db" {
         public constructor(options?: { databasePath: string });
         public dbPath: string;
         public dbName: string;
-        public data: { [key: string]: any };
+        public readonly data: data;
         public set(key: string, value: any): any;
         public fetch(key: string): any;
         public get(key: string): any;
@@ -57,7 +57,7 @@ declare module "erax.db" {
         public constructor(options?: { databasePath: string });
         public dbPath: string;
         public dbName: string;
-        public data: { [key: string]: any };
+        public readonly data: data;
         public set(key: string, value: any): any;
         public fetch(key: string): any;
         public get(key: string): any;
