@@ -1,7 +1,24 @@
 const fs = require("fs");
 const Error = require("./Error");
-const _ = require("lodash");
 const path = require("path");
+const Util = require("./Util");
+const chalk = require("chalk");
+
+Util.updateCheck().then((checked) => {
+    if (checked.updated === false) {
+        console.log(chalk.bold("--------------------------------------------------"));
+        console.log(
+            chalk.blue("EraxDB: ") +
+                chalk.red(checked.installedVersion) +
+                " => " +
+                chalk.green(checked.packageVersion)
+        );
+        console.log(
+            chalk.blue("Yeni Sürüm İçin ") + "=>" + chalk.gray(" npm install erax.db@latest")
+        );
+        console.log(chalk.bold("--------------------------------------------------"));
+    }
+});
 
 /**
  * Json Database
@@ -82,8 +99,8 @@ module.exports = class JsonDatabase {
         if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
         if (value === "" || value === null || value === undefined)
             return Error("Bir Değer Belirtmelisin.");
-        _.set(this.data, key, value);
-        fs.writeFileSync(this.dbPath, JSON.stringify(this.data, null, 4));
+        Util.dataSet(this.data, key, value);
+        Util.write(this.dbPath, this.data);
         return value;
     }
 
@@ -94,7 +111,7 @@ module.exports = class JsonDatabase {
      * @returns {boolean}
      */
     has(key) {
-        return this.get(key) ? true : false;
+        return Util.dataHas(this.data, key);
     }
 
     /**
@@ -129,7 +146,7 @@ module.exports = class JsonDatabase {
         if (key === "" || key === null || key === undefined)
             return Error("Bir Veri Belirtmelisin.");
         if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
-        return _.get(this.data, key);
+        return Util.dataGet(this.data, key);
     }
 
     /**
@@ -162,8 +179,8 @@ module.exports = class JsonDatabase {
      */
     delete(key) {
         if (this.has(key) === false) return null;
-        _.unset(this.data, key);
-        fs.writeFileSync(this.dbPath, JSON.stringify(this.data, null, 4));
+        Util.dataDelete(this.data, key);
+        Util.write(this.dbPath, this.data);
         return true;
     }
 
@@ -433,14 +450,13 @@ module.exports = class JsonDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return "EraxDB => Bir Hata Oluştu: Belirtilen Verinin Tipi Array Olmak Zorundadır!";
-
         if (this.get(key).indexOf(value) > -1) return true;
         return false;
     }
 
     /**
      * Verileri filtrelersiniz.
-     * @param {(element: { ID: string, data: any }, index: number, array: { ID: string, data: any }[]) => boolean} callback Callback
+     * @param {(element: { ID: string, data: any }) => boolean} callback Callback
      * @example db.filter(x => x.ID.startsWith("key"));
      * @returns {{ ID: string, data: any }[]}
      */
@@ -520,5 +536,15 @@ module.exports = class JsonDatabase {
      */
     getDBName() {
         return this.dbName;
+    }
+
+    /**
+     * Yeni Array oluşturup gönderir.
+     * @param {(element: { ID: string, data: any }) => boolean} callback Callback
+     * @example db.map((element) => element.ID);
+     * @returns {any[]}
+     */
+    map(callback) {
+        return this.all().map(callback);
     }
 };

@@ -1,8 +1,25 @@
 const Sequelize = require("sequelize");
 const Error = require("./Error");
-const _ = require("lodash");
 const fs = require("fs");
 const path = require("path");
+const Util = require("./Util");
+const chalk = require("chalk");
+
+Util.updateCheck().then((checked) => {
+    if (checked.updated === false) {
+        console.log(chalk.bold("--------------------------------------------------"));
+        console.log(
+            chalk.blue("EraxDB: ") +
+                chalk.red(checked.installedVersion) +
+                " => " +
+                chalk.green(checked.packageVersion)
+        );
+        console.log(
+            chalk.blue("Yeni Sürüm İçin ") + "=>" + chalk.gray(" npm install erax.db@latest")
+        );
+        console.log(chalk.bold("--------------------------------------------------"));
+    }
+});
 
 /**
  * Sqlite Database
@@ -99,7 +116,7 @@ module.exports = class SqliteDatabase {
 
         let json = {};
 
-        _.set(json, key, value);
+        Util.dataSet(json, key, value);
         Object.entries(json).forEach(async (entry) => {
             let [key, value] = entry;
 
@@ -153,15 +170,15 @@ module.exports = class SqliteDatabase {
         if (typeof key !== "string") return Error("Belirtilen Veri String Tipli Olmalıdır!");
 
         if (key.includes(".")) {
-            let newkey = key.split(".").shift();
+            let newkey = Util.parseKey(key);
             let json = {};
 
             let tag = await this.sql.findOne({ where: { key: newkey } });
             if ((await this.has(key)) === false) return null;
 
             let value = await tag.get("value");
-            _.set(json, newkey, value);
-            let newvalue = _.get(json, key);
+            Util.dataSet(json, newkey, value);
+            let newvalue = Util.dataGet(json, key);
             json = {};
             return newvalue;
         } else {
@@ -211,10 +228,10 @@ module.exports = class SqliteDatabase {
             let value = await tag.get("value");
             let json = {};
 
-            _.set(json, newkey, value);
-            _.unset(json, key);
+            Util.dataSet(json, newkey, value);
+            Util.dataDelete(json, key);
 
-            let newvalue = _.get(json, newkey);
+            let newvalue = Util.dataGet(json, newkey);
             await this.set(newkey, newvalue);
             json = {};
             return true;
@@ -451,7 +468,7 @@ module.exports = class SqliteDatabase {
 
     /**
      * Verileri filtrelersiniz.
-     * @param {(element: { ID: string, data: any }, index: number, array: Array<{ ID: string, data: any }>) => boolean} callback Callback
+     * @param {(element: { ID: string, data: any }) => boolean} callback Callback
      * @example await db.filter((element) => element.ID.startsWith("key"));
      * @returns {Promise<{ ID: string, data: any }[]>}
      */
@@ -671,7 +688,7 @@ module.exports = class SqliteDatabase {
                 let key = await obj.dataValues.key;
                 let value = await obj.dataValues.value;
 
-                _.set(json, key, value);
+                Util.dataSet(json, key, value);
                 fs.writeFileSync(dbPath, JSON.stringify(json, null, 4));
             });
         });
@@ -741,5 +758,29 @@ module.exports = class SqliteDatabase {
             }
         });
         return deleted;
+    }
+
+    /**
+     * Yeni Array oluşturup gönderir.
+     * @param {(element: { ID: string, data: any }) => boolean} callback Callback
+     * @example await db.map((element) => element.ID);
+     * @returns {any[]}
+     */
+    async map(callback) {
+        let arr = [];
+        await this.sql.findAll().then(async (data) => {
+            data.forEach(async (obj) => {
+                let key = await obj.dataValues.key;
+                let value = await obj.dataValues.value;
+
+                const data = {
+                    ID: key,
+                    data: value
+                };
+                arr.push(data);
+            });
+        });
+
+        return arr.map(callback);
     }
 };

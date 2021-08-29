@@ -8,9 +8,10 @@
 # Yenilikler
 
 ```npm
-- Hata Düzeltmeleri.
-- filterAndDelete Methodu Eklendi.
-- deleteEach Methoduna maxDeletedSize Options'u Eklendi.
+- map Methodu Eklendi.
+- Modül Hızlandırıldı.
+- filter Methodu Düzenlendi.
+- Sqlite ve Mongo'daki Hatalar Düzeltildi.
 ```
 
 # Uyarı
@@ -71,7 +72,8 @@ console.log(MongoDatabase.DBCollection) //Konsola MongoDB için oluşturulmuş t
 <db>.startsWith("değer") //Belirttiğiniz değer ile başlayan verileri Array içine ekler.
 <db>.endsWith("değer") //Belirttiğiniz değer ile biten verileri Array içine ekler.
 <db>.includes("değer") //Belirttiğiniz değeri içeren verileri Array içine ekler.
-<db>.filter((element, index, array) => element.ID.startsWith("veri")) //Verileri filtrelersiniz.
+<db>.filter((element) => element.ID.startsWith("veri")) //Verileri filtrelersiniz.
+<db>.map((element) => element.ID) //Yeni Array Oluşturur.
 <db>.keyArray() //Tüm verilerin adını Array içine ekler.
 <db>.valueArray() //Tüm verilerin değerini Array içine ekler.
 
