@@ -12,7 +12,7 @@
 - Modül Hızlandırıldı.
 - filter Methodu Düzenlendi.
 - Sqlite ve Mongo'daki Hatalar Düzeltildi.
-- Modülün Eski Bir Sürümünü Kullanıyorsanız Modül Artık Uyarı Vercek.
+- Modülün Eski Bir Sürümünü Kullanıyorsanız Modül Artık Uyarı Verecek.
 ```
 
 # Uyarı
