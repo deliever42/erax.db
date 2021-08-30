@@ -38,9 +38,7 @@ declare module "erax.db" {
         public deleteEach(key: string, maxDeletedSize?: number): boolean;
         public type(key: string): DataTypes;
         public pull(key: string, value: any): any[];
-        public filter(
-            callback: (element: AllData) => boolean
-        ): AllData[];
+        public filter(callback: (element: AllData) => boolean): AllData[];
         public info(): Info<"json">;
         public keyArray(): string[];
         public valueArray(): any[];
@@ -85,9 +83,7 @@ declare module "erax.db" {
         public deleteEach(key: string, maxDeletedSize?: number): boolean;
         public type(key: string): DataTypes;
         public pull(key: string, value: any): any[];
-        public filter(
-            callback: (element: AllData) => boolean
-        ): AllData[];
+        public filter(callback: (element: AllData) => boolean): AllData[];
         public info(): Info<"yaml">;
         public keyArray(): string[];
         public valueArray(): any[];
@@ -131,9 +127,7 @@ declare module "erax.db" {
         public deleteEach(key: string, maxDeletedSize?: number): Promise<boolean>;
         public type(key: string): Promise<DataTypes>;
         public pull(key: string, value: any): Promise<any[]>;
-        public filter(
-            callback: (element: AllData) => boolean
-        ): Promise<AllData[]>;
+        public filter(callback: (element: AllData) => boolean): Promise<AllData[]>;
         public info(): Promise<Info<"sqlite">>;
         public keyArray(): Promise<string[]>;
         public valueArray(): Promise<any[]>;
@@ -179,9 +173,7 @@ declare module "erax.db" {
         public deleteEach(key: string, maxDeletedSize?: number): Promise<boolean>;
         public type(key: string): Promise<DataTypes>;
         public pull(key: string, value: any): Promise<any[]>;
-        public filter(
-            callback: (element: AllData) => boolean
-        ): Promise<AllData[]>;
+        public filter(callback: (element: AllData) => boolean): Promise<AllData[]>;
         public info(): Promise<Info<"mongo">>;
         public keyArray(): Promise<string[]>;
         public valueArray(): Promise<any[]>;
@@ -207,5 +199,9 @@ declare module "erax.db" {
         private static dataGet(data: data, key: string): any;
         private static dataHas(data: data, key: string): boolean;
         private static dataDelete(data: data, key: string): void | null;
+    }
+
+    export class ErrorManager extends Error {
+        public constructor(message: string);
     }
 }
