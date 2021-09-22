@@ -1,39 +1,49 @@
-const fs = require("fs");
-const YAML = require("yaml");
+const { mkdirSync } = require("fs");
 const ErrorManager = require("../utils/ErrorManager");
-const path = require("path");
-const Util = require("../utils/Util");
+const { sep } = require("path");
 const chalk = require("chalk");
+const {
+    destroy,
+    checkFile,
+    isString,
+    isNumber,
+    write,
+    read,
+    dataSet,
+    dataGet,
+    dataHas,
+    dataDelete
+} = require("../utils/Util");
+const YAML = require("YAML");
 
 /**
- * Yaml Database
+ *
  * @class
  */
 module.exports = class YamlDatabase {
     /**
-     * Oluşturulmuş tüm Database'leri Array içinde gönderir.
+     *
      * @static
      * @type {string[]}
      */
     static DBCollection = [];
 
     /**
-     * Options
+     *
      * @constructor
-     * @param {{ databasePath: string }} options Database Options
+     * @param {{ databasePath?: string, seperator?: string }} options
      */
-    constructor(options = { databasePath: "database.yml" }) {
-        if (
-            typeof options.databasePath !== "string" ||
-            options.databasePath === undefined ||
-            options.databasePath === null
-        )
-            throw new ErrorManager("Geçersiz Database İsmi!");
+    constructor(options = { databasePath: "database.yml", seperator: "." }) {
+        if (options.databasePath === undefined || options.databasePath === null)
+            throw new ErrorManager("Please specify a database name.");
+
+        if (!isString(options.databasePath))
+            throw new ErrorManager("Database name must be string!");
 
         let processFolder = process.cwd();
         let databasePath = options.databasePath;
 
-        if (databasePath.endsWith(path.sep)) {
+        if (databasePath.endsWith(sep)) {
             databasePath += "database.yml";
         } else {
             if (!databasePath.endsWith(".yml")) {
@@ -41,30 +51,29 @@ module.exports = class YamlDatabase {
             }
         }
 
-        let dirs = databasePath.split(path.sep).filter((dir) => dir !== "");
+        let dirs = databasePath.split(sep).filter((dir) => dir !== "");
         let dbName = "";
         let dirNames = "";
 
         for (let i = 0; i < dirs.length; i++) {
             if (!dirs[i].endsWith(".yml")) {
-                dirNames += `${dirs[i]}${path.sep}`;
-                if (!fs.existsSync(`${processFolder}${path.sep}${dirNames}`)) {
-                    fs.mkdirSync(`${processFolder}${path.sep}${dirNames}`);
+                dirNames += `${dirs[i]}${sep}`;
+                if (!checkFile(`${processFolder}${sep}${dirNames}`)) {
+                    mkdirSync(`${processFolder}${sep}${dirNames}`);
                 }
             } else {
                 dbName = `${dirs[i]}`;
 
-                if (!fs.existsSync(`${processFolder}${path.sep}${dirNames}${dbName}`)) {
-                    fs.writeFileSync(`${processFolder}${path.sep}${dirNames}${dbName}`, "{}");
+                if (!checkFile(`${processFolder}${sep}${dirNames}${dbName}`)) {
+                    write(`${processFolder}${sep}${dirNames}${dbName}`, {});
                 }
             }
         }
 
-        this.dbPath = `${process.cwd()}${path.sep}${dirNames}${dbName}`;
-
+        this.dbPath = `${process.cwd()}${sep}${dirNames}${dbName}`;
         this.dbName = `${dirNames}${dbName}`;
-
-        this.data = YAML.parse(fs.readFileSync(this.dbPath, "utf-8"));
+        this.data = read(this.dbPath);
+        this.sep = options.seperator;
 
         if (!YamlDatabase.DBCollection.includes(this.dbName)) {
             YamlDatabase.DBCollection.push(this.dbName);
@@ -72,73 +81,71 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Belirttiğiniz veriyi kaydedersiniz.
-     * @param {string} key Veri
-     * @param {any} value Değer
+     *
+     * @param {string} key
+     * @param {any} value
      * @example db.set("key", "value");
      * @returns {any}
      */
     set(key, value) {
         if (key === "" || key === null || key === undefined)
-            throw new ErrorManager("Bir Veri Belirtmelisin.");
-        if (typeof key !== "string")
-            throw new ErrorManager("Belirtilen Veri String Tipli Olmalıdır!");
+            throw new ErrorManager("Please specify a key.");
+        if (!isString(key)) throw new ErrorManager("Key must be string!");
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Bir Değer Belirtmelisin.");
-        Util.dataSet(this.data, key, value);
-        Util.write(this.dbPath, this.data);
+            throw new ErrorManager("Please specify a value.");
+        dataSet(this.data, this.sep, key, value);
+        write(this.dbPath, this.data);
         return value;
     }
 
     /**
-     * Belirttiğiniz veri varmı/yokmu kontrol eder.
-     * @param {string} key Veri
+     *
+     * @param {string} key
      * @example db.has("key");
      * @returns {boolean}
      */
     has(key) {
-        return Util.dataHas(this.data, key);
+        return dataHas(this.data, this.sep, key);
     }
 
     /**
-     * Tüm verileri silersiniz.
+     *
      * @example db.deleteAll();
      * @returns {boolean}
      */
     deleteAll() {
         this.data = {};
-        fs.writeFileSync(this.dbPath, "{}");
+        write(this.dbPath, {});
         return true;
     }
 
     /**
-     * Database dosyasını siler.
+     *
      * @example db.destroy();
      * @returns {boolean}
      */
     destroy() {
         this.data = {};
-        fs.unlinkSync(this.dbPath);
+        destroy(this.dbPath);
         return true;
     }
 
     /**
-     * Belirttiğiniz veriyi çekersiniz.
-     * @param {string} key Veri
+     *
+     * @param {string} key
      * @example db.fetch("key");
      * @returns {any}
      */
     fetch(key) {
         if (key === "" || key === null || key === undefined)
-            throw new ErrorManager("Bir Veri Belirtmelisin.");
-        if (typeof key !== "string")
-            throw new ErrorManager("Belirtilen Veri String Tipli Olmalıdır!");
-        return Util.dataGet(this.data, key);
+            throw new ErrorManager("Please specify a key.");
+        if (!isString(key)) throw new ErrorManager("Key must be string!");
+        return dataGet(this.data, this.sep, key);
     }
 
     /**
-     * Belirttiğiniz veriyi çekersiniz.
-     * @param {string} key Veri
+     *
+     * @param {string} key
      * @example db.get("key");
      * @returns {any}
      */
@@ -147,8 +154,8 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Belirttiğiniz verinin tipini öğrenirsiniz.
-     * @param {string} key Veri
+     *
+     * @param {string} key
      * @example db.type("key");
      * @returns {"array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint"}
      */
@@ -159,20 +166,20 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Belirttiğiniz veriyi silersiniz.
-     * @param {string} key Veri
+     *
+     * @param {string} key
      * @example db.delete("key");
      * @returns {boolean}
      */
     delete(key) {
         if (this.has(key) === false) return null;
-        Util.dataDelete(this.data, key);
-        Util.write(this.dbPath, this.data);
+        dataDelete(this.data, this.sep, key);
+        write(this.dbPath, this.data);
         return true;
     }
 
     /**
-     * Tüm verileri Array içine ekler.
+     *
      * @example db.fetchAll();
      * @returns {{ ID: string, data: any }[]}
      */
@@ -181,7 +188,7 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Tüm verileri Array içine ekler.
+     *
      * @example db.all();
      * @returns {{ ID: string, data: any }[]}
      */
@@ -199,8 +206,8 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Database'de ki verilerin sayısını atar.
-     * @example db.size()
+     *
+     * @example db.size();
      * @returns {number}
      */
     size() {
@@ -208,46 +215,46 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Belirttiğiniz değer ile başlayan verileri Array içine ekler.
-     * @param {string} value Değer
+     *
+     * @param {string} value
      * @example db.startsWith("key");
      * @returns {{ ID: string, data: any }[]}
      */
     startsWith(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Bir Değer Belirtmelisin.");
+            throw new ErrorManager("Please specify a value.");
         return this.all().filter((x) => x.ID.startsWith(value));
     }
 
     /**
-     * Belirttiğiniz değer ile biten verileri Array içine ekler.
-     * @param {string} value Değer
+     *
+     * @param {string} value
      * @example db.endsWith("key");
      * @returns {{ ID: string, data: any }[]}
      */
     endsWith(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Bir Değer Belirtmelisin.");
+            throw new ErrorManager("Please specify a value.");
         return this.all().filter((x) => x.ID.endsWith(value));
     }
 
     /**
-     * Belirttiğiniz değeri içeren verileri Array içine ekler.
-     * @param {string} value Değer
+     *
+     * @param {string} value
      * @example db.includes("key");
      * @returns {{ ID: string, data: any }[]}
      */
     includes(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Bir Değer Belirtmelisin.");
+            throw new ErrorManager("Please specify a value.");
         return this.all().filter((x) => x.ID.includes(value));
     }
 
     /**
-     * Belirttiğiniz veriyi Array'lı kaydedersiniz.
-     * @param {string} key Veri
-     * @param {any} value Değer
-     * @param {boolean} valueIgnoreIfPresent Belirtilen verinin Array'ında belirtilen Value varsa otomatik yoksay, default olarak true.
+     *
+     * @param {string} key
+     * @param {any} value
+     * @param {boolean} [valueIgnoreIfPresent]
      * @example db.push("key", "value");
      * @returns {any[]}
      */
@@ -257,88 +264,83 @@ module.exports = class YamlDatabase {
             let yenivalue = this.get(key);
             if (yenivalue.includes(value) && valueIgnoreIfPresent === true)
                 return console.log(
-                    `${chalk.blue("EraxDB")} => ${chalk.red("Bir Hata Oluştu:")} ${chalk.gray(
-                        "Şartlar Uygun Olmadığı İçin Veri Pushlanmadı."
+                    `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                        "Data was not pushed because the conditions were not suitable."
                     )}`
                 );
             yenivalue.push(value);
             return this.set(key, yenivalue);
         } else {
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Bir Hata Oluştu:")} ${chalk.gray(
-                    "Şartlar Uygun Olmadığı İçin Veri Pushlanmadı."
+                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                    "Data was not pushed because the conditions were not suitable."
                 )}`
             );
         }
     }
 
     /**
-     * Matematik işlemi yaparak veri kaydedersiniz.
-     * @param {string} key Veri
-     * @param {"+" | "-" | "*" | "/" | "%"} operator Operator
-     * @param {number} value Değer
-     * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
-     * @example db.math("key", "+", "1");
+     *
+     * @param {string} key
+     * @param {"+" | "-" | "*" | "/" | "%"} operator
+     * @param {number} value
+     * @param {boolean} [goToNegative]
+     * @example db.math("key", "+", 1);
      * @returns {number}
      */
     math(key, operator, value, goToNegative = false) {
         if (operator === null || operator === undefined || operator === "")
-            throw new ErrorManager("Bir İşlem Belirtmelisin. (-  +  *  /  %)");
+            throw new ErrorManager("Please specify a operator. (-  +  *  /  %)");
         if (value === null || value === undefined || value === "")
-            throw new ErrorManager("Bir Değer Belirtmelisin.");
-        if (isNaN(value)) throw new ErrorManager(`Belirtilen Değer Sadece Sayıdan Oluşabilir!`);
+            throw new ErrorManager("Please specify a value.");
+        if (!isNumber(value)) throw new ErrorManager(`Value must be number!`);
 
-        if (this.has(key) === false) return this.set(key, Number(value));
+        value = Number(value);
+
+        if (this.has(key) === false) return this.set(key, value);
         let data = this.get(key);
 
         switch (operator) {
             case "+":
             case "add":
             case "addition":
-            case "ekle":
-                data += Number(value);
+                data += value;
                 break;
             case "-":
             case "subtract":
             case "subtraction":
             case "subtr":
-            case "çıkar":
             case "sub":
             case "substr":
-                data -= Number(value);
+                data -= value;
                 if (goToNegative === false && data < 1) data = Number("0");
                 break;
             case "*":
             case "multiplication":
-            case "çarp":
-            case "çarpma":
-                data *= Number(value);
+                data *= value;
                 break;
-            case "bölme":
-            case ".":
             case "division":
             case "div":
             case "/":
-                data /= Number(value);
+                data /= value;
                 if (goToNegative === false && data < 1) data = Number("0");
                 break;
             case "%":
-            case "yüzde":
             case "percentage":
             case "percent":
-                data %= Number(value);
+                data %= value;
                 break;
             default:
-                throw new ErrorManager("Geçersiz İşlem!");
+                throw new ErrorManager("Invalid Operator! (-  +  *  /  %)");
         }
 
         return this.set(key, data);
     }
 
     /**
-     * Belirttiğiniz veriye 1 ekler.
-     * @param {string} key Veri
-     * @param {number} value Değer
+     *
+     * @param {string} key
+     * @param {number} value
      * @example db.add("key", 1);
      * @returns {number}
      */
@@ -347,10 +349,10 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Belirttiğiniz veriden 1 çıkarır.
-     * @param {string} key Veri
-     * @param {number} value Değer
-     * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
+     *
+     * @param {string} key
+     * @param {number} value
+     * @param {boolean} [goToNegative]
      * @example db.subtract("key", 1);
      * @returns {number}
      */
@@ -359,8 +361,8 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Belirttiğiniz veri Array'lı ise true, Array'sız ise false olarak cevap verir.
-     * @param {string} key Veri
+     *
+     * @param {string} key
      * @example db.arrayHas("key");
      * @returns {boolean}
      */
@@ -370,25 +372,25 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Database bilgilerini öğrenirsiniz.
+     *
      * @example db.info();
-     * @returns {{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "yaml" }}
+     * @returns {{ Version: number, DatabaseName: string, DataSize: number, DatabaseType: "yaml" }}
      */
     info() {
         let p = require("../../package.json");
 
         return {
-            Sürüm: p.version,
-            DatabaseAdı: this.dbName,
-            ToplamVeriSayısı: this.size(),
-            DatabaseTürü: "yaml"
+            Version: p.version,
+            DatabaseName: this.dbName,
+            DataSize: this.size(),
+            DatabaseType: "yaml"
         };
     }
 
     /**
-     * Belirttiğiniz değeri içeren verileri siler.
-     * @param {string} value Değer
-     * @param {number} maxDeletedSize Silinecek maksimum veri sayısı.
+     *
+     * @param {string} value
+     * @param {number} [maxDeletedSize]
      * @example db.deleteEach("key");
      * @returns {boolean}
      */
@@ -415,9 +417,9 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Belirttiğiniz verinin Array'ında belirttiğiniz değer varsa siler.
-     * @param {string} key Veri
-     * @param {any} value Değer
+     *
+     * @param {string} key
+     * @param {any} value
      * @example db.pull("key", "value");
      * @returns {any[]}
      */
@@ -425,14 +427,14 @@ module.exports = class YamlDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Bir Hata Oluştu:")} ${chalk.gray(
-                    "Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!"
+                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                    "The type of data you specify must be array!"
                 )}`
             );
         if (this.arrayHasValue(key, value) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Bir Hata Oluştu:")} ${chalk.gray(
-                    "Belirttiğiniz Değer Belirttiğiniz Verinin Array'ında Bulunmuyor."
+                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                    "The value you specified is not in the array of the data you specified."
                 )}`
             );
 
@@ -443,9 +445,9 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Belirttiğiniz verinin Array'ında belirttiğiniz değer varmı/yokmu kontrol eder.
-     * @param {string} key Veri
-     * @param {any} value Değer
+     *
+     * @param {string} key
+     * @param {any} value
      * @example db.arrayHasValue("key", "value");
      * @returns {boolean}
      */
@@ -453,8 +455,8 @@ module.exports = class YamlDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Bir Hata Oluştu:")} ${chalk.gray(
-                    "Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!"
+                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                    "The type of data you specify must be array!"
                 )}`
             );
         if (this.get(key).indexOf(value) > -1) return true;
@@ -462,8 +464,8 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Verileri filtrelersiniz.
-     * @param {(element: { ID: string, data: any }) => boolean} callback Callback
+     *
+     * @param {(element: { ID: string, data: any }) => boolean} callback
      * @example db.filter(x => x.ID.startsWith("key"));
      * @returns {{ ID: string, data: any }[]}
      */
@@ -472,57 +474,13 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Tüm verilerin adını Array içine ekler.
-     * @example db.keyArray()
-     * @returns {string[]}
-     */
-    keyArray() {
-        let arr = [];
-        Object.keys(YAML.parse(fs.readFileSync(this.dbPath, "utf-8"))).forEach((key) =>
-            arr.push(key)
-        );
-        return arr;
-    }
-
-    /**
-     * Tüm verilerin değerini Array içine ekler.
-     * @example db.valueArray()
-     * @returns {any[]}
-     */
-    valueArray() {
-        let arr = [];
-        Object.values(YAML.parse(fs.readFileSync(this.dbPath, "utf-8"))).forEach((value) =>
-            arr.push(value)
-        );
-        return arr;
-    }
-
-    /**
-     * Oluşturulmuş tüm Database'lerin sayısını gönderir.
-     * @example db.DBCollectionSize()
+     *
+     * @param {(element: { ID: string, data: any }) => boolean} callback
+     * @param {number} [maxDeletedSize]
+     * @example db.findAndDelete((element) => element.ID.includes("test"));
      * @returns {number}
      */
-    DBCollectionSize() {
-        return YamlDatabase.DBCollection.length;
-    }
-
-    /**
-     * Database adını gönderir.
-     * @example db.getDBName()
-     * @returns {string}
-     */
-    getDBName() {
-        return this.dbName;
-    }
-
-    /**
-     * Verileri filteleyip silersiniz.
-     * @param {(element: { ID: string, data: any }) => boolean} callback Callback
-     * @param {number} maxDeletedSize Silinecek maksimum veri sayısı.
-     * @example db.filterAndDelete((element) => element.ID.includes("test"));
-     * @returns {number}
-     */
-    filterAndDelete(callback, maxDeletedSize = 0) {
+    findAndDelete(callback, maxDeletedSize = 0) {
         let deleted = 0;
         maxDeletedSize = Number(maxDeletedSize);
 
@@ -546,8 +504,48 @@ module.exports = class YamlDatabase {
     }
 
     /**
-     * Yeni Array oluşturup gönderir.
-     * @param {(element: { ID: string, data: any }) => boolean} callback Callback
+     *
+     * @example db.keyArray();
+     * @returns {string[]}
+     */
+    keyArray() {
+        let arr = [];
+        Object.keys(this.data).forEach((key) => arr.push(key));
+        return arr;
+    }
+
+    /**
+     *
+     * @example db.valueArray();
+     * @returns {any[]}
+     */
+    valueArray() {
+        let arr = [];
+        Object.values(this.data).forEach((value) => arr.push(value));
+        return arr;
+    }
+
+    /**
+     *
+     * @example db.DBCollectionSize();
+     * @returns {number}
+     */
+    DBCollectionSize() {
+        return YamlDatabase.DBCollection.length;
+    }
+
+    /**
+     *
+     * @example db.getDBName();
+     * @returns {string}
+     */
+    getDBName() {
+        return this.dbName;
+    }
+
+    /**
+     *
+     * @param {(element: { ID: string, data: any }) => boolean} callback
      * @example db.map((element) => element.ID);
      * @returns {any[]}
      */

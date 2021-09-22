@@ -1,10 +1,13 @@
 const FETCH = require("node-fetch");
 const fs = require("fs");
-const { set, get, unset } = require("lodash");
 
+/**
+ *
+ * @class
+ */
 module.exports = class Util {
     /**
-     * EraxDB Sürümünü kontrol eder.
+     *
      * @returns {{ updated: boolean, installedVersion: string, packageData: string }}
      */
     static async updateCheck() {
@@ -28,8 +31,21 @@ module.exports = class Util {
     }
 
     /**
-     * Veri adını ayrıştırırsınız.
-     * @param {string} key Veri
+     *
+     * @param {string} path
+     * @returns {void | null}
+     */
+    static destroy(path) {
+        if (fs.existsSync(path)) {
+            return fs.unlinkSync(path);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     *
+     * @param {string} key
      * @returns {string}
      */
     static parseKey(key) {
@@ -38,9 +54,36 @@ module.exports = class Util {
     }
 
     /**
-     * Verileri yazdırırsınız.
-     * @param {string} path Database Path
-     * @param {{ [key: string]: any }} data Data
+     *
+     * @param {string} path
+     * @returns {boolean}
+     */
+    static checkFile(path) {
+        return fs.existsSync(path) ? true : false;
+    }
+
+    /**
+     *
+     * @param {any} key
+     * @returns {boolean}
+     */
+    static isString(key) {
+        return typeof key === "string" ? true : false;
+    }
+
+    /**
+     *
+     * @param {any} key
+     * @returns {boolean}
+     */
+    static isNumber(key) {
+        return isNaN(key) ? false : true;
+    }
+
+    /**
+     *
+     * @param {string} path
+     * @param {{ [key: string]: any } | string} data
      * @returns {void | null}
      */
     static write(path, data) {
@@ -54,52 +97,116 @@ module.exports = class Util {
     }
 
     /**
-     * Veri kaydedersiniz.
-     * @param {{ [key: string]: any }} data Data
-     * @param {string} key Veri
-     * @param {any} value Value
+     *
+     * @param {string} path
+     * @returns {void | null}
+     */
+    static read(path) {
+        if (fs.existsSync(path)) {
+            if (path.endsWith(".json")) {
+                return JSON.parse(fs.readFileSync(path, "utf-8"));
+            } else if (path.endsWith(".yml")) {
+                return YAML.parse(fs.readFileSync(path, "utf-8"));
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     *
+     * @param {{ [key: string]: any }} data
+     * @param {string} sep
+     * @param {string} key
+     * @param {any} value
      * @returns {void}
      */
-    static dataSet(data, key, value) {
-        if (key.includes(".")) return set(data, key, value);
-        else {
+    static dataSet(data, sep, key, value) {
+        if (key.includes(sep)) {
+            let splited = key.split(sep);
+            let obj = {};
+            obj = data;
+            let json = obj;
+            for (let i = 0; i < splited.length - 1; i++) {
+                if (!json[splited[i]]) json = json[splited[i]] = {};
+                else json = json[splited[i]];
+            }
+            json[splited[splited.length - 1]] = value;
+        } else {
             return (data[key] = value);
         }
     }
 
     /**
-     * Veri getirirsiniz.
-     * @param {{ [key: string]: any }} data Data
-     * @param {string} key Veri
+     *
+     * @param {{ [key: string]: any }} data
+     * @param {string} sep
+     * @param {string} key
      * @returns {any}
      */
-    static dataGet(data, key) {
-        if (key.includes(".")) return get(data, key) ? get(data, key) : null;
-        else {
+    static dataGet(data, sep, key) {
+        if (key.includes(sep)) {
+            let splited = key.split(sep);
+            let obj = {};
+            obj = data;
+            let json = obj;
+
+            for (let i = 0; i < splited.length - 1; i++) {
+                json = json[splited[i]];
+            }
+            return json[splited[splited.length - 1]] ? json[splited[splited.length - 1]] : null;
+        } else {
             return data[key] ? data[key] : null;
         }
     }
 
     /**
-     * Veri varmı/yokmu kontrol eder.
-     * @param {{ [key: string]: any }} data Data
-     * @param {string} key Veri
+     *
+     * @param {{ [key: string]: any }} data
+     * @param {string} sep
+     * @param {string} key
      * @returns {boolean}
      */
-    static dataHas(data, key) {
-        return this.dataGet(data, key) === null ? false : true;
+    static dataHas(data, sep, key) {
+        if (key.includes(sep)) {
+            let splited = key.split(sep);
+            let obj = {};
+            obj = data;
+            let json = obj;
+
+            for (let i = 0; i < splited.length - 1; i++) {
+                json = json[splited[i]];
+            }
+            return json[splited[splited.length - 1]] ? json[splited[splited.length - 1]] : null;
+        } else {
+            return data[key] ? true : false;
+        }
     }
 
     /**
-     * Veri silersiniz.
-     * @param {{ [key: string]: any }} data Data
-     * @param {string} key key
+     *
+     * @param {{ [key: string]: any }} data
+     * @param {string} sep
+     * @param {string} key
      * @returns {null | void}
      */
-    static dataDelete(data, key) {
-        if (key.includes(".")) return this.dataHas(data, key) === true ? unset(data, key) : null;
-        else {
-            return this.dataHas(data, key) === true ? delete data[key] : null;
+    static dataDelete(data, sep, key) {
+        if (key.includes(sep)) {
+            let splited = key.split(sep);
+            let obj = {};
+            obj = data;
+            let json = obj;
+
+            for (let i = 0; i < splited.length - 1; i++) {
+                json = json[splited[i]];
+            }
+            return json[splited[splited.length - 1]]
+                ? delete json[splited[splited.length - 1]]
+                : null;
+        } else {
+            return data[key] ? delete data[key] : null;
         }
     }
 };

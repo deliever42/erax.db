@@ -5,96 +5,95 @@
 
 ![Image](https://nodei.co/npm/erax.db.png?downloads=true&downloadRank=true&stars=true)
 
-# Yenilikler
+# News
 
 ```npm
-- map Methodu Eklendi.
-- Modül Hızlandırıldı.
-- filter Methodu Düzenlendi.
-- Sqlite ve Mongo'daki Hatalar Düzeltildi.
-- Modülün Eski Bir Sürümünü Kullanıyorsanız Modül Artık Uyarı Verecek.
+- Fixed Errors.
+- Fixed TypeScript Errors.
+- filterAndDelete => findAndDelete
+- The module will descend a little faster.
 ```
 
-# Uyarı
+# Warn
 
 ```npm
-- Node.JS'nin Sürümü 14'den Büyük Olmalıdır.
+- Node.JS version must be greater than 14.
 ```
 
-# Kullanım
+# Use
 
 ```js
 const { JsonDatabase, YamlDatabase, SqliteDatabase, MongoDatabase } = require("erax.db");
 
 //JSON
-const jsondb = new JsonDatabase({ databasePath: "MyJsonDatabase.json" });
-console.log(JsonDatabase.DBCollection) //Konsola Json için oluşturulmuş tüm Database'leri gönderir.
+const jsondb = new JsonDatabase({ databasePath: "MyJsonDatabase.json", seperator: "." });
+console.log(JsonDatabase.DBCollection); //It sends all Databases created for Json to the console.
 
 //Yaml
-const yamldb = new YamlDatabase({ databasePath: "MyYamlDatabase.yml" });
-console.log(YamlDatabase.DBCollection) //Konsola Yaml için oluşturulmuş tüm Database'leri gönderir.
+const yamldb = new YamlDatabase({ databasePath: "MyYamlDatabase.yml", seperator: "." });
+console.log(YamlDatabase.DBCollection); //It sends all Databases created for Yaml to the console.
 
 //SQlite
-const sqlitedb = new SqliteDatabase({ databasePath: "MySqliteDatabase.sqlite" });
-console.log(SqliteDatabase.DBCollection) //Konsola Sqlite için oluşturulmuş tüm Database'leri gönderir.
+const sqlitedb = new SqliteDatabase({ databasePath: "MySqliteDatabase.sqlite", seperator: "." });
+console.log(SqliteDatabase.DBCollection); //It sends all Databases created for Sqlite to the console.
 
 //Mongo
-const mongodb = new MongoDatabase({ mongoURL: "MongoDB URL'si" });
-console.log(MongoDatabase.DBCollection) //Konsola MongoDB için oluşturulmuş tüm Database'leri gönderir.
+const mongodb = new MongoDatabase({ mongoURL: "MongoDB URL", seperator: "." });
+console.log(MongoDatabase.DBCollection); //It sends all Databases created for Mongo to the console.
 
-//NOT: SQlite'de Hata Alırsanız Umursamayın.
+//NOTE: Don't Care If You Get Errors in SQlite.
 ```
 
 # Methodlar
 
 ```js
-//Set & Fetch Methodları
-<db>.set("veri", "değer") //Belirttiğiniz veriyi kaydedersiniz.
-<db>.fetch("veri") //Belirttiğiniz veriyi çekersiniz.
-<db>.get("veri") //Belirttiğiniz veriyi çekersiniz.
-<db>.push("veri", "değer") //Belirttiğiniz veriyi Array'lı kaydedersiniz.
+//Set & Fetch Methods
+<db>.set("key", "value")
+<db>.fetch("key")
+<db>.get("key")
+<db>.push("key", "value")
 
-//Delete Methodları
-<db>.delete("veri") //Belirttiğiniz veriyi silersiniz.
-<db>.deleteAll() //Tüm verileri silersiniz.
-<db>.deleteEach("değer") //Belirttiğiniz değeri içeren verileri siler.
-<db>.filterAndDelete((element) => element.ID.includes("test")) //Verileri filtreleyip silersiniz.
-<db>.destroy() //Database dosyasını siler.
-<db>.pull("veri", "değer") //Belirttiğiniz verinin değerinde belirttiğiniz değer varsa siler.
+//Delete Methods
+<db>.delete("key")
+<db>.deleteAll()
+<db>.deleteEach("value")
+<db>.findAndDelete((element) => element.ID.includes("test"))
+<db>.destroy()
+<db>.pull("key", "value")
 
-//Boolean Methodları
-<db>.has("veri") //Belirttiğiniz veri varmı/yokmu kontrol eder.
-<db>.arrayHas("veri") //Belirttiğiniz verinin değeri Array'lı ise true, Array'sız ise false olarak cevap verir.
-<db>.arrayHasValue("veri", "değer") //Belirttiğiniz verinin değerinde belirttiğiniz değer varmı/yokmu kontrol eder.
+//Exists Methods
+<db>.has("key")
+<db>.arrayHas("key")
+<db>.arrayHasValue("key", "value")
 
-//Array Methodları
-<db>.all() //Tüm verileri Array içine ekler.
-<db>.fetchAll() //Tüm verileri Array içine ekler.
-<db>.startsWith("değer") //Belirttiğiniz değer ile başlayan verileri Array içine ekler.
-<db>.endsWith("değer") //Belirttiğiniz değer ile biten verileri Array içine ekler.
-<db>.includes("değer") //Belirttiğiniz değeri içeren verileri Array içine ekler.
-<db>.filter((element) => element.ID.startsWith("veri")) //Verileri filtrelersiniz.
-<db>.map((element) => element.ID) //Yeni Array Oluşturur.
-<db>.keyArray() //Tüm verilerin adını Array içine ekler.
-<db>.valueArray() //Tüm verilerin değerini Array içine ekler.
+//Array Methods
+<db>.all()
+<db>.fetchAll()
+<db>.startsWith("value")
+<db>.endsWith("value")
+<db>.includes("value")
+<db>.filter((element) => element.ID.startsWith("key"))
+<db>.map((element) => element.ID)
+<db>.keyArray()
+<db>.valueArray()
 
-//Matematik İşlemi Methodları
-<db>.math("veri", "işlem", "değer") //Matematik işlemi yaparak veri kaydedersiniz.
-<db>.add("veri", 1) //Belirttiğiniz veriye 1 ekler.
-<db>.subtract("veri", 1) //Belirttiğiniz veriden 1 çıkarır.
+//Math Methods
+<db>.math("key", "operator", 1)
+<db>.add("key", 1)
+<db>.subtract("key", 1)
 
-//Normal Methodlar
-<db>.info() //Database bilgilerini öğrenirsiniz.
-<db>.size() //Database'deki verilerin sayısını atar.
-<db>.type("veri") //Belirttiğiniz verinin tipini öğrenirsiniz.
-<db>.DBCollectionSize() //Oluşturulmuş tüm Database'lerin sayısını gönderir.
-<db>.getDBName() //Database ismini gönderir.
+//Normal Methods
+<db>.info()
+<db>.size()
+<db>.type("key")
+<db>.DBCollectionSize()
+<db>.getDBName()
 
-//SQlite ve Mongo İçin Methodlar
-await <db>.export() //Belirtilen JSON dosyasına verileri export eder.
-await <db>.import() //Belirtilen JSON dosyasından verileri import eder.
+//SQLite ve Mongo Extra Methods
+await <db>.export("database.json")
+await <db>.import("database.json")
 
-//NOT: Mongo ve SQlite'de Methodları Kullanırken await Kullanmayı Unutmayın.
+//NOTE: Don't forget to Use await when using methods in Mongo and SQlite.
 ```
 
-#### Hata Bildirmek İçin Discord Üzerinden Emirhan77#0001'e Ulaşabilirsiniz.
+#### You can reach Emirhan77#0001 on Discord to report a bug.

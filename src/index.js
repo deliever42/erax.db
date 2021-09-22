@@ -11,7 +11,7 @@ Util.updateCheck().then((checked) => {
                 chalk.green(checked.packageVersion)
         );
         console.log(
-            chalk.blue("Yeni Sürüm İçin ") + "=>" + chalk.gray(" npm install erax.db@latest")
+            chalk.blue("For New Version") + " => " + chalk.gray("npm install erax.db@latest")
         );
         console.log(chalk.bold("--------------------------------------------------"));
     }
@@ -21,5 +21,5 @@ module.exports = {
     JsonDatabase: require("./providers/Json"),
     YamlDatabase: require("./providers/Yaml"),
     SqliteDatabase: require("./providers/Sqlite"),
-    MongoDatabase: require("./providers/Mongo"),
+    MongoDatabase: require("./providers/Mongo")
 };

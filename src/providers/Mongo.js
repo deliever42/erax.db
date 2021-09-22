@@ -1,35 +1,46 @@
 const mongoose = require("mongoose");
-const fs = require("fs");
+const { mkdirSync } = require("fs");
 const ErrorManager = require("../utils/ErrorManager");
-const path = require("path");
-const Util = require("../utils/Util");
+const { sep } = require("path");
 const chalk = require("chalk");
+const {
+    parseKey,
+    checkFile,
+    isString,
+    isNumber,
+    dataSet,
+    dataGet,
+    dataDelete,
+    write
+} = require("../utils/Util");
 
 /**
- * Mongo Database
+ *
  * @class
  */
 module.exports = class MongoDatabase {
     /**
-     * Oluşturulmuş tüm Database'leri Array içinde gönderir.
+     *
      * @static
      * @type {string[]}
      */
     static DBCollection = [];
 
     /**
-     * Options
+     *
      * @constructor
-     * @param {{ mongoURL: string }} options Database Options
+     * @param {{ mongoURL: string, seperator?: string }} options
      */
-    constructor(options = { mongoURL }) {
-        if (!options.mongoURL) throw new ErrorManager("MongoDB URL'si Bulunamadı!");
+    constructor(options = { mongoURL, seperator: "." }) {
+        if (options.mongoURL === undefined || options.mongoURL === null)
+            throw new ErrorManager("Please specify a MongoDB URL.");
+        if (!isString(mongoURL)) throw new ErrorManager("MongoDB URL must be string!");
         if (!options.mongoURL.match(/^mongodb([a-z+]{0,15})?.+/g))
-            throw new ErrorManager("Geçersiz MongoDB URL'si!");
+            throw new ErrorManager("Invalid MongoDB URL!");
 
         this.url = options.mongoURL;
-
         this.dbName = this.url.split("mongodb.net/").pop().split("?")[0];
+        this.sep = options.seperator;
 
         mongoose.connect(this.url, {
             useNewUrlParser: true,
@@ -59,23 +70,22 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Belirttiğiniz veriyi kaydedersiniz.
-     * @param {string} key Veri
-     * @param {any} value Değer
+     *
+     * @param {string} key
+     * @param {any} value
      * @example await db.set("key", "value");
      * @returns {Promise<any>}
      */
     async set(key, value) {
         if (key === "" || key === null || key === undefined)
-            throw new ErrorManager("Bir Veri Belirtmelisin.");
-        if (typeof key !== "string")
-            throw new ErrorManager("Belirtilen Veri String Tipli Olmalıdır!");
+            throw new ErrorManager("Please specify a key.");
+        if (!isString(key)) throw new ErrorManager("Key must be string!");
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Bir Değer Belirtmelisin.");
+            throw new ErrorManager("Please specify a value.");
 
         let json = {};
 
-        Util.dataSet(json, key, value);
+        dataSet(json, this.sep, key, value);
 
         Object.entries(json).forEach(async (entry) => {
             let [key, value] = entry;
@@ -94,8 +104,8 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Belirttiğiniz veri varmı/yokmu kontrol eder.
-     * @param {string} key Veri
+     *
+     * @param {string} key
      * @example await db.has("key");
      * @returns {Promise<boolean>}
      */
@@ -104,7 +114,7 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Tüm verileri silersiniz.
+     *
      * @example await db.deleteAll();
      * @returns {Promise<boolean>}
      */
@@ -114,27 +124,26 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Belirttiğiniz veriyi çekersiniz.
-     * @param {string} key Veri
+     *
+     * @param {string} key
      * @example await db.fetch("key");
      * @returns {Promise<any>}
      */
     async fetch(key) {
         if (key === "" || key === null || key === undefined)
-            throw new ErrorManager("Bir Veri Belirtmelisin.");
-        if (typeof key !== "string")
-            throw new ErrorManager("Belirtilen Veri String Tipli Olmalıdır!");
+            throw new ErrorManager("Please specify a key.");
+        if (!isString(key)) throw new ErrorManager("Key must be string!");
 
-        if (key.includes(".")) {
-            let newkey = Util.parseKey(key);
+        if (key.includes(this.sep)) {
+            let newkey = parseKey(key);
             let json = {};
 
             let tag = await this.mongo.findOne({ key: newkey });
             if ((await this.has(key)) === false) return null;
 
             let value = await tag.get("value");
-            Util.dataSet(json, newkey, value);
-            let newvalue = Util.dataGet(json, key);
+            dataSet(json, this.sep, newkey, value);
+            let newvalue = dataGet(json, this.sep, key);
             json = {};
             return newvalue;
         } else {
@@ -145,8 +154,8 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Belirttiğiniz veriyi çekersiniz.
-     * @param {string} key Veri
+     *
+     * @param {string} key
      * @example await db.get("key");
      * @returns {Promise<any>}
      */
@@ -155,8 +164,8 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Belirttiğiniz verinin tipini öğrenirsiniz.
-     * @param {string} key Veri
+     *
+     * @param {string} key
      * @example await db.type("key");
      * @returns {Promise<"array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint">}
      */
@@ -167,28 +176,27 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Belirttiğiniz veriyi silersiniz.
-     * @param {string} key Veri
+     *
+     * @param {string} key
      * @example await db.delete("key");
      * @returns {Promise<boolean>}
      */
     async delete(key) {
         if (key === "" || key === null || key === undefined)
-            throw new ErrorManager("Bir Veri Belirtmelisin.");
-        if (typeof key !== "string")
-            throw new ErrorManager("Belirtilen Veri String Tipli Olmalıdır!");
+            throw new ErrorManager("Please specify a key.");
+        if (!isString(key)) throw new ErrorManager("Key must be string!");
 
-        if (key.includes(".")) {
-            let newkey = key.split(".").shift();
+        if (key.includes(this.sep)) {
+            let newkey = parseKey(key);
             if ((await this.has(newkey)) === false) return null;
             let tag = await this.mongo.findOne({ key: newkey });
             let value = await tag.get("value");
             let json = {};
 
-            Util.dataSet(json, newkey, value);
-            Util.dataDelete(json, key);
+            dataSet(json, this.sep, newkey, value);
+            dataDelete(json, this.sep, key);
 
-            let newvalue = Util.dataGet(json, newkey);
+            let newvalue = dataGet(json, this.sep, newkey);
             await this.set(newkey, newvalue);
             json = {};
             return true;
@@ -202,7 +210,7 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Tüm verileri Array içine ekler.
+     *
      * @example await db.fetchAll();
      * @returns {Promise<{ ID: string, data: any }[]>}
      */
@@ -226,7 +234,7 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Tüm verileri Array içine ekler.
+     *
      * @example await db.all();
      * @returns {Promise<{ ID: string, data: any }[]>}
      */
@@ -250,72 +258,67 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Matematik işlemi yaparak veri kaydedersiniz.
-     * @param {string} key Veri
-     * @param {"+" | "-" | "*" | "/" | "%"} operator Operator
-     * @param {number} value Değer
-     * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
-     * @example await db.math("key", "+", "1");
+     *
+     * @param {string} key
+     * @param {"+" | "-" | "*" | "/" | "%"} operator
+     * @param {number} value
+     * @param {boolean} [goToNegative]
+     * @example await db.math("key", "+", 1);
      * @returns {Promise<number>}
      */
     async math(key, operator, value, goToNegative = false) {
         if (operator === null || operator === undefined || operator === "")
-            throw new ErrorManager("Bir İşlem Belirtmelisin. (-  +  *  /  %)");
+            throw new ErrorManager("Please specify a operator. (-  +  *  /  %)");
         if (value === null || value === undefined || value === "")
-            throw new ErrorManager("Bir Değer Belirtmelisin.");
-        if (isNaN(value)) throw new ErrorManager(`Belirtilen Değer Sadece Sayıdan Oluşabilir!`);
+            throw new ErrorManager("Please specify a value.");
+        if (!isNumber(value)) throw new ErrorManager(`Value must be number!`);
 
-        if (this.has(key) === false) return await this.set(key, Number(value));
+        value = Number(value);
+
+        if (this.has(key) === false) return await this.set(key, value);
         let data = await this.get(key);
 
         switch (operator) {
             case "+":
             case "add":
             case "addition":
-            case "ekle":
-                data += Number(value);
+                data += value;
                 break;
             case "-":
             case "subtract":
             case "subtraction":
             case "subtr":
-            case "çıkar":
             case "sub":
             case "substr":
-                data -= Number(value);
+                data -= value;
                 if (goToNegative === false && data < 1) data = Number("0");
                 break;
             case "*":
             case "multiplication":
-            case "çarp":
-            case "çarpma":
-                data *= Number(value);
+                data *= value;
                 break;
-            case "bölme":
-            case ".":
             case "division":
             case "div":
             case "/":
-                data /= Number(value);
+                data /= value;
                 if (goToNegative === false && data < 1) data = Number("0");
                 break;
             case "%":
-            case "yüzde":
             case "percentage":
             case "percent":
-                data %= Number(value);
+                data %= value;
                 break;
             default:
-                throw new ErrorManager("Geçersiz İşlem!");
+                throw new ErrorManager("Invalid Operator! (-  +  *  /  %)");
         }
 
         return await this.set(key, data);
     }
 
     /**
-     * Belirttiğiniz veriye 1 ekler.
-     * @param {string} key Veri
-     * @param {number} value Değer
+     *
+     * @param {string} key
+     * @param {number} value
      * @example await db.add("key", 1);
      * @returns {Promise<number>}
      */
@@ -324,10 +327,10 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Belirttiğiniz veriden 1 çıkarır.
-     * @param {string} key Veri
-     * @param {number} value Değer
-     * @param {boolean} goToNegative Value'nin -'lere düşük düşmeyeceği, default olarak false.
+     *
+     * @param {string} key
+     * @param {number} value
+     * @param {boolean} [goToNegative]
      * @returns {Promise<number>}
      * @example await db.subtract("key", 1);
      */
@@ -336,7 +339,7 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Database bilgilerini öğrenirsiniz.
+     *
      * @example await db.info();
      * @returns {Promise<{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "mongo" }>}
      */
@@ -352,51 +355,51 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Belirttiğiniz değer ile başlayan verileri Array içine ekler.
-     * @param {string} value Değer
+     *
+     * @param {string} value
      * @example await db.startsWith("key");
      * @returns {Promise<{ ID: string, data: any }[]>}
      */
     async startsWith(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Bir Değer Belirtmelisin.");
+            throw new ErrorManager("Please specify a value.");
         return await this.filter((x) => x.ID.startsWith(value));
     }
 
     /**
-     * Belirttiğiniz değer ile biten verileri Array içine ekler.
-     * @param {string} value Değer
+     *
+     * @param {string} value
      * @example await db.endsWith("key");
      * @returns {Promise<{ ID: string, data: any }[]>}
      */
     async endsWith(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Bir Değer Belirtmelisin.");
+            throw new ErrorManager("Please specify a value.");
         return await this.filter((x) => x.ID.endsWith(value));
     }
 
     /**
-     * Belirttiğiniz değeri içeren verileri Array içine ekler.
-     * @param {string} value Değer
+     *
+     * @param {string} value
      * @example await db.includes("key");
      * @returns {Promise<{ ID: string, data: any }[]>}
      */
     async includes(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Bir Değer Belirtmelisin.");
+            throw new ErrorManager("Please specify a value.");
         return await this.filter((x) => x.ID.includes(value));
     }
 
     /**
-     * Belirttiğiniz değeri içeren verileri siler.
-     * @param {string} value Değer
-     * @param {number} maxDeletedSize Silinecek maksimum veri sayısı.
+     *
+     * @param {string} value
+     * @param {number} [maxDeletedSize]
      * @example await db.deleteEach("key");
      * @returns {Promise<boolean>}
      */
     async deleteEach(value, maxDeletedSize = 0) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Bir Değer Belirtmelisin.");
+            throw new ErrorManager("Please specify a value.");
 
         let deleted = 0;
         maxDeletedSize = Number(maxDeletedSize);
@@ -427,8 +430,8 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Verileri filtrelersiniz.
-     * @param {(element: { ID: string, data: any }) => boolean} callback Callback
+     *
+     * @param {(element: { ID: string, data: any }) => boolean} callback
      * @example await db.filter((element) => element.ID.startsWith("key"));
      * @returns {Promise<{ ID: string, data: any }[]>}
      */
@@ -451,8 +454,8 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Yeni Array oluşturup gönderir.
-     * @param {(element: { ID: string, data: any }) => boolean} callback Callback
+     *
+     * @param {(element: { ID: string, data: any }) => boolean} callback
      * @example await db.map((element) => element.ID);
      * @returns {any[]}
      */
@@ -475,10 +478,10 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Belirttiğiniz veriyi Array'lı kaydedersiniz.
-     * @param {string} key Veri
-     * @param {any} value Değer
-     * @param {boolean} valueIgnoreIfPresent Belirtilen verinin Array'ında belirtilen Value varsa otomatik yoksay, default olarak true.
+     *
+     * @param {string} key
+     * @param {any} value
+     * @param {boolean} [valueIgnoreIfPresent]
      * @example await db.push("key", "value");
      * @returns {Promise<any[]>}
      */
@@ -488,38 +491,38 @@ module.exports = class MongoDatabase {
             let yenivalue = await this.get(key);
             if (yenivalue.includes(value) && valueIgnoreIfPresent === true)
                 return console.log(
-                    `${chalk.blue("EraxDB")} => ${chalk.red("Bir Hata Oluştu:")} ${chalk.gray(
-                        "Şartlar Uygun Olmadığı İçin Veri Pushlanmadı."
+                    `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                        "Data was not pushed because the conditions were not suitable."
                     )}`
                 );
             yenivalue.push(value);
             return await this.set(key, yenivalue);
         } else {
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Bir Hata Oluştu:")} ${chalk.gray(
-                    "Şartlar Uygun Olmadığı İçin Veri Pushlanmadı."
+                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                    "Data was not pushed because the conditions were not suitable."
                 )}`
             );
         }
     }
 
     /**
-     * Belirttiğiniz veri Array'lı ise true, Array'sız ise false olarak cevap verir.
-     * @param {string} key Veri
+     *
+     * @param {string} key
      * @example await db.arrayHas("key");
      * @returns {Promise<boolean>}
      */
     async arrayHas(key) {
-        if (!key || key === "") throw new ErrorManager("Bir Veri Belirtmelisin.");
+        if (!key || key === "") throw new ErrorManager("Please specify a key.");
         let value = await this.get(key);
         if (Array.isArray(await value)) return true;
         return false;
     }
 
     /**
-     * Belirttiğiniz verinin Array'ında belirttiğiniz değer varmı/yokmu kontrol eder.
-     * @param {string} key Veri
-     * @param {any} value Değer
+     *
+     * @param {string} key
+     * @param {any} value
      * @example await db.arrayHasValue("key", "value");
      * @returns {Promise<boolean>}
      *
@@ -528,8 +531,8 @@ module.exports = class MongoDatabase {
         if ((await this.has(key)) === false) return null;
         if ((await this.arrayHas(key)) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Bir Hata Oluştu:")} ${chalk.gray(
-                    "Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!"
+                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                    "The type of data you specify must be array!"
                 )}`
             );
         let datavalue = await this.get(key);
@@ -538,9 +541,9 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Belirttiğiniz verinin Array'ında belirttiğiniz değer varsa siler.
-     * @param {string} key Veri
-     * @param {any} value Değer
+     *
+     * @param {string} key
+     * @param {any} value
      * @example await db.pull("key", "value");
      * @returns {Promise<any[]>}
      */
@@ -548,15 +551,15 @@ module.exports = class MongoDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Bir Hata Oluştu:")} ${chalk.gray(
-                    "Belirttiğiniz Verinin Tipi Array Olmak Zorundadır!"
+                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                    "The type of data you specify must be array!"
                 )}`
             );
 
         if ((await this.arrayHasValue(key, value)) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Bir Hata Oluştu:")} ${chalk.gray(
-                    "Belirttiğiniz Değer Belirttiğiniz Verinin Array'ında Bulunmuyor."
+                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                    "The value you specified is not in the array of the data you specified."
                 )}`
             );
 
@@ -567,7 +570,7 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Database'de ki verilerin sayısını atar.
+     *
      * @example await db.size();
      * @returns {Promise<number>}
      */
@@ -585,8 +588,8 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Tüm verilerin adını Array içine ekler.
-     * @example await db.keyArray()
+     *
+     * @example await db.keyArray();
      * @returns {Promise<string[]>}
      */
     async keyArray() {
@@ -603,8 +606,8 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Tüm verilerin değerini Array içine ekler.
-     * @example await db.valueArray()
+     *
+     * @example await db.valueArray();
      * @returns {Promise<any[]>}
      */
     async valueArray() {
@@ -621,24 +624,22 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Belirtilen JSON dosyasından verileri import eder.
-     * @param {string} path Dosya
-     * @example await db.import("./database.json")
+     *
+     * @param {string} path
+     * @example await db.import("./database.json");
      * @returns {Promise<boolean>}
      */
-    async import(pathh = "./database.json") {
+    async import(path = "./database.json") {
         let processFolder = process.cwd();
-        let databasePath = pathh;
+        let databasePath = path;
 
         if (!databasePath.endsWith(".json")) {
             databasePath += ".json";
         }
 
-        if (!fs.existsSync(`${processFolder}${path.sep}${databasePath}`)) return null;
+        if (!checkFile(`${processFolder}${sep}${databasePath}`)) return null;
 
-        let file = JSON.parse(
-            fs.readFileSync(`${processFolder}${path.sep}${databasePath}`, "utf-8")
-        );
+        let file = read(`${processFolder}${sep}${databasePath}`);
 
         Object.entries(file).forEach(async (entry) => {
             let [key, value] = entry;
@@ -648,16 +649,16 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Belirtilen JSON dosyasına verileri export eder.
-     * @param {string} path Dosya
-     * @example await db.export("./database.json")
+     *
+     * @param {string} path
+     * @example await db.export("./database.json");
      * @returns {Promise<boolean>}
      */
-    async export(pathh = "./database.json") {
+    async export(path = "./database.json") {
         let processFolder = process.cwd();
-        let databasePath = pathh;
+        let databasePath = path;
 
-        if (databasePath.endsWith(path.sep)) {
+        if (databasePath.endsWith(sep)) {
             databasePath += "database.json";
         } else {
             if (!databasePath.endsWith(".json")) {
@@ -665,26 +666,26 @@ module.exports = class MongoDatabase {
             }
         }
 
-        let dirs = databasePath.split(path.sep).filter((dir) => dir !== "");
+        let dirs = databasePath.split(sep).filter((dir) => dir !== "");
         let dbName = "";
         let dirNames = "";
 
         for (let i = 0; i < dirs.length; i++) {
             if (!dirs[i].endsWith(".json")) {
-                dirNames += `${dirs[i]}${path.sep}`;
-                if (!fs.existsSync(`${processFolder}${path.sep}${dirNames}`)) {
-                    fs.mkdirSync(`${processFolder}${path.sep}${dirNames}`);
+                dirNames += `${dirs[i]}${sep}`;
+                if (!checkFile(`${processFolder}${sep}${dirNames}`)) {
+                    mkdirSync(`${processFolder}${sep}${dirNames}`);
                 }
             } else {
                 dbName = `${dirs[i]}`;
 
-                if (!fs.existsSync(`${processFolder}${path.sep}${dirNames}${dbName}`)) {
-                    fs.writeFileSync(`${processFolder}${path.sep}${dirNames}${dbName}`, "{}");
+                if (!checkFile(`${processFolder}${sep}${dirNames}${dbName}`)) {
+                    write(`${processFolder}${sep}${dirNames}${dbName}`, "{}");
                 }
             }
         }
 
-        let dbPath = `${process.cwd()}${path.sep}${dirNames}${dbName}`;
+        let dbPath = `${processFolder}${sep}${dirNames}${dbName}`;
 
         let json = {};
 
@@ -693,8 +694,8 @@ module.exports = class MongoDatabase {
                 let key = await obj.key;
                 let value = await obj.value;
 
-                Util.dataSet(json, key, value);
-                fs.writeFileSync(dbPath, JSON.stringify(json, null, 4));
+                dataSet(json, this.sep, key, value);
+                write(dbPath, json);
             });
         });
 
@@ -703,8 +704,8 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Oluşturulmuş tüm Database'lerin sayısını gönderir.
-     * @example db.DBCollectionSize()
+     *
+     * @example db.DBCollectionSize();
      * @returns {number}
      */
     DBCollectionSize() {
@@ -712,8 +713,8 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Database adını gönderir.
-     * @example db.getDBName()
+     *
+     * @example db.getDBName();
      * @returns {string}
      */
     getDBName() {
@@ -721,13 +722,13 @@ module.exports = class MongoDatabase {
     }
 
     /**
-     * Verileri filteleyip silersiniz.
-     * @param {(element: { ID: string, data: any }) => boolean} callback Callback
-     * @param {number} maxDeletedSize Silinecek maksimum veri sayısı.
-     * @example await db.filterAndDelete((element) => element.ID.includes("test"));
+     *
+     * @param {(element: { ID: string, data: any }) => boolean} callback
+     * @param {number} [maxDeletedSize]
+     * @example await db.findAndDelete((element) => element.ID.includes("test"));
      * @returns {Promise<number>}
      */
-    async filterAndDelete(callback, maxDeletedSize = 0) {
+    async findAndDelete(callback, maxDeletedSize = 0) {
         let deleted = 0;
         maxDeletedSize = Number(maxDeletedSize);
 

@@ -7,8 +7,9 @@ import { AllData } from "./interfaces/AllData";
 declare module "erax.db" {
     export class JsonDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { databasePath: string });
+        public constructor(options?: { databasePath: string, seperator?: string });
         public dbPath: string;
+        public sep: string;
         public dbName: string;
         public readonly data: data;
         public set(key: string, value: any): any;
@@ -44,7 +45,7 @@ declare module "erax.db" {
         public valueArray(): any[];
         public DBCollectionSize(): number;
         public getDBName(): string;
-        public filterAndDelete(
+        public findAndDelete(
             callback: (element: AllData) => boolean,
             maxDeletedSize?: number
         ): number;
@@ -52,9 +53,10 @@ declare module "erax.db" {
 
     export class YamlDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { databasePath: string });
+        public constructor(options?: { databasePath: string, seperator?: string });
         public dbPath: string;
         public dbName: string;
+        public sep: string;
         public readonly data: data;
         public set(key: string, value: any): any;
         public fetch(key: string): any;
@@ -89,7 +91,7 @@ declare module "erax.db" {
         public valueArray(): any[];
         public DBCollectionSize(): number;
         public getDBName(): string;
-        public filterAndDelete(
+        public findAndDelete(
             callback: (element: AllData) => boolean,
             maxDeletedSize?: number
         ): number;
@@ -97,10 +99,11 @@ declare module "erax.db" {
 
     export class SqliteDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { databasePath: string });
+        public constructor(options?: { databasePath: string, seperator?: string });
         public dbPath: string;
         public dbName: string;
         private sql: string;
+        public sep: string;
         public set(key: string, value: any): Promise<any>;
         public fetch(key: string): Promise<any>;
         public get(key: string): Promise<any>;
@@ -135,7 +138,7 @@ declare module "erax.db" {
         public export(path: string): Promise<boolean>;
         public DBCollectionSize(): number;
         public getDBName(): string;
-        public filterAndDelete(
+        public findAndDelete(
             callback: (element: AllData) => boolean,
             maxDeletedSize?: number
         ): Promise<number>;
@@ -143,9 +146,10 @@ declare module "erax.db" {
 
     export class MongoDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { mongoURL: string });
+        public constructor(options: { mongoURL: string, seperator?: string });
         public dbName: string;
         private mongo: string;
+        public sep: string;
         public url: string;
         public set(key: string, value: any): Promise<any>;
         public fetch(key: string): Promise<any>;
@@ -181,24 +185,29 @@ declare module "erax.db" {
         public export(path: string): Promise<boolean>;
         public DBCollectionSize(): number;
         public getDBName(): string;
-        public filterAndDelete(
+        public findAndDelete(
             callback: (element: AllData) => boolean,
             maxDeletedSize?: number
         ): Promise<number>;
     }
 
     export class Util {
-        private static updateCheck(): {
-            updated: boolean;
-            installedVersion: string;
-            packageData: string;
-        };
-        private static parseKey(key: string): string;
-        private static write(path, data: data): void | null;
-        private static dataSet(data: data, key: string, value: any): void;
-        private static dataGet(data: data, key: string): any;
-        private static dataHas(data: data, key: string): boolean;
-        private static dataDelete(data: data, key: string): void | null;
+        public static updateCheck(): Promise<{
+            updated: boolean,
+            installedVersion: string,
+            packageData: string
+        }>;
+        public static parseKey(key: string): string;
+        public static write(path: string, data: data | string): void | null;
+        public static dataSet(data: data, key: string, value: any): void;
+        public static dataGet(data: data, key: string): any;
+        public static dataHas(data: data, key: string): boolean;
+        public static dataDelete(data: data, key: string): void | null;
+        public static destroy(path: string): void | null;
+        public static checkFile(path: string): boolean;
+        public static isString(key: any): boolean;
+        public static isNumber(key: any): boolean;
+        public static read(path: string): void | null;
     }
 
     export class ErrorManager extends Error {
