@@ -413,7 +413,7 @@ module.exports = class YamlDatabase {
                 }
             }
         });
-        return true;
+        return deleted;
     }
 
     /**

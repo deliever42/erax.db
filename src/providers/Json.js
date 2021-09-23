@@ -412,7 +412,7 @@ module.exports = class JsonDatabase {
                 }
             }
         });
-        return true;
+        return deleted;
     }
 
     /**

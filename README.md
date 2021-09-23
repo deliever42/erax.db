@@ -8,10 +8,10 @@
 # News
 
 ```npm
-- Fixed Errors.
-- Fixed TypeScript Errors.
-- filterAndDelete => findAndDelete
-- The module will descend a little faster.
+- Fixed errors.
+- Fixed TypeScript errors.
+- SQlite will no longer throw errors.
+- The module will download a little faster.
 ```
 
 # Warn
@@ -34,17 +34,15 @@ const yamldb = new YamlDatabase({ databasePath: "MyYamlDatabase.yml", seperator:
 console.log(YamlDatabase.DBCollection); //It sends all Databases created for Yaml to the console.
 
 //SQlite
-const sqlitedb = new SqliteDatabase({ databasePath: "MySqliteDatabase.sqlite", seperator: "." });
+const sqlitedb = new SqliteDatabase({ databasePath: "MySqliteDatabase.db", seperator: "." });
 console.log(SqliteDatabase.DBCollection); //It sends all Databases created for Sqlite to the console.
 
 //Mongo
 const mongodb = new MongoDatabase({ mongoURL: "MongoDB URL", seperator: "." });
 console.log(MongoDatabase.DBCollection); //It sends all Databases created for Mongo to the console.
-
-//NOTE: Don't Care If You Get Errors in SQlite.
 ```
 
-# Methodlar
+# Methods
 
 ```js
 //Set & Fetch Methods
@@ -89,11 +87,11 @@ console.log(MongoDatabase.DBCollection); //It sends all Databases created for Mo
 <db>.DBCollectionSize()
 <db>.getDBName()
 
-//SQLite ve Mongo Extra Methods
+//SQLite and Mongo Extra Methods
 await <db>.export("database.json")
 await <db>.import("database.json")
 
-//NOTE: Don't forget to Use await when using methods in Mongo and SQlite.
+//NOTE: Don't forget to Use await when using methods in Mongo.
 ```
 
 #### You can reach Emirhan77#0001 on Discord to report a bug.

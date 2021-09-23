@@ -93,14 +93,12 @@ module.exports = class MongoDatabase {
             let tag = await this.mongo.findOne({ key: key });
             if (!tag) {
                 await this.mongo.create({ key: key, value: value });
-                json = {};
-                return value;
             } else {
                 await this.mongo.updateOne({ key: key }, { value: value });
-                json = {};
-                return value;
             }
         });
+        json = {};
+        return value;
     }
 
     /**
@@ -135,7 +133,7 @@ module.exports = class MongoDatabase {
         if (!isString(key)) throw new ErrorManager("Key must be string!");
 
         if (key.includes(this.sep)) {
-            let newkey = parseKey(key);
+            let newkey = parseKey(key, this.sep);
             let json = {};
 
             let tag = await this.mongo.findOne({ key: newkey });
@@ -187,7 +185,7 @@ module.exports = class MongoDatabase {
         if (!isString(key)) throw new ErrorManager("Key must be string!");
 
         if (key.includes(this.sep)) {
-            let newkey = parseKey(key);
+            let newkey = parseKey(key, this.sep);
             if ((await this.has(newkey)) === false) return null;
             let tag = await this.mongo.findOne({ key: newkey });
             let value = await tag.get("value");
@@ -199,14 +197,13 @@ module.exports = class MongoDatabase {
             let newvalue = dataGet(json, this.sep, newkey);
             await this.set(newkey, newvalue);
             json = {};
-            return true;
         } else {
             if ((await this.has(key)) === false) return null;
             let tag = await this.mongo.findOne({ key: key });
             let value = await tag.get("value");
             await this.mongo.deleteOne({ key: key }, { value: value });
-            return true;
         }
+        return true;
     }
 
     /**
@@ -426,7 +423,7 @@ module.exports = class MongoDatabase {
             });
         });
 
-        return true;
+        return deleted;
     }
 
     /**

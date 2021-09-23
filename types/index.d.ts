@@ -104,44 +104,44 @@ declare module "erax.db" {
         public dbName: string;
         private sql: string;
         public sep: string;
-        public set(key: string, value: any): Promise<any>;
-        public fetch(key: string): Promise<any>;
-        public get(key: string): Promise<any>;
-        public add(key: string, value: number): Promise<number>;
-        public subtract(key: string, value: number, goToNegative?: boolean): Promise<number>;
-        public has(key: string): Promise<boolean>;
-        public arrayHas(key: string): Promise<boolean>;
-        public arrayHasValue(key: string, value: any): Promise<boolean>;
-        public deleteAll(): Promise<boolean>;
-        public fetchAll(): Promise<AllData[]>;
-        public all(): Promise<AllData[]>;
-        public size(): Promise<number>;
-        public push(key: string, value: any, valueIgnoreIfPresent?: boolean): Promise<any[]>;
+        public set(key: string, value: any): any;
+        public fetch(key: string): any;
+        public get(key: string): any;
+        public add(key: string, value: number): number;
+        public subtract(key: string, value: number, goToNegative?: boolean): number;
+        public has(key: string): boolean;
+        public arrayHas(key: string): boolean;
+        public arrayHasValue(key: string, value: any): boolean;
+        public deleteAll(): boolean;
+        public fetchAll(): AllData[];
+        public all(): AllData[];
+        public size(): number;
+        public push(key: string, value: any, valueIgnoreIfPresent?: boolean): any[];
         public math(
             key: string,
             operator: Operators,
             value: number,
             goToNegative?: boolean
-        ): Promise<number>;
-        public delete(key: string): Promise<boolean>;
-        public includes(key: string): Promise<AllData[]>;
-        public startsWith(key: string): Promise<AllData[]>;
-        public endsWith(key: string): Promise<AllData[]>;
-        public deleteEach(key: string, maxDeletedSize?: number): Promise<boolean>;
-        public type(key: string): Promise<DataTypes>;
-        public pull(key: string, value: any): Promise<any[]>;
-        public filter(callback: (element: AllData) => boolean): Promise<AllData[]>;
-        public info(): Promise<Info<"sqlite">>;
-        public keyArray(): Promise<string[]>;
-        public valueArray(): Promise<any[]>;
-        public import(path: string): Promise<boolean>;
-        public export(path: string): Promise<boolean>;
+        ): number;
+        public delete(key: string): boolean;
+        public includes(key: string): AllData[];
+        public startsWith(key: string): AllData[];
+        public endsWith(key: string): AllData[];
+        public deleteEach(key: string, maxDeletedSize?: number): boolean;
+        public type(key: string): DataTypes;
+        public pull(key: string, value: any): any[];
+        public filter(callback: (element: AllData) => boolean): AllData[];
+        public info(): Info<"sqlite">;
+        public keyArray(): string[];
+        public valueArray(): any[];
+        public import(path?: string): boolean;
+        public export(path?: string): boolean;
         public DBCollectionSize(): number;
         public getDBName(): string;
         public findAndDelete(
             callback: (element: AllData) => boolean,
             maxDeletedSize?: number
-        ): Promise<number>;
+        ): number;
     }
 
     export class MongoDatabase {
@@ -181,8 +181,8 @@ declare module "erax.db" {
         public info(): Promise<Info<"mongo">>;
         public keyArray(): Promise<string[]>;
         public valueArray(): Promise<any[]>;
-        public import(path: string): Promise<boolean>;
-        public export(path: string): Promise<boolean>;
+        public import(path?: string): Promise<boolean>;
+        public export(path?: string): Promise<boolean>;
         public DBCollectionSize(): number;
         public getDBName(): string;
         public findAndDelete(
@@ -197,7 +197,7 @@ declare module "erax.db" {
             installedVersion: string,
             packageData: string
         }>;
-        public static parseKey(key: string): string;
+        public static parseKey(key: string, sep: string): string;
         public static write(path: string, data: data | string): void | null;
         public static dataSet(data: data, key: string, value: any): void;
         public static dataGet(data: data, key: string): any;

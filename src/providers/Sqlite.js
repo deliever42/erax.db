@@ -1,4 +1,3 @@
-const Sequelize = require("sequelize");
 const { mkdirSync } = require("fs");
 const ErrorManager = require("../utils/ErrorManager");
 const { sep } = require("path");
@@ -14,6 +13,7 @@ const {
     read
 } = require("../utils/Util");
 const chalk = require("chalk");
+const db = require("better-sqlite3");
 
 /**
  *
@@ -32,7 +32,7 @@ module.exports = class SqliteDatabase {
      * @constructor
      * @param {{ databasePath?: string, seperator?: string }} options
      */
-    constructor(options = { databasePath: "database.sqlite", seperator: "." }) {
+    constructor(options = { databasePath: "database.db", seperator: "." }) {
         if (options.databasePath === undefined || options.databasePath === null)
             throw new ErrorManager("Please specify a database name.");
 
@@ -43,10 +43,10 @@ module.exports = class SqliteDatabase {
         let databasePath = options.databasePath;
 
         if (databasePath.endsWith(sep)) {
-            databasePath += "database.sqlite";
+            databasePath += "database.db";
         } else {
-            if (!databasePath.endsWith(".sqlite")) {
-                databasePath += ".sqlite";
+            if (!databasePath.endsWith(".db")) {
+                databasePath += ".db";
             }
         }
 
@@ -55,7 +55,7 @@ module.exports = class SqliteDatabase {
         let dirNames = "";
 
         for (let i = 0; i < dirs.length; i++) {
-            if (!dirs[i].endsWith(".sqlite")) {
+            if (!dirs[i].endsWith(".db")) {
                 dirNames += `${dirs[i]}${sep}`;
                 if (!checkFile(`${processFolder}${sep}${dirNames}`)) {
                     mkdirSync(`${processFolder}${sep}${dirNames}`);
@@ -67,27 +67,9 @@ module.exports = class SqliteDatabase {
 
         this.dbName = `${dirNames}${dbName}`;
         this.sep = options.seperator;
-
-        const sequelize = new Sequelize.Sequelize("database", null, null, {
-            dialect: "sqlite",
-            logging: false,
-            storage: `${process.cwd()}${sep}${dirNames}${dbName}`
-        });
-
-        this.sql = sequelize.define("EraxDB", {
-            key: {
-                type: Sequelize.DataTypes.STRING,
-                unique: true,
-                allowNull: false
-            },
-            value: {
-                type: Sequelize.DataTypes.JSON,
-                unique: true,
-                allowNull: false
-            }
-        });
-
-        this.sql.sync();
+        this.dbPath = `${process.cwd()}${sep}${dirNames}${dbName}`;
+        this.sql = new db(this.dbPath);
+        this.sql.prepare("CREATE TABLE IF NOT EXISTS EraxDB (key TEXT, value TEXT)").run();
 
         if (!SqliteDatabase.DBCollection.includes(this.dbName)) {
             SqliteDatabase.DBCollection.push(this.dbName);
@@ -98,189 +80,171 @@ module.exports = class SqliteDatabase {
      *
      * @param {string} key
      * @param {any} value
-     * @example await db.set("key", "value");
-     * @returns {Promise<any>}
+     * @example db.set("key", "value");
+     * @returns {any}
      */
-    async set(key, value) {
+    set(key, value) {
         if (key === "" || key === null || key === undefined)
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
 
+        let parsedKey = parseKey(key,this.sep);
+
         let json = {};
+        let data = this.sql.prepare(`SELECT * FROM EraxDB WHERE key = (?)`).get(parsedKey);
 
         dataSet(json, this.sep, key, value);
-        Object.entries(json).forEach(async (entry) => {
-            let [key, value] = entry;
 
-            let tag = await this.sql.findOne({ where: { key: key } });
-            if (!tag) {
-                await this.sql.create({ key: key, value: value });
-                json = {};
-                return value;
-            } else {
-                await this.sql.update({ value: value }, { where: { key: key } });
-                json = {};
-                return value;
-            }
-        });
+        let parsedValue = json[parseKey(key,this.sep)];
+        parsedValue = JSON.stringify(parsedValue)
+        
+        if (!data) {
+            this.sql.prepare(`INSERT INTO EraxDB (key, value) VALUES (?,?)`).run(parsedKey, parsedValue);
+        } else {
+            this.sql.prepare(`UPDATE EraxDB SET value = (?) WHERE key = (?)`).run(parsedValue,parsedKey);
+        }
+       
+        return value;
     }
 
     /**
      *
      * @param {string} key
-     * @example await db.has("key");
-     * @returns {Promise<boolean>}
+     * @example db.has("key");
+     * @returns {boolean}
      */
-    async has(key) {
-        return (await this.get(key)) ? true : false;
+    has(key) {
+        return (this.get(key)) ? true : false;
     }
 
     /**
      *
-     * @example await db.deleteAll();
-     * @returns {Promise<boolean>}
+     * @example db.deleteAll();
+     * @returns {boolean}
      */
-    async deleteAll() {
-        await this.sql.findAll().then(async (datas) => {
-            datas.forEach(async (obj) => {
-                let key = await obj.dataValues.key;
-                await this.sql.destroy({ where: { key: key } });
-            });
-        });
+    deleteAll() {
+        let all = this.all();
+        all.forEach(data => this.delete(data.ID));
         return true;
     }
 
     /**
      *
      * @param {string} key
-     * @example await db.fetch("key");
-     * @returns {Promise<any>}
+     * @example db.fetch("key");
+     * @returns {any}
      */
-    async fetch(key) {
+    fetch(key) {
         if (key === "" || key === null || key === undefined)
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
 
         if (key.includes(this.sep)) {
-            let newkey = parseKey(key);
+            let parsedKey = parseKey(key, this.sep);
             let json = {};
 
-            let tag = await this.sql.findOne({ where: { key: newkey } });
-            if ((await this.has(key)) === false) return null;
+            let data = this.sql.prepare(`SELECT * FROM EraxDB WHERE key = (?)`).get(parsedKey);
+            if (!data) return null;
 
-            let value = await tag.get("value");
-            dataSet(json, this.sep, newkey, value);
-            let newvalue = dataGet(json, this.sep, key);
+            let value = data.value;
+
+            dataSet(json, this.sep, parsedKey, JSON.parse(value));
+            let parsedValue = dataGet(json, this.sep, key);
             json = {};
-            return newvalue;
+            return parsedValue;
         } else {
-            let tag = await this.sql.findOne({ where: { key: key } });
-            if ((await this.has(key)) === false) return null;
-            return await tag.get("value");
+            let data = this.sql.prepare(`SELECT * FROM EraxDB WHERE key = (?)`).get(key);
+            if (!data) return null;
+            return data.value;
         }
     }
 
     /**
      *
      * @param {string} key
-     * @example await db.get("key");
-     * @returns {Promise<any>}
+     * @example db.get("key");
+     * @returns {any}
      */
-    async get(key) {
-        return await this.fetch(key);
+    get(key) {
+        return this.fetch(key);
     }
 
     /**
      *
      * @param {string} key
-     * @example await db.type("key");
-     * @returns {Promise<"array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint">}
+     * @example db.type("key");
+     * @returns {"array" | "string" | "number" | "boolean" | "symbol" | "function" | "object" | "null" | "undefined" | "bigint"}
      */
-    async type(key) {
+    type(key) {
         if (this.has(key) === false) return null;
-        if (Array.isArray(await this.get(key))) return "array";
-        return typeof (await this.get(key));
+        if (Array.isArray(this.get(key))) return "array";
+        return typeof (this.get(key));
     }
 
     /**
      *
      * @param {string} key
-     * @example await db.delete("key");
-     * @returns {Promise<boolean>}
+     * @example db.delete("key");
+     * @returns {boolean}
      */
-    async delete(key) {
+    delete(key) {
         if (key === "" || key === null || key === undefined)
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
 
         if (key.includes(this.sep)) {
-            let newkey = parseKey(key);
-            if ((await this.has(newkey)) === false) return null;
-            let tag = await this.sql.findOne({ where: { key: newkey } });
-            let value = await tag.get("value");
+            let parsedKey = parseKey(key, this.sep);
             let json = {};
 
-            dataSet(json, this.sep, newkey, value);
-            dataDelete(json, this.sep, key);
+            let data = this.sql.prepare(`SELECT * FROM EraxDB WHERE key = (?)`).get(parsedKey);
+            if (!data) return null;
 
-            let newvalue = dataGet(json, this.sep, newkey);
-            await this.set(newkey, newvalue);
+            let value = data.value;
+
+            dataSet(json, this.sep, parsedKey, JSON.parse(value));
+            dataDelete(json, this.sep, key);
+            
+            let parsedValue = dataGet(json, this.sep, parsedKey);
+            this.set(parsedKey, parsedValue)
+
             json = {};
             return true;
         } else {
-            if ((await this.has(key)) === false) return null;
-            await this.sql.destroy({ where: { key: key } });
+            if (this.has(key) === false) return null;
+            this.sql.prepare(`DELETE FROM EraxDB WHERE key = (?)`).run(key);
             return true;
         }
     }
 
     /**
      *
-     * @example await db.fetchAll();
-     * @returns {Promise<{ ID: string, data: any }[]>}
+     * @example db.fetchAll();
+     * @returns {{ ID: string, data: any }[]}
      */
-    async fetchAll() {
-        let arr = [];
-
-        await this.sql.findAll().then(async (data) => {
-            data.forEach(async (obj) => {
-                let key = await obj.dataValues.key;
-                let value = await obj.dataValues.value;
-
-                const data = {
-                    ID: key,
-                    data: value
-                };
-                arr.push(data);
-            });
-        });
+    fetchAll() {
+        let arr = this.all();
 
         return arr;
     }
 
     /**
      *
-     * @example await db.all();
-     * @returns {Promise<{ ID: string, data: any }[]>}
+     * @example db.all();
+     * @returns {{ ID: string, data: any }[]}
      */
-    async all() {
+    all() {
+        let all = this.sql.prepare(`SELECT * FROM EraxDB WHERE key IS NOT NULL`).iterate();
         let arr = [];
 
-        await this.sql.findAll().then(async (data) => {
-            data.forEach(async (obj) => {
-                let key = await obj.dataValues.key;
-                let value = await obj.dataValues.value;
-
-                const data = {
-                    ID: key,
-                    data: value
-                };
-                arr.push(data);
-            });
-        });
-
+        for (let data of all) {
+            arr.push({
+              ID: data.key,
+              data: JSON.parse(data.value)
+            })
+        }
+        
         return arr;
     }
 
@@ -290,10 +254,10 @@ module.exports = class SqliteDatabase {
      * @param {"+" | "-" | "*" | "/" | "%"} operator
      * @param {number} value
      * @param {boolean} [goToNegative]
-     * @example await db.math("key", "+", 1);
-     * @returns {Promise<number>}
+     * @example db.math("key", "+", 1);
+     * @returns {number}
      */
-    async math(key, operator, value, goToNegative = false) {
+    math(key, operator, value, goToNegative = false) {
         if (operator === null || operator === undefined || operator === "")
             throw new ErrorManager("Please specify a operator. (-  +  *  /  %)");
         if (value === null || value === undefined || value === "")
@@ -302,8 +266,8 @@ module.exports = class SqliteDatabase {
 
         value = Number(value);
 
-        if (this.has(key) === false) return await this.set(key, value);
-        let data = await this.get(key);
+        if (this.has(key) === false) return this.set(key, value);
+        let data = this.get(key);
 
         switch (operator) {
             case "+":
@@ -339,18 +303,18 @@ module.exports = class SqliteDatabase {
                 throw new ErrorManager("Invalid Operator! (-  +  *  /  %)");
         }
 
-        return await this.set(key, data);
+        return this.set(key, data);
     }
 
     /**
      *
      * @param {string} key
      * @param {number} value
-     * @example await db.add("key", 1);
-     * @returns {Promise<number>}
+     * @example db.add("key", 1);
+     * @returns {number}
      */
-    async add(key, value) {
-        return await this.math(key, "+", value);
+    add(key, value) {
+        return this.math(key, "+", value);
     }
 
     /**
@@ -358,25 +322,25 @@ module.exports = class SqliteDatabase {
      * @param {string} key
      * @param {number} value
      * @param {boolean} [goToNegative]
-     * @returns {Promise<number>}
-     * @example await db.subtract("key", 1);
+     * @returns {number}
+     * @example db.subtract("key", 1);
      */
-    async subtract(key, value, goToNegative = false) {
-        return await this.math(key, "-", value, goToNegative);
+    subtract(key, value, goToNegative = false) {
+        return this.math(key, "-", value, goToNegative);
     }
 
     /**
      *
-     * @example await db.info();
-     * @returns {Promise<{ Version: number, DatabaseName: string, DataSize: number, DatabaseType: "sqlite" }>}
+     * @example db.info();
+     * @returns {{ Version: number, DatabaseName: string, DataSize: number, DatabaseType: "sqlite" }}
      */
-    async info() {
+    info() {
         let p = require("../../package.json");
 
         return {
             Version: p.version,
             DatabaseName: this.dbName,
-            DataSize: await this.size(),
+            DataSize: this.size(),
             DatabaseType: "sqlite"
         };
     }
@@ -384,47 +348,47 @@ module.exports = class SqliteDatabase {
     /**
      *
      * @param {string} value
-     * @example await db.startsWith("key");
-     * @returns {Promise<{ ID: string, data: any }[]>}
+     * @example db.startsWith("key");
+     * @returns {{ ID: string, data: any }[]}
      */
-    async startsWith(value) {
+    startsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return await this.filter((x) => x.ID.startsWith(value));
+        return this.filter((x) => x.ID.startsWith(value));
     }
 
     /**
      *
      * @param {string} value
-     * @example await db.endsWith("key");
-     * @returns {Promise<{ ID: string, data: any }[]>}
+     * @example db.endsWith("key");
+     * @returns {{ ID: string, data: any }[]}
      */
-    async endsWith(value) {
+    endsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return await this.filter((x) => x.ID.endsWith(value));
+        return this.filter((x) => x.ID.endsWith(value));
     }
 
     /**
      *
      * @param {string} value
-     * @example await db.includes("key");
-     * @returns {Promise<{ ID: string, data: any }[]>}
+     * @example db.includes("key");
+     * @returns {{ ID: string, data: any }[]}
      */
-    async includes(value) {
+    includes(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return await this.filter((x) => x.ID.includes(value));
+        return this.filter((x) => x.ID.includes(value));
     }
 
     /**
      *
      * @param {string} value
      * @param {number} [maxDeletedSize]
-     * @example await db.deleteEach("key");
-     * @returns {Promise<boolean>}
+     * @example db.deleteEach("key");
+     * @returns {boolean}
      */
-    async deleteEach(value, maxDeletedSize = 0) {
+    deleteEach(value, maxDeletedSize = 0) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
 
@@ -435,48 +399,36 @@ module.exports = class SqliteDatabase {
         maxDeletedSize === undefined ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
-        await this.sql.findAll().then(async (data) => {
-            data.forEach(async (obj) => {
-                let key = await obj.dataValues.key;
-                if (!key.includes(value)) return;
+        let all = this.includes(value);
 
-                if (maxDeletedSize === 0) {
-                    await this.sql.destroy({ where: { key: key } });
+        all.forEach((data) => {
+            let key = data.ID;
+            if (!key.includes(value)) return;
+
+            if (maxDeletedSize === 0) {
+                this.delete(key);
+                deleted++;
+            } else {
+                if (deleted < maxDeletedSize) {
+                    this.delete(key);
                     deleted++;
-                } else {
-                    if (deleted < maxDeletedSize) {
-                        await this.sql.destroy({ where: { key: key } });
-                        deleted++;
-                    }
                 }
-            });
+            }
         });
 
-        return true;
+        return deleted;
     }
 
     /**
      *
      * @param {(element: { ID: string, data: any }) => boolean} callback
-     * @example await db.filter((element) => element.ID.startsWith("key"));
-     * @returns {Promise<{ ID: string, data: any }[]>}
+     * @example db.filter((element) => element.ID.startsWith("key"));
+     * @returns {{ ID: string, data: any }[]}
      */
-    async filter(callback) {
-        let arr = [];
-        await this.sql.findAll().then(async (data) => {
-            data.forEach(async (obj) => {
-                let key = await obj.dataValues.key;
-                let value = await obj.dataValues.value;
+    filter(callback) {
+        let all = this.all();
 
-                const data = {
-                    ID: key,
-                    data: value
-                };
-                arr.push(data);
-            });
-        });
-
-        return arr.filter(callback);
+        return all.filter(callback);
     }
 
     /**
@@ -484,13 +436,13 @@ module.exports = class SqliteDatabase {
      * @param {string} key
      * @param {any} value
      * @param {boolean} [valueIgnoreIfPresent]
-     * @example await db.push("key", "value");
-     * @returns {Promise<any[]>}
+     * @example db.push("key", "value");
+     * @returns {any[]}
      */
-    async push(key, value, valueIgnoreIfPresent = true) {
-        if ((await this.has(key)) === false) return await this.set(key, [value]);
-        else if ((await this.arrayHas(key)) === true && (await this.has(key)) === true) {
-            let yenivalue = await this.get(key);
+    push(key, value, valueIgnoreIfPresent = true) {
+        if (this.has(key) === false) return this.set(key, [value]);
+        else if (this.arrayHas(key) === true && this.has(key) === true) {
+            let yenivalue = this.get(key);
             if (yenivalue.includes(value) && valueIgnoreIfPresent === true)
                 return console.log(
                     `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
@@ -498,7 +450,7 @@ module.exports = class SqliteDatabase {
                     )}`
                 );
             yenivalue.push(value);
-            return await this.set(key, yenivalue);
+            return this.set(key, yenivalue);
         } else {
             return console.log(
                 `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
@@ -511,12 +463,12 @@ module.exports = class SqliteDatabase {
     /**
      *
      * @param {string} key
-     * @example await db.arrayHas("key");
-     * @returns {Promise<boolean>}
+     * @example db.arrayHas("key");
+     * @returns {boolean}
      */
-    async arrayHas(key) {
-        let value = await this.get(key);
-        if (Array.isArray(await value)) return true;
+    arrayHas(key) {
+        let value = this.get(key);
+        if (Array.isArray(value)) return true;
         return false;
     }
 
@@ -524,21 +476,21 @@ module.exports = class SqliteDatabase {
      *
      * @param {string} key
      * @param {any} value
-     * @example await db.arrayHasValue("key", "value");
-     * @returns {Promise<boolean>}
+     * @example db.arrayHasValue("key", "value");
+     * @returns {boolean}
      *
      */
-    async arrayHasValue(key, value) {
-        if ((await this.has(key)) === false) return null;
-        if ((await this.arrayHas(key)) === false)
+    arrayHasValue(key, value) {
+        if (this.has(key) === false) return null;
+        if (this.arrayHas(key) === false)
             return console.log(
                 `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
                     "The value you specified is not in the array of the data you specified."
                 )}`
             );
 
-        let datavalue = await this.get(key);
-        if ((await datavalue.indexOf(value)) > -1) return true;
+        let datavalue = this.get(key);
+        if (datavalue.indexOf(value) > -1) return true;
         return false;
     }
 
@@ -546,10 +498,10 @@ module.exports = class SqliteDatabase {
      *
      * @param {string} key
      * @param {any} value
-     * @example await db.pull("key", "value");
-     * @returns {Promise<any[]>}
+     * @example db.pull("key", "value");
+     * @returns {any[]}
      */
-    async pull(key, value) {
+    pull(key, value) {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return console.log(
@@ -558,49 +510,39 @@ module.exports = class SqliteDatabase {
                 )}`
             );
 
-        if ((await this.arrayHasValue(key, value)) === false)
+        if (this.arrayHasValue(key, value) === false)
             return console.log(
                 `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
                     "The value you specified is not in the array of the data you specified."
                 )}`
             );
 
-        let oldArr = await this.get(key);
+        let oldArr = this.get(key);
         let newArr = oldArr.filter((x) => x !== value);
-        return await this.set(key, newArr);
+        return this.set(key, newArr);
     }
 
     /**
      *
-     * @example await db.size();
-     * @returns {Promise<number>}
+     * @example db.size();
+     * @returns {number}
      */
-    async size() {
-        let arr = [];
-
-        await this.sql.findAll().then(async (data) => {
-            data.forEach(async (obj) => {
-                let key = await obj.dataValues.key;
-                arr.push(key);
-            });
-        });
-
-        return arr.length;
+    size() {
+        let all = this.all();
+        return all.length;
     }
 
     /**
      *
-     * @example await db.keyArray();
-     * @returns {Promise<string[]>}
+     * @example db.keyArray();
+     * @returns {string[]}
      */
-    async keyArray() {
+    keyArray() {
         let arr = [];
+        let all = this.all();
 
-        await this.sql.findAll().then(async (data) => {
-            data.forEach(async (obj) => {
-                let key = await obj.dataValues.key;
-                arr.push(key);
-            });
+        all.forEach((data) => {
+            arr.push(data.ID);
         });
 
         return arr;
@@ -608,17 +550,15 @@ module.exports = class SqliteDatabase {
 
     /**
      *
-     * @example await db.valueArray();
-     * @returns {Promise<any[]>}
+     * @example db.valueArray();
+     * @returns {any[]}
      */
-    async valueArray() {
+    valueArray() {
         let arr = [];
+        let all = this.all();
 
-        await this.sql.findAll().then(async (data) => {
-            data.forEach(async (obj) => {
-                let value = await obj.dataValues.value;
-                arr.push(value);
-            });
+        all.forEach((data) => {
+            arr.push(data.data);
         });
 
         return arr;
@@ -627,10 +567,10 @@ module.exports = class SqliteDatabase {
     /**
      *
      * @param {string} path
-     * @example await db.import("./database.json");
-     * @returns {Promise<boolean>}
+     * @example db.import("./database.json");
+     * @returns {boolean}
      */
-    async import(path = "./database.json") {
+    import(path = "./database.json") {
         let processFolder = process.cwd();
         let databasePath = path;
 
@@ -642,9 +582,9 @@ module.exports = class SqliteDatabase {
 
         let file = read(`${processFolder}${sep}${databasePath}`);
 
-        Object.entries(file).forEach(async (entry) => {
+        Object.entries(file).forEach((entry) => {
             let [key, value] = entry;
-            await this.set(key, value);
+            this.set(key, value);
         });
         return true;
     }
@@ -652,10 +592,10 @@ module.exports = class SqliteDatabase {
     /**
      *
      * @param {string} path
-     * @example await db.export("./database.json");
-     * @returns {Promise<boolean>}
+     * @example db.export("./database.json");
+     * @returns {boolean}
      */
-    async export(path = "database.json") {
+    export(path = "database.json") {
         let processFolder = process.cwd();
         let databasePath = path;
 
@@ -689,15 +629,14 @@ module.exports = class SqliteDatabase {
         let dbPath = `${processFolder}${sep}${dirNames}${dbName}`;
 
         let json = {};
+        let all = this.all();
 
-        await this.sql.findAll().then(async (data) => {
-            data.forEach(async (obj) => {
-                let key = await obj.dataValues.key;
-                let value = await obj.dataValues.value;
+        all.forEach((data) => {
+            let key = data.ID;
+            let value = data.data;
 
-                dataSet(json, this.sep, key, value);
-                write(dbPath, json);
-            });
+            dataSet(json, this.sep, key, value);
+            write(dbPath, json);
         });
 
         json = {};
@@ -726,10 +665,10 @@ module.exports = class SqliteDatabase {
      *
      * @param {(element: { ID: string, data: any }) => boolean} callback
      * @param {number} [maxDeletedSize]
-     * @example await db.findAndDelete((element) => element.ID.includes("test"));
-     * @returns {Promise<number>}
+     * @example db.findAndDelete((element) => element.ID.includes("test"));
+     * @returns {number}
      */
-    async findAndDelete(callback, maxDeletedSize = 0) {
+    findAndDelete(callback, maxDeletedSize = 0) {
         let deleted = 0;
         maxDeletedSize = Number(maxDeletedSize);
 
@@ -737,29 +676,17 @@ module.exports = class SqliteDatabase {
         maxDeletedSize === undefined ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
-        let arr = [];
-        await this.sql.findAll().then(async (data) => {
-            data.forEach(async (obj) => {
-                let key = await obj.dataValues.key;
-                let value = await obj.dataValues.value;
+        let all = this.all();
 
-                const data = {
-                    ID: key,
-                    data: value
-                };
-                arr.push(data);
-            });
-        });
+        let filtered = all.filter(callback);
 
-        let filtered = arr.filter(callback);
-
-        filtered.forEach(async (obj) => {
+        filtered.forEach((data) => {
             if (maxDeletedSize === 0) {
-                await this.sql.destroy({ where: { key: obj.ID } });
+                this.delete(data.ID)
                 deleted++;
             } else {
                 if (deleted < maxDeletedSize) {
-                    await this.sql.destroy({ where: { key: obj.ID } });
+                    this.delete(data.ID)
                     deleted++;
                 }
             }
@@ -770,21 +697,20 @@ module.exports = class SqliteDatabase {
     /**
      *
      * @param {(element: { ID: string, data: any }) => boolean} callback
-     * @example await db.map((element) => element.ID);
+     * @example db.map((element) => element.ID);
      * @returns {any[]}
      */
-    async map(callback) {
+    map(callback) {
         let arr = [];
-        await this.sql.findAll().then(async (data) => {
-            data.forEach(async (obj) => {
-                let key = await obj.dataValues.key;
-                let value = await obj.dataValues.value;
+        let all = this.all();
 
-                const data = {
-                    ID: key,
-                    data: value
-                };
-                arr.push(data);
+        all.forEach((data) => {
+            let key = data.ID;
+            let value = data.data;
+
+            arr.push({
+                ID: key,
+                data: value
             });
         });
 
