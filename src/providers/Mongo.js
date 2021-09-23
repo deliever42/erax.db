@@ -96,7 +96,7 @@ module.exports = class MongoDatabase {
         } else {
             await this.mongo.updateOne({ key: parsedKey }, { value: parsedValue });
         }
-        
+
         json = {};
         return parsedValue;
     }

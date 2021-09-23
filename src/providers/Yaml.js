@@ -93,7 +93,7 @@ module.exports = class YamlDatabase {
             throw new ErrorManager("Please specify a value.");
         dataSet(this.data, key, value);
         write(this.dbPath, this.data);
-        return dataGet(this.data,key);
+        return dataGet(this.data, key);
     }
 
     /**
