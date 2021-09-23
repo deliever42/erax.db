@@ -485,15 +485,15 @@ module.exports = class MongoDatabase {
     async push(key, value, valueIgnoreIfPresent = true) {
         if ((await this.has(key)) === false) return await this.set(key, [value]);
         else if ((await this.arrayHas(key)) === true && (await this.has(key)) === true) {
-            let yenivalue = await this.get(key);
-            if (yenivalue.includes(value) && valueIgnoreIfPresent === true)
+            let newval = await this.get(key);
+            if (newval.includes(value) && valueIgnoreIfPresent === true)
                 return console.log(
                     `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
                         "Data was not pushed because the conditions were not suitable."
                     )}`
                 );
-            yenivalue.push(value);
-            return await this.set(key, yenivalue);
+            newval.push(value);
+            return await this.set(key, newval);
         } else {
             return console.log(
                 `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(

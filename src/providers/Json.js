@@ -260,15 +260,15 @@ module.exports = class JsonDatabase {
     push(key, value, valueIgnoreIfPresent = true) {
         if (this.has(key) === false) return this.set(key, [value]);
         else if (this.arrayHas(key) === true && this.has(key) === true) {
-            let yenivalue = this.get(key);
-            if (yenivalue.includes(value) && valueIgnoreIfPresent === true)
+            let newval = this.get(key);
+            if (newval.includes(value) && valueIgnoreIfPresent === true)
                 return console.log(
                     `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
                         "Data was not pushed because the conditions were not suitable."
                     )}`
                 );
-            yenivalue.push(value);
-            return this.set(key, yenivalue);
+            newval.push(value);
+            return this.set(key, newval);
         } else {
             return console.log(
                 `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
