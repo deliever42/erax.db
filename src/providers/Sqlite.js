@@ -90,22 +90,26 @@ module.exports = class SqliteDatabase {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
 
-        let parsedKey = parseKey(key,this.sep);
+        let parsedKey = parseKey(key, this.sep);
 
         let json = {};
         let data = this.sql.prepare(`SELECT * FROM EraxDB WHERE key = (?)`).get(parsedKey);
 
         dataSet(json, this.sep, key, value);
 
-        let parsedValue = json[parseKey(key,this.sep)];
-        parsedValue = JSON.stringify(parsedValue)
-        
+        let parsedValue = json[parseKey(key, this.sep)];
+        parsedValue = JSON.stringify(parsedValue);
+
         if (!data) {
-            this.sql.prepare(`INSERT INTO EraxDB (key, value) VALUES (?,?)`).run(parsedKey, parsedValue);
+            this.sql
+                .prepare(`INSERT INTO EraxDB (key, value) VALUES (?,?)`)
+                .run(parsedKey, parsedValue);
         } else {
-            this.sql.prepare(`UPDATE EraxDB SET value = (?) WHERE key = (?)`).run(parsedValue,parsedKey);
+            this.sql
+                .prepare(`UPDATE EraxDB SET value = (?) WHERE key = (?)`)
+                .run(parsedValue, parsedKey);
         }
-       
+
         return value;
     }
 
@@ -116,7 +120,7 @@ module.exports = class SqliteDatabase {
      * @returns {boolean}
      */
     has(key) {
-        return (this.get(key)) ? true : false;
+        return this.get(key) ? true : false;
     }
 
     /**
@@ -126,7 +130,7 @@ module.exports = class SqliteDatabase {
      */
     deleteAll() {
         let all = this.all();
-        all.forEach(data => this.delete(data.ID));
+        all.forEach((data) => this.delete(data.ID));
         return true;
     }
 
@@ -180,7 +184,7 @@ module.exports = class SqliteDatabase {
     type(key) {
         if (this.has(key) === false) return null;
         if (Array.isArray(this.get(key))) return "array";
-        return typeof (this.get(key));
+        return typeof this.get(key);
     }
 
     /**
@@ -205,9 +209,9 @@ module.exports = class SqliteDatabase {
 
             dataSet(json, this.sep, parsedKey, JSON.parse(value));
             dataDelete(json, this.sep, key);
-            
+
             let parsedValue = dataGet(json, this.sep, parsedKey);
-            this.set(parsedKey, parsedValue)
+            this.set(parsedKey, parsedValue);
 
             json = {};
             return true;
@@ -240,11 +244,11 @@ module.exports = class SqliteDatabase {
 
         for (let data of all) {
             arr.push({
-              ID: data.key,
-              data: JSON.parse(data.value)
-            })
+                ID: data.key,
+                data: JSON.parse(data.value)
+            });
         }
-        
+
         return arr;
     }
 
@@ -682,11 +686,11 @@ module.exports = class SqliteDatabase {
 
         filtered.forEach((data) => {
             if (maxDeletedSize === 0) {
-                this.delete(data.ID)
+                this.delete(data.ID);
                 deleted++;
             } else {
                 if (deleted < maxDeletedSize) {
-                    this.delete(data.ID)
+                    this.delete(data.ID);
                     deleted++;
                 }
             }
