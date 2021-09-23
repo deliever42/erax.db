@@ -12,6 +12,7 @@
 - Fixed TypeScript errors.
 - SQlite will no longer throw errors.
 - The module will download a little faster.
+- Added separator to Database Options.
 ```
 
 # Warn
