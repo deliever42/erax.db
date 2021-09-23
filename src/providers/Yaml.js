@@ -14,7 +14,6 @@ const {
     dataHas,
     dataDelete
 } = require("../utils/Util");
-const YAML = require("YAML");
 
 /**
  *
@@ -31,9 +30,9 @@ module.exports = class YamlDatabase {
     /**
      *
      * @constructor
-     * @param {{ databasePath?: string, seperator?: string }} options
+     * @param {{ databasePath?: string }} options
      */
-    constructor(options = { databasePath: "database.yml", seperator: "." }) {
+    constructor(options = { databasePath: "database.yml" }) {
         if (options.databasePath === undefined || options.databasePath === null)
             throw new ErrorManager("Please specify a database name.");
 
@@ -73,7 +72,6 @@ module.exports = class YamlDatabase {
         this.dbPath = `${process.cwd()}${sep}${dirNames}${dbName}`;
         this.dbName = `${dirNames}${dbName}`;
         this.data = read(this.dbPath);
-        this.sep = options.seperator;
 
         if (!YamlDatabase.DBCollection.includes(this.dbName)) {
             YamlDatabase.DBCollection.push(this.dbName);
@@ -93,9 +91,9 @@ module.exports = class YamlDatabase {
         if (!isString(key)) throw new ErrorManager("Key must be string!");
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        dataSet(this.data, this.sep, key, value);
+        dataSet(this.data, key, value);
         write(this.dbPath, this.data);
-        return value;
+        return dataGet(this.data,key);
     }
 
     /**
@@ -105,7 +103,7 @@ module.exports = class YamlDatabase {
      * @returns {boolean}
      */
     has(key) {
-        return dataHas(this.data, this.sep, key);
+        return dataHas(this.data, key);
     }
 
     /**
@@ -140,7 +138,7 @@ module.exports = class YamlDatabase {
         if (key === "" || key === null || key === undefined)
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
-        return dataGet(this.data, this.sep, key);
+        return dataGet(this.data, key);
     }
 
     /**
@@ -173,7 +171,7 @@ module.exports = class YamlDatabase {
      */
     delete(key) {
         if (this.has(key) === false) return null;
-        dataDelete(this.data, this.sep, key);
+        dataDelete(this.data, key);
         write(this.dbPath, this.data);
         return true;
     }

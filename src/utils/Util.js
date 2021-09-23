@@ -1,5 +1,6 @@
 const FETCH = require("node-fetch");
 const fs = require("fs");
+const { set, get, unset } = require("lodash");
 
 /**
  *
@@ -33,7 +34,7 @@ module.exports = class Util {
     /**
      *
      * @param {string} path
-     * @returns {void | null}
+     * @returns {void}
      */
     static destroy(path) {
         if (fs.existsSync(path)) {
@@ -46,11 +47,10 @@ module.exports = class Util {
     /**
      *
      * @param {string} key
-     * @param {string} sep
      * @returns {string}
      */
-    static parseKey(key, sep) {
-        return key.includes(sep) ? key.split(sep).shift() : key;
+    static parseKey(key) {
+        return key.includes(".") ? key.split(".").shift() : key;
     }
 
     /**
@@ -84,7 +84,7 @@ module.exports = class Util {
      *
      * @param {string} path
      * @param {{ [key: string]: any } | string} data
-     * @returns {void | null}
+     * @returns {void}
      */
     static write(path, data) {
         if (path.endsWith(".json")) {
@@ -99,7 +99,7 @@ module.exports = class Util {
     /**
      *
      * @param {string} path
-     * @returns {void | null}
+     * @returns {void}
      */
     static read(path) {
         if (fs.existsSync(path)) {
@@ -118,22 +118,13 @@ module.exports = class Util {
     /**
      *
      * @param {{ [key: string]: any }} data
-     * @param {string} sep
      * @param {string} key
      * @param {any} value
      * @returns {void}
      */
-    static dataSet(data, sep, key, value) {
-        if (key.includes(sep)) {
-            let splited = key.split(sep);
-            let obj = {};
-            obj = data;
-            let json = obj;
-            for (let i = 0; i < splited.length - 1; i++) {
-                if (!json[splited[i]]) json = json[splited[i]] = {};
-                else json = json[splited[i]];
-            }
-            json[splited[splited.length - 1]] = value;
+    static dataSet(data, key, value) {
+        if (key.includes(".")) {
+            return set(data, key, value);
         } else {
             return (data[key] = value);
         }
@@ -142,21 +133,12 @@ module.exports = class Util {
     /**
      *
      * @param {{ [key: string]: any }} data
-     * @param {string} sep
      * @param {string} key
      * @returns {any}
      */
-    static dataGet(data, sep, key) {
-        if (key.includes(sep)) {
-            let splited = key.split(sep);
-            let obj = {};
-            obj = data;
-            let json = obj;
-
-            for (let i = 0; i < splited.length - 1; i++) {
-                json = json[splited[i]];
-            }
-            return json[splited[splited.length - 1]] ? json[splited[splited.length - 1]] : null;
+    static dataGet(data, key) {
+        if (key.includes(".")) {
+            return get(data, key) ? get(data, key) : null;
         } else {
             return data[key] ? data[key] : null;
         }
@@ -165,21 +147,12 @@ module.exports = class Util {
     /**
      *
      * @param {{ [key: string]: any }} data
-     * @param {string} sep
      * @param {string} key
      * @returns {boolean}
      */
-    static dataHas(data, sep, key) {
-        if (key.includes(sep)) {
-            let splited = key.split(sep);
-            let obj = {};
-            obj = data;
-            let json = obj;
-
-            for (let i = 0; i < splited.length - 1; i++) {
-                json = json[splited[i]];
-            }
-            return json[splited[splited.length - 1]] ? json[splited[splited.length - 1]] : null;
+    static dataHas(data, key) {
+        if (key.includes(".")) {
+            return get(data, key) ? true : false;
         } else {
             return data[key] ? true : false;
         }
@@ -188,23 +161,12 @@ module.exports = class Util {
     /**
      *
      * @param {{ [key: string]: any }} data
-     * @param {string} sep
      * @param {string} key
      * @returns {null | void}
      */
-    static dataDelete(data, sep, key) {
-        if (key.includes(sep)) {
-            let splited = key.split(sep);
-            let obj = {};
-            obj = data;
-            let json = obj;
-
-            for (let i = 0; i < splited.length - 1; i++) {
-                json = json[splited[i]];
-            }
-            return json[splited[splited.length - 1]]
-                ? delete json[splited[splited.length - 1]]
-                : null;
+    static dataDelete(data, key) {
+        if (key.includes(".")) {
+            return get(data, key) ? unset(data, key) : null;
         } else {
             return data[key] ? delete data[key] : null;
         }

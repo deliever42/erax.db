@@ -30,9 +30,9 @@ module.exports = class JsonDatabase {
     /**
      *
      * @constructor
-     * @param {{ databasePath?: string, seperator?: string }} options
+     * @param {{ databasePath?: string }} options
      */
-    constructor(options = { databasePath: "database.json", seperator: "." }) {
+    constructor(options = { databasePath: "database.json" }) {
         if (options.databasePath === undefined || options.databasePath === null)
             throw new ErrorManager("Please specify a database name.");
 
@@ -72,7 +72,6 @@ module.exports = class JsonDatabase {
         this.dbPath = `${process.cwd()}${sep}${dirNames}${dbName}`;
         this.dbName = `${dirNames}${dbName}`;
         this.data = read(this.dbPath);
-        this.sep = options.seperator;
 
         if (!JsonDatabase.DBCollection.includes(this.dbName)) {
             JsonDatabase.DBCollection.push(this.dbName);
@@ -92,9 +91,9 @@ module.exports = class JsonDatabase {
         if (!isString(key)) throw new ErrorManager("Key must be string!");
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        dataSet(this.data, this.sep, key, value);
+        dataSet(this.data, key, value);
         write(this.dbPath, this.data);
-        return value;
+        return dataGet(this.data,key);
     }
 
     /**
@@ -104,7 +103,7 @@ module.exports = class JsonDatabase {
      * @returns {boolean}
      */
     has(key) {
-        return dataHas(this.data, this.sep, key);
+        return dataHas(this.data, key);
     }
 
     /**
@@ -139,7 +138,7 @@ module.exports = class JsonDatabase {
         if (key === "" || key === null || key === undefined)
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
-        return dataGet(this.data, this.sep, key);
+        return dataGet(this.data, key);
     }
 
     /**
@@ -172,7 +171,7 @@ module.exports = class JsonDatabase {
      */
     delete(key) {
         if (this.has(key) === false) return null;
-        dataDelete(this.data, this.sep, key);
+        dataDelete(this.data, key);
         write(this.dbPath, this.data);
         return true;
     }

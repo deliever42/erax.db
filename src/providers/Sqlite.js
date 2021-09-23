@@ -30,9 +30,9 @@ module.exports = class SqliteDatabase {
     /**
      *
      * @constructor
-     * @param {{ databasePath?: string, seperator?: string }} options
+     * @param {{ databasePath?: string }} options
      */
-    constructor(options = { databasePath: "database.db", seperator: "." }) {
+    constructor(options = { databasePath: "database.db" }) {
         if (options.databasePath === undefined || options.databasePath === null)
             throw new ErrorManager("Please specify a database name.");
 
@@ -66,7 +66,6 @@ module.exports = class SqliteDatabase {
         }
 
         this.dbName = `${dirNames}${dbName}`;
-        this.sep = options.seperator;
         this.dbPath = `${process.cwd()}${sep}${dirNames}${dbName}`;
         this.sql = new db(this.dbPath);
         this.sql.prepare("CREATE TABLE IF NOT EXISTS EraxDB (key TEXT, value TEXT)").run();
@@ -90,14 +89,14 @@ module.exports = class SqliteDatabase {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
 
-        let parsedKey = parseKey(key, this.sep);
+        let parsedKey = parseKey(key);
 
         let json = {};
         let data = this.sql.prepare(`SELECT * FROM EraxDB WHERE key = (?)`).get(parsedKey);
 
-        dataSet(json, this.sep, key, value);
+        dataSet(json, key, value);
 
-        let parsedValue = json[parseKey(key, this.sep)];
+        let parsedValue = json[parseKey(key)];
         parsedValue = JSON.stringify(parsedValue);
 
         if (!data) {
@@ -110,7 +109,7 @@ module.exports = class SqliteDatabase {
                 .run(parsedValue, parsedKey);
         }
 
-        return value;
+        return parsedValue;
     }
 
     /**
@@ -145,8 +144,8 @@ module.exports = class SqliteDatabase {
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
 
-        if (key.includes(this.sep)) {
-            let parsedKey = parseKey(key, this.sep);
+        if (key.includes(".")) {
+            let parsedKey = parseKey(key);
             let json = {};
 
             let data = this.sql.prepare(`SELECT * FROM EraxDB WHERE key = (?)`).get(parsedKey);
@@ -154,14 +153,14 @@ module.exports = class SqliteDatabase {
 
             let value = data.value;
 
-            dataSet(json, this.sep, parsedKey, JSON.parse(value));
-            let parsedValue = dataGet(json, this.sep, key);
+            dataSet(json, parsedKey, JSON.parse(value));
+            let parsedValue = dataGet(json, key);
             json = {};
             return parsedValue;
         } else {
             let data = this.sql.prepare(`SELECT * FROM EraxDB WHERE key = (?)`).get(key);
             if (!data) return null;
-            return data.value;
+            return JSON.parse(data.value);
         }
     }
 
@@ -198,8 +197,8 @@ module.exports = class SqliteDatabase {
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
 
-        if (key.includes(this.sep)) {
-            let parsedKey = parseKey(key, this.sep);
+        if (key.includes(".")) {
+            let parsedKey = parseKey(key);
             let json = {};
 
             let data = this.sql.prepare(`SELECT * FROM EraxDB WHERE key = (?)`).get(parsedKey);
@@ -207,19 +206,18 @@ module.exports = class SqliteDatabase {
 
             let value = data.value;
 
-            dataSet(json, this.sep, parsedKey, JSON.parse(value));
-            dataDelete(json, this.sep, key);
+            dataSet(json, parsedKey, JSON.parse(value));
+            dataDelete(json, key);
 
-            let parsedValue = dataGet(json, this.sep, parsedKey);
+            let parsedValue = dataGet(json, parsedKey);
             this.set(parsedKey, parsedValue);
 
             json = {};
-            return true;
         } else {
             if (this.has(key) === false) return null;
             this.sql.prepare(`DELETE FROM EraxDB WHERE key = (?)`).run(key);
-            return true;
         }
+        return true;
     }
 
     /**
@@ -266,7 +264,7 @@ module.exports = class SqliteDatabase {
             throw new ErrorManager("Please specify a operator. (-  +  *  /  %)");
         if (value === null || value === undefined || value === "")
             throw new ErrorManager("Please specify a value.");
-        if (isNumber(value)) throw new ErrorManager(`Value must be number!`);
+        if (!isNumber(value)) throw new ErrorManager(`Value must be number!`);
 
         value = Number(value);
 
@@ -446,15 +444,15 @@ module.exports = class SqliteDatabase {
     push(key, value, valueIgnoreIfPresent = true) {
         if (this.has(key) === false) return this.set(key, [value]);
         else if (this.arrayHas(key) === true && this.has(key) === true) {
-            let newval = this.get(key);
-            if (newval.includes(value) && valueIgnoreIfPresent === true)
+            let data = this.get(key);
+            if (data.includes(value) && valueIgnoreIfPresent === true)
                 return console.log(
                     `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
                         "Data was not pushed because the conditions were not suitable."
                     )}`
                 );
-            newval.push(value);
-            return this.set(key, newval);
+            data.push(value);
+            return this.set(key, data);
         } else {
             return console.log(
                 `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
@@ -639,7 +637,7 @@ module.exports = class SqliteDatabase {
             let key = data.ID;
             let value = data.data;
 
-            dataSet(json, this.sep, key, value);
+            dataSet(json, key, value);
             write(dbPath, json);
         });
 

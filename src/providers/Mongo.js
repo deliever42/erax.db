@@ -29,9 +29,9 @@ module.exports = class MongoDatabase {
     /**
      *
      * @constructor
-     * @param {{ mongoURL: string, seperator?: string }} options
+     * @param {{ mongoURL: string }} options
      */
-    constructor(options = { mongoURL, seperator: "." }) {
+    constructor(options = { mongoURL }) {
         if (options.mongoURL === undefined || options.mongoURL === null)
             throw new ErrorManager("Please specify a MongoDB URL.");
         if (!isString(mongoURL)) throw new ErrorManager("MongoDB URL must be string!");
@@ -40,7 +40,6 @@ module.exports = class MongoDatabase {
 
         this.url = options.mongoURL;
         this.dbName = this.url.split("mongodb.net/").pop().split("?")[0];
-        this.sep = options.seperator;
 
         mongoose.connect(this.url, {
             useNewUrlParser: true,
@@ -84,21 +83,22 @@ module.exports = class MongoDatabase {
             throw new ErrorManager("Please specify a value.");
 
         let json = {};
+        let parsedKey = parseKey(key);
 
-        dataSet(json, this.sep, key, value);
+        dataSet(json, key, value);
 
-        Object.entries(json).forEach(async (entry) => {
-            let [key, value] = entry;
+        let parsedValue = json[parseKey(key)];
+        parsedValue = parsedValue;
 
-            let tag = await this.mongo.findOne({ key: key });
-            if (!tag) {
-                await this.mongo.create({ key: key, value: value });
-            } else {
-                await this.mongo.updateOne({ key: key }, { value: value });
-            }
-        });
+        let data = await this.mongo.findOne({ key: parsedKey });
+        if (!data) {
+            await this.mongo.create({ key: parsedKey, value: parsedValue });
+        } else {
+            await this.mongo.updateOne({ key: parsedKey }, { value: parsedValue });
+        }
+        
         json = {};
-        return value;
+        return parsedValue;
     }
 
     /**
@@ -132,22 +132,23 @@ module.exports = class MongoDatabase {
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
 
-        if (key.includes(this.sep)) {
-            let newkey = parseKey(key, this.sep);
+        if (key.includes(".")) {
+            let parsedKey = parseKey(key);
             let json = {};
 
-            let tag = await this.mongo.findOne({ key: newkey });
-            if ((await this.has(key)) === false) return null;
+            let data = await this.mongo.findOne({ key: parsedKey });
+            if (!data) return null;
 
-            let value = await tag.get("value");
-            dataSet(json, this.sep, newkey, value);
-            let newvalue = dataGet(json, this.sep, key);
+            let value = await data.get("value");
+
+            dataSet(json, parsedKey, value);
+            let parsedValue = dataGet(json, key);
             json = {};
-            return newvalue;
+            return parsedValue;
         } else {
-            let tag = await this.mongo.findOne({ key: key });
-            if ((await this.has(key)) === false) return null;
-            return await tag.get("value");
+            let data = await this.mongo.findOne({ key: key });
+            if (!data) return null;
+            return await data.get("value");
         }
     }
 
@@ -184,23 +185,26 @@ module.exports = class MongoDatabase {
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
 
-        if (key.includes(this.sep)) {
-            let newkey = parseKey(key, this.sep);
-            if ((await this.has(newkey)) === false) return null;
-            let tag = await this.mongo.findOne({ key: newkey });
-            let value = await tag.get("value");
+        if (key.includes(".")) {
+            let parsedKey = parseKey(key);
             let json = {};
 
-            dataSet(json, this.sep, newkey, value);
-            dataDelete(json, this.sep, key);
+            let data = await this.mongo.findOne({ key: parsedKey });
+            if (!data) return null;
 
-            let newvalue = dataGet(json, this.sep, newkey);
-            await this.set(newkey, newvalue);
+            let value = await data.get("value");
+
+            dataSet(json, parsedKey, value);
+            dataDelete(json, key);
+
+            let parsedValue = dataGet(json, parsedKey);
+
+            await this.set(parsedKey, parsedValue);
             json = {};
         } else {
-            if ((await this.has(key)) === false) return null;
-            let tag = await this.mongo.findOne({ key: key });
-            let value = await tag.get("value");
+            let data = await this.mongo.findOne({ key: key });
+            if (!data) return null;
+            let value = await data.get("value");
             await this.mongo.deleteOne({ key: key }, { value: value });
         }
         return true;
@@ -691,7 +695,7 @@ module.exports = class MongoDatabase {
                 let key = await obj.key;
                 let value = await obj.value;
 
-                dataSet(json, this.sep, key, value);
+                dataSet(json, key, value);
                 write(dbPath, json);
             });
         });

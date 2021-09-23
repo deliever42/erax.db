@@ -7,7 +7,7 @@ import { AllData } from "./interfaces/AllData";
 declare module "erax.db" {
     export class JsonDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { databasePath: string, seperator?: string });
+        public constructor(options?: { databasePath: string });
         public dbPath: string;
         public sep: string;
         public dbName: string;
@@ -53,7 +53,7 @@ declare module "erax.db" {
 
     export class YamlDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { databasePath: string, seperator?: string });
+        public constructor(options?: { databasePath: string });
         public dbPath: string;
         public dbName: string;
         public sep: string;
@@ -99,7 +99,7 @@ declare module "erax.db" {
 
     export class SqliteDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { databasePath: string, seperator?: string });
+        public constructor(options?: { databasePath: string });
         public dbPath: string;
         public dbName: string;
         private sql: string;
@@ -146,7 +146,7 @@ declare module "erax.db" {
 
     export class MongoDatabase {
         public static DBCollection: string[];
-        public constructor(options: { mongoURL: string, seperator?: string });
+        public constructor(options: { mongoURL: string });
         public dbName: string;
         private mongo: string;
         public sep: string;
@@ -197,17 +197,17 @@ declare module "erax.db" {
             installedVersion: string,
             packageData: string
         }>;
-        public static parseKey(key: string, sep: string): string;
-        public static write(path: string, data: data | string): void | null;
+        public static parseKey(key: string): string;
+        public static write(path: string, data: data | string): void;
         public static dataSet(data: data, key: string, value: any): void;
         public static dataGet(data: data, key: string): any;
         public static dataHas(data: data, key: string): boolean;
-        public static dataDelete(data: data, key: string): void | null;
-        public static destroy(path: string): void | null;
+        public static dataDelete(data: data, key: string): void;
+        public static destroy(path: string): void;
         public static checkFile(path: string): boolean;
         public static isString(key: any): boolean;
         public static isNumber(key: any): boolean;
-        public static read(path: string): void | null;
+        public static read(path: string): void;
     }
 
     export class ErrorManager extends Error {

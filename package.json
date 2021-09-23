@@ -1,6 +1,6 @@
 {
     "name": "erax.db",
-    "version": "2.9.4",
+    "version": "2.9.5",
     "description": "Advanced JSON, Yaml, Sqlite and Mongo Database Module.",
     "main": "src/index.js",
     "scripts": {
@@ -24,9 +24,7 @@
         "mongo",
         "mongodb",
         "mongoose",
-        "easy",
-        "better-sqlite3",
-        "better-sqlite"
+        "easy"
     ],
     "author": "emirhanbaltas34",
     "license": "Apache-2.0",
@@ -41,6 +39,7 @@
     "dependencies": {
         "better-sqlite3": "^7.4.3",
         "chalk": "^4.1.2",
+        "lodash": "^4.17.21",
         "mongoose": "^5.13.9",
         "node-fetch": "^2.6.4",
         "yaml": "^1.10.2"

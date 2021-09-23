@@ -8,11 +8,8 @@
 # News
 
 ```npm
-- Fixed errors.
-- Fixed TypeScript errors.
-- SQlite will no longer throw errors.
-- The module will download a little faster.
-- Added separator to Database Options.
+- Fixed Errors.
+- Removed seperator option in Database Options. (seperator = .)
 ```
 
 # Warn
@@ -27,19 +24,19 @@
 const { JsonDatabase, YamlDatabase, SqliteDatabase, MongoDatabase } = require("erax.db");
 
 //JSON
-const jsondb = new JsonDatabase({ databasePath: "MyJsonDatabase.json", seperator: "." });
+const jsondb = new JsonDatabase({ databasePath: "MyJsonDatabase.json" });
 console.log(JsonDatabase.DBCollection); //It sends all Databases created for Json to the console.
 
 //Yaml
-const yamldb = new YamlDatabase({ databasePath: "MyYamlDatabase.yml", seperator: "." });
+const yamldb = new YamlDatabase({ databasePath: "MyYamlDatabase.yml", });
 console.log(YamlDatabase.DBCollection); //It sends all Databases created for Yaml to the console.
 
 //SQlite
-const sqlitedb = new SqliteDatabase({ databasePath: "MySqliteDatabase.db", seperator: "." });
+const sqlitedb = new SqliteDatabase({ databasePath: "MySqliteDatabase.db" });
 console.log(SqliteDatabase.DBCollection); //It sends all Databases created for Sqlite to the console.
 
 //Mongo
-const mongodb = new MongoDatabase({ mongoURL: "MongoDB URL", seperator: "." });
+const mongodb = new MongoDatabase({ mongoURL: "MongoDB URL" });
 console.log(MongoDatabase.DBCollection); //It sends all Databases created for Mongo to the console.
 ```
 
