@@ -33,14 +33,21 @@ module.exports = class SqliteDatabase {
      * @param {{ databasePath?: string }} options
      */
     constructor(options = { databasePath: "database.db" }) {
-        if (options.databasePath === undefined || options.databasePath === null)
-            throw new ErrorManager("Please specify a database name.");
+        let path;
+        if (
+            !options ||
+            (options &&
+                (options.databasePath === null ||
+                    options.databasePath === undefined ||
+                    options.databasePath === ""))
+        )
+            path = "database.db";
+        else if (options && options.databasePath) path = options.databasePath;
 
-        if (!isString(options.databasePath))
-            throw new ErrorManager("Database name must be string!");
+        if (!isString(path)) throw new ErrorManager("Database name must be string!");
 
         let processFolder = process.cwd();
-        let databasePath = options.databasePath;
+        let databasePath = path;
 
         if (databasePath.endsWith(sep)) {
             databasePath += "database.db";

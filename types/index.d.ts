@@ -7,7 +7,7 @@ import { AllData } from "./interfaces/AllData";
 declare module "erax.db" {
     export class JsonDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { databasePath: string });
+        public constructor(options?: { databasePath?: string });
         public dbPath: string;
         public sep: string;
         public dbName: string;
@@ -53,7 +53,7 @@ declare module "erax.db" {
 
     export class YamlDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { databasePath: string });
+        public constructor(options?: { databasePath?: string });
         public dbPath: string;
         public dbName: string;
         public sep: string;
@@ -99,7 +99,7 @@ declare module "erax.db" {
 
     export class SqliteDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { databasePath: string });
+        public constructor(options?: { databasePath?: string });
         public dbPath: string;
         public dbName: string;
         private sql: string;

@@ -33,11 +33,21 @@ module.exports = class JsonDatabase {
      * @param {{ databasePath?: string }} options
      */
     constructor(options = { databasePath: "database.json" }) {
-        if (options.databasePath === undefined || options.databasePath === null)
-            throw new ErrorManager("Please specify a database name.");
+        let path;
+        if (
+            !options ||
+            (options &&
+                (options.databasePath === null ||
+                    options.databasePath === undefined ||
+                    options.databasePath === ""))
+        )
+            path = "database.json";
+        else if (options && options.databasePath) path = options.databasePath;
 
-        if (!isString(options.databasePath))
-            throw new ErrorManager("Database name must be string!");
+        if (!isString(path)) throw new ErrorManager("Database name must be string!");
+
+        let processFolder = process.cwd();
+        let databasePath = path;
 
         let processFolder = process.cwd();
         let databasePath = options.databasePath;

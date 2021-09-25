@@ -9,7 +9,7 @@
 
 ```npm
 - Fixed Errors.
-- Removed seperator option in Database Options. (seperator = .)
+- Fixed TypeScript Bugs.
 ```
 
 # Warn

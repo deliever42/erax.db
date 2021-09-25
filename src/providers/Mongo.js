@@ -31,8 +31,14 @@ module.exports = class MongoDatabase {
      * @constructor
      * @param {{ mongoURL: string }} options
      */
-    constructor(options = { mongoURL }) {
-        if (options.mongoURL === undefined || options.mongoURL === null)
+    constructor(options) {
+        if (
+            !options ||
+            (options &&
+                (options.mongoURL === null ||
+                    options.mongoURL === undefined ||
+                    options.mongoURL === ""))
+        )
             throw new ErrorManager("Please specify a MongoDB URL.");
         if (!isString(mongoURL)) throw new ErrorManager("MongoDB URL must be string!");
         if (!options.mongoURL.match(/^mongodb([a-z+]{0,15})?.+/g))
