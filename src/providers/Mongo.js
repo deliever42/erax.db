@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { mkdirSync } = require("fs");
+const { mkdirSync, writeFileSync } = require("fs");
 const ErrorManager = require("../utils/ErrorManager");
 const { sep } = require("path");
 const chalk = require("chalk");
@@ -11,7 +11,8 @@ const {
     dataSet,
     dataGet,
     dataDelete,
-    write
+    write,
+    read
 } = require("../utils/Util");
 
 /**
@@ -45,7 +46,10 @@ module.exports = class MongoDatabase {
             throw new ErrorManager("Invalid MongoDB URL!");
 
         this.url = options.mongoURL;
-        this.dbName = this.url.split("mongodb.net/").pop().split("?")[0];
+        this.dbName = this.url
+            .split("mongodb.net/")
+            .pop()
+            .split("?")[0];
 
         mongoose.connect(this.url, {
             useNewUrlParser: true,
@@ -224,8 +228,8 @@ module.exports = class MongoDatabase {
     async fetchAll() {
         let arr = [];
 
-        await this.mongo.find().then(async (data) => {
-            data.forEach(async (obj) => {
+        await this.mongo.find().then(async data => {
+            data.forEach(async obj => {
                 let key = await obj.key;
                 let value = await obj.value;
 
@@ -248,8 +252,8 @@ module.exports = class MongoDatabase {
     async all() {
         let arr = [];
 
-        await this.mongo.find().then(async (data) => {
-            data.forEach(async (obj) => {
+        await this.mongo.find().then(async data => {
+            data.forEach(async obj => {
                 let key = await obj.key;
                 let value = await obj.value;
 
@@ -370,7 +374,7 @@ module.exports = class MongoDatabase {
     async startsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return await this.filter((x) => x.ID.startsWith(value));
+        return await this.filter(x => x.ID.startsWith(value));
     }
 
     /**
@@ -382,7 +386,7 @@ module.exports = class MongoDatabase {
     async endsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return await this.filter((x) => x.ID.endsWith(value));
+        return await this.filter(x => x.ID.endsWith(value));
     }
 
     /**
@@ -394,7 +398,7 @@ module.exports = class MongoDatabase {
     async includes(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return await this.filter((x) => x.ID.includes(value));
+        return await this.filter(x => x.ID.includes(value));
     }
 
     /**
@@ -415,8 +419,8 @@ module.exports = class MongoDatabase {
         maxDeletedSize === undefined ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
-        await this.mongo.find().then(async (data) => {
-            data.forEach(async (obj) => {
+        await this.mongo.find().then(async data => {
+            data.forEach(async obj => {
                 let key = await obj.key;
                 let dval = await obj.value;
                 if (!key.includes(value)) return;
@@ -444,8 +448,8 @@ module.exports = class MongoDatabase {
      */
     async filter(callback) {
         let arr = [];
-        await this.mongo.find().then(async (data) => {
-            data.forEach(async (obj) => {
+        await this.mongo.find().then(async data => {
+            data.forEach(async obj => {
                 let key = await obj.key;
                 let value = await obj.value;
 
@@ -468,8 +472,8 @@ module.exports = class MongoDatabase {
      */
     async map(callback) {
         let arr = [];
-        await this.mongo.find().then(async (data) => {
-            data.forEach(async (obj) => {
+        await this.mongo.find().then(async data => {
+            data.forEach(async obj => {
                 let key = await obj.key;
                 let value = await obj.value;
 
@@ -482,6 +486,30 @@ module.exports = class MongoDatabase {
         });
 
         return arr.map(callback);
+    }
+
+    /**
+     *
+     * @param {(a: { ID: string, data: any }, b: { ID: string, data: any }) => boolean} callback
+     * @example await db.reduce((a, b) => a + b);
+     * @returns {Promise<any[]>}
+     */
+    async reduce(callback) {
+        let arr = [];
+        await this.mongo.find().then(async data => {
+            data.forEach(async obj => {
+                let key = await obj.key;
+                let value = await obj.value;
+
+                const data = {
+                    ID: key,
+                    data: value
+                };
+                arr.push(data);
+            });
+        });
+
+        return arr.reduce(callback);
     }
 
     /**
@@ -571,7 +599,7 @@ module.exports = class MongoDatabase {
             );
 
         let oldArr = await this.get(key);
-        let newArr = oldArr.filter((x) => x !== value);
+        let newArr = oldArr.filter(x => x !== value);
 
         return await this.set(key, newArr);
     }
@@ -584,8 +612,8 @@ module.exports = class MongoDatabase {
     async size() {
         let arr = [];
 
-        await this.mongo.find().then(async (data) => {
-            data.forEach(async (obj) => {
+        await this.mongo.find().then(async data => {
+            data.forEach(async obj => {
                 let key = await obj.key;
                 arr.push(key);
             });
@@ -602,8 +630,8 @@ module.exports = class MongoDatabase {
     async keyArray() {
         let arr = [];
 
-        await this.mongo.find().then(async (data) => {
-            data.forEach(async (obj) => {
+        await this.mongo.find().then(async data => {
+            data.forEach(async obj => {
                 let key = await obj.key;
                 arr.push(key);
             });
@@ -620,8 +648,8 @@ module.exports = class MongoDatabase {
     async valueArray() {
         let arr = [];
 
-        await this.mongo.find().then(async (data) => {
-            data.forEach(async (obj) => {
+        await this.mongo.find().then(async data => {
+            data.forEach(async obj => {
                 let value = await obj.value;
                 arr.push(value);
             });
@@ -633,10 +661,10 @@ module.exports = class MongoDatabase {
     /**
      *
      * @param {string} path
-     * @example await db.import("./database.json");
+     * @example await db.import("database.json");
      * @returns {Promise<boolean>}
      */
-    async import(path = "./database.json") {
+    async import(path = "database.json") {
         let processFolder = process.cwd();
         let databasePath = path;
 
@@ -644,11 +672,20 @@ module.exports = class MongoDatabase {
             databasePath += ".json";
         }
 
+        databasePath = databasePath
+            .replace(processFolder, "")
+            .replace("/", sep)
+            .replace("\\", sep);
+
+        if (databasePath.startsWith(sep)) {
+            databasePath = databasePath.slice(1);
+        }
+
         if (!checkFile(`${processFolder}${sep}${databasePath}`)) return null;
 
         let file = read(`${processFolder}${sep}${databasePath}`);
 
-        Object.entries(file).forEach(async (entry) => {
+        Object.entries(file).forEach(async entry => {
             let [key, value] = entry;
             await this.set(key, value);
         });
@@ -658,10 +695,10 @@ module.exports = class MongoDatabase {
     /**
      *
      * @param {string} path
-     * @example await db.export("./database.json");
+     * @example await db.export("database.json");
      * @returns {Promise<boolean>}
      */
-    async export(path = "./database.json") {
+    async export(path = "database.json") {
         let processFolder = process.cwd();
         let databasePath = path;
 
@@ -673,7 +710,16 @@ module.exports = class MongoDatabase {
             }
         }
 
-        let dirs = databasePath.split(sep).filter((dir) => dir !== "");
+        databasePath = databasePath
+            .replace(processFolder, "")
+            .replace("/", sep)
+            .replace("\\", sep);
+
+        if (databasePath.startsWith(sep)) {
+            databasePath = databasePath.slice(1);
+        }
+
+        let dirs = databasePath.split(sep);
         let dbName = "";
         let dirNames = "";
 
@@ -687,7 +733,7 @@ module.exports = class MongoDatabase {
                 dbName = `${dirs[i]}`;
 
                 if (!checkFile(`${processFolder}${sep}${dirNames}${dbName}`)) {
-                    write(`${processFolder}${sep}${dirNames}${dbName}`, "{}");
+                    writeFileSync(`${processFolder}${sep}${dirNames}${dbName}`, "{}");
                 }
             }
         }
@@ -696,8 +742,8 @@ module.exports = class MongoDatabase {
 
         let json = {};
 
-        await this.mongo.find().then(async (data) => {
-            data.forEach(async (obj) => {
+        await this.mongo.find().then(async data => {
+            data.forEach(async obj => {
                 let key = await obj.key;
                 let value = await obj.value;
 
@@ -744,7 +790,7 @@ module.exports = class MongoDatabase {
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
         let filtered = await this.filter(callback);
-        filtered.forEach(async (obj) => {
+        filtered.forEach(async obj => {
             if (maxDeletedSize === 0) {
                 await this.mongo.deleteOne({ key: obj.ID }, { value: obj.data });
                 deleted++;

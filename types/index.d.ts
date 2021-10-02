@@ -9,7 +9,6 @@ declare module "erax.db" {
         public static DBCollection: string[];
         public constructor(options?: { databasePath?: string });
         public dbPath: string;
-        public sep: string;
         public dbName: string;
         public readonly data: data;
         public set(key: string, value: any): any;
@@ -49,6 +48,8 @@ declare module "erax.db" {
             callback: (element: AllData) => boolean,
             maxDeletedSize?: number
         ): number;
+        public reduce(callback: (a: AllData, b: AllData) => boolean): any[];
+        public map(callback: (element: AllData) => boolean): any[];
     }
 
     export class YamlDatabase {
@@ -56,7 +57,6 @@ declare module "erax.db" {
         public constructor(options?: { databasePath?: string });
         public dbPath: string;
         public dbName: string;
-        public sep: string;
         public readonly data: data;
         public set(key: string, value: any): any;
         public fetch(key: string): any;
@@ -95,6 +95,8 @@ declare module "erax.db" {
             callback: (element: AllData) => boolean,
             maxDeletedSize?: number
         ): number;
+        public reduce(callback: (a: AllData, b: AllData) => boolean): any[];
+        public map(callback: (element: AllData) => boolean): any[];
     }
 
     export class SqliteDatabase {
@@ -102,8 +104,7 @@ declare module "erax.db" {
         public constructor(options?: { databasePath?: string });
         public dbPath: string;
         public dbName: string;
-        private sql: string;
-        public sep: string;
+        private sql: any;
         public set(key: string, value: any): any;
         public fetch(key: string): any;
         public get(key: string): any;
@@ -142,14 +143,15 @@ declare module "erax.db" {
             callback: (element: AllData) => boolean,
             maxDeletedSize?: number
         ): number;
+        public reduce(callback: (a: AllData, b: AllData) => boolean): any[];
+        public map(callback: (element: AllData) => boolean): any[];
     }
 
     export class MongoDatabase {
         public static DBCollection: string[];
         public constructor(options: { mongoURL: string });
         public dbName: string;
-        private mongo: string;
-        public sep: string;
+        private mongo: any;
         public url: string;
         public set(key: string, value: any): Promise<any>;
         public fetch(key: string): Promise<any>;
@@ -189,16 +191,19 @@ declare module "erax.db" {
             callback: (element: AllData) => boolean,
             maxDeletedSize?: number
         ): Promise<number>;
+        public reduce(callback: (a: AllData, b: AllData) => boolean): Promise<any[]>;
+        public map(callback: (element: AllData) => boolean): any[];
+        s;
     }
 
     export class Util {
         public static updateCheck(): Promise<{
-            updated: boolean,
-            installedVersion: string,
-            packageData: string
+            updated: boolean;
+            installedVersion: string;
+            packageData: string;
         }>;
         public static parseKey(key: string): string;
-        public static write(path: string, data: data | string): void;
+        public static write(path: string, data: data): void;
         public static dataSet(data: data, key: string, value: any): void;
         public static dataGet(data: data, key: string): any;
         public static dataHas(data: data, key: string): boolean;

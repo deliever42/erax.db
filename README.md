@@ -9,7 +9,8 @@
 
 ```npm
 - Fixed Errors.
-- Fixed TypeScript Bugs.
+- Added reduce method.
+- Fixed TypeScript.
 ```
 
 # Warn
@@ -28,7 +29,7 @@ const jsondb = new JsonDatabase({ databasePath: "MyJsonDatabase.json" });
 console.log(JsonDatabase.DBCollection); //It sends all Databases created for Json to the console.
 
 //Yaml
-const yamldb = new YamlDatabase({ databasePath: "MyYamlDatabase.yml", });
+const yamldb = new YamlDatabase({ databasePath: "MyYamlDatabase.yml" });
 console.log(YamlDatabase.DBCollection); //It sends all Databases created for Yaml to the console.
 
 //SQlite
@@ -70,11 +71,12 @@ console.log(MongoDatabase.DBCollection); //It sends all Databases created for Mo
 <db>.includes("value")
 <db>.filter((element) => element.ID.startsWith("key"))
 <db>.map((element) => element.ID)
+<db>.reduce((a, b) => a + b)
 <db>.keyArray()
 <db>.valueArray()
 
 //Math Methods
-<db>.math("key", "operator", 1)
+<db>.math("key", "+", 1)
 <db>.add("key", 1)
 <db>.subtract("key", 1)
 
@@ -89,7 +91,7 @@ console.log(MongoDatabase.DBCollection); //It sends all Databases created for Mo
 await <db>.export("database.json")
 await <db>.import("database.json")
 
-//NOTE: Don't forget to Use await when using methods in Mongo.
+//NOTE: Only use await in Mongo.
 ```
 
 #### You can reach Emirhan77#0001 on Discord to report a bug.

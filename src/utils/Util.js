@@ -13,7 +13,7 @@ module.exports = class Util {
      */
     static async updateCheck() {
         let version = require("../../package.json").version;
-        let packageData = await FETCH("https://registry.npmjs.com/erax.db").then((text) =>
+        let packageData = await FETCH("https://registry.npmjs.com/erax.db").then(text =>
             text.json()
         );
         if (version === packageData["dist-tags"].latest) {
@@ -83,7 +83,7 @@ module.exports = class Util {
     /**
      *
      * @param {string} path
-     * @param {{ [key: string]: any } | string} data
+     * @param {{ [key: string]: any }} data
      * @returns {void}
      */
     static write(path, data) {
@@ -123,11 +123,7 @@ module.exports = class Util {
      * @returns {void}
      */
     static dataSet(data, key, value) {
-        if (key.includes(".")) {
-            return set(data, key, value);
-        } else {
-            return (data[key] = value);
-        }
+        return set(data, key, value);
     }
 
     /**
@@ -137,11 +133,7 @@ module.exports = class Util {
      * @returns {any}
      */
     static dataGet(data, key) {
-        if (key.includes(".")) {
-            return get(data, key) ? get(data, key) : null;
-        } else {
-            return data[key] ? data[key] : null;
-        }
+        return get(data, key) ? get(data, key) : null;
     }
 
     /**
@@ -151,11 +143,7 @@ module.exports = class Util {
      * @returns {boolean}
      */
     static dataHas(data, key) {
-        if (key.includes(".")) {
-            return get(data, key) ? true : false;
-        } else {
-            return data[key] ? true : false;
-        }
+        return get(data, key) ? true : false;
     }
 
     /**
@@ -165,10 +153,6 @@ module.exports = class Util {
      * @returns {null | void}
      */
     static dataDelete(data, key) {
-        if (key.includes(".")) {
-            return get(data, key) ? unset(data, key) : null;
-        } else {
-            return data[key] ? delete data[key] : null;
-        }
+        return get(data, key) ? unset(data, key) : null;
     }
 };

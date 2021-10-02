@@ -1,4 +1,4 @@
-const { mkdirSync } = require("fs");
+const { mkdirSync, writeFileSync } = require("fs");
 const ErrorManager = require("../utils/ErrorManager");
 const { sep } = require("path");
 const chalk = require("chalk");
@@ -32,7 +32,7 @@ module.exports = class YamlDatabase {
      * @constructor
      * @param {{ databasePath?: string }} options
      */
-    constructor(options = { databasePath: "database.yml" }) {
+    constructor(options) {
         let path;
         if (
             !options ||
@@ -57,7 +57,16 @@ module.exports = class YamlDatabase {
             }
         }
 
-        let dirs = databasePath.split(sep).filter((dir) => dir !== "");
+        databasePath = databasePath
+            .replace(processFolder, "")
+            .replace("/", sep)
+            .replace("\\", sep);
+
+        if (databasePath.startsWith(sep)) {
+            databasePath = databasePath.slice(1);
+        }
+
+        let dirs = databasePath.split(sep);
         let dbName = "";
         let dirNames = "";
 
@@ -71,12 +80,12 @@ module.exports = class YamlDatabase {
                 dbName = `${dirs[i]}`;
 
                 if (!checkFile(`${processFolder}${sep}${dirNames}${dbName}`)) {
-                    write(`${processFolder}${sep}${dirNames}${dbName}`, {});
+                    writeFileSync(`${processFolder}${sep}${dirNames}${dbName}`, "{}");
                 }
             }
         }
 
-        this.dbPath = `${process.cwd()}${sep}${dirNames}${dbName}`;
+        this.dbPath = `${processFolder}${sep}${dirNames}${dbName}`;
         this.dbName = `${dirNames}${dbName}`;
         this.data = read(this.dbPath);
 
@@ -199,7 +208,7 @@ module.exports = class YamlDatabase {
      */
     all() {
         let arr = [];
-        Object.entries(this.data).forEach((entry) => {
+        Object.entries(this.data).forEach(entry => {
             const [key, value] = entry;
             const data = {
                 ID: key,
@@ -228,7 +237,7 @@ module.exports = class YamlDatabase {
     startsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return this.all().filter((x) => x.ID.startsWith(value));
+        return this.all().filter(x => x.ID.startsWith(value));
     }
 
     /**
@@ -240,7 +249,7 @@ module.exports = class YamlDatabase {
     endsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return this.all().filter((x) => x.ID.endsWith(value));
+        return this.all().filter(x => x.ID.endsWith(value));
     }
 
     /**
@@ -252,7 +261,7 @@ module.exports = class YamlDatabase {
     includes(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return this.all().filter((x) => x.ID.includes(value));
+        return this.all().filter(x => x.ID.includes(value));
     }
 
     /**
@@ -407,7 +416,7 @@ module.exports = class YamlDatabase {
         maxDeletedSize === undefined ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
-        this.includes(value).forEach((data) => {
+        this.includes(value).forEach(data => {
             if (maxDeletedSize === 0) {
                 this.delete(data.ID);
                 deleted++;
@@ -444,7 +453,7 @@ module.exports = class YamlDatabase {
             );
 
         let oldArr = this.get(key);
-        let newArr = oldArr.filter((x) => x !== value);
+        let newArr = oldArr.filter(x => x !== value);
 
         return this.set(key, newArr);
     }
@@ -494,7 +503,7 @@ module.exports = class YamlDatabase {
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
         let filtered = this.filter(callback);
-        filtered.forEach((obj) => {
+        filtered.forEach(obj => {
             if (maxDeletedSize === 0) {
                 this.delete(obj.ID);
                 deleted++;
@@ -515,7 +524,7 @@ module.exports = class YamlDatabase {
      */
     keyArray() {
         let arr = [];
-        Object.keys(this.data).forEach((key) => arr.push(key));
+        Object.keys(this.data).forEach(key => arr.push(key));
         return arr;
     }
 
@@ -526,7 +535,7 @@ module.exports = class YamlDatabase {
      */
     valueArray() {
         let arr = [];
-        Object.values(this.data).forEach((value) => arr.push(value));
+        Object.values(this.data).forEach(value => arr.push(value));
         return arr;
     }
 
@@ -556,5 +565,15 @@ module.exports = class YamlDatabase {
      */
     map(callback) {
         return this.all().map(callback);
+    }
+
+    /**
+     *
+     * @param {(a: { ID: string, data: any }, b: { ID: string, data: any }) => boolean} callback
+     * @example db.reduce((a, b) => a + b);
+     * @returns {any[]}
+     */
+    reduce(callback) {
+        return this.all().reduce(callback);
     }
 };

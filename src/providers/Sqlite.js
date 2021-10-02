@@ -1,4 +1,4 @@
-const { mkdirSync } = require("fs");
+const { mkdirSync, writeFileSync } = require("fs");
 const ErrorManager = require("../utils/ErrorManager");
 const { sep } = require("path");
 const {
@@ -32,7 +32,7 @@ module.exports = class SqliteDatabase {
      * @constructor
      * @param {{ databasePath?: string }} options
      */
-    constructor(options = { databasePath: "database.db" }) {
+    constructor(options) {
         let path;
         if (
             !options ||
@@ -57,7 +57,16 @@ module.exports = class SqliteDatabase {
             }
         }
 
-        let dirs = databasePath.split(sep).filter((dir) => dir !== "");
+        databasePath = databasePath
+            .replace(processFolder, "")
+            .replace("/", sep)
+            .replace("\\", sep);
+
+        if (databasePath.startsWith(sep)) {
+            databasePath = databasePath.slice(1);
+        }
+
+        let dirs = databasePath.split(sep);
         let dbName = "";
         let dirNames = "";
 
@@ -73,7 +82,7 @@ module.exports = class SqliteDatabase {
         }
 
         this.dbName = `${dirNames}${dbName}`;
-        this.dbPath = `${process.cwd()}${sep}${dirNames}${dbName}`;
+        this.dbPath = `${processFolder}${sep}${dirNames}${dbName}`;
         this.sql = new db(this.dbPath);
         this.sql.prepare("CREATE TABLE IF NOT EXISTS EraxDB (key TEXT, value TEXT)").run();
 
@@ -136,7 +145,7 @@ module.exports = class SqliteDatabase {
      */
     deleteAll() {
         let all = this.all();
-        all.forEach((data) => this.delete(data.ID));
+        all.forEach(data => this.delete(data.ID));
         return true;
     }
 
@@ -363,7 +372,7 @@ module.exports = class SqliteDatabase {
     startsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return this.filter((x) => x.ID.startsWith(value));
+        return this.filter(x => x.ID.startsWith(value));
     }
 
     /**
@@ -375,7 +384,7 @@ module.exports = class SqliteDatabase {
     endsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return this.filter((x) => x.ID.endsWith(value));
+        return this.filter(x => x.ID.endsWith(value));
     }
 
     /**
@@ -387,7 +396,7 @@ module.exports = class SqliteDatabase {
     includes(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return this.filter((x) => x.ID.includes(value));
+        return this.filter(x => x.ID.includes(value));
     }
 
     /**
@@ -408,18 +417,13 @@ module.exports = class SqliteDatabase {
         maxDeletedSize === undefined ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
-        let all = this.includes(value);
-
-        all.forEach((data) => {
-            let key = data.ID;
-            if (!key.includes(value)) return;
-
+        this.includes(value).forEach(data => {
             if (maxDeletedSize === 0) {
-                this.delete(key);
+                this.delete(data.ID);
                 deleted++;
             } else {
                 if (deleted < maxDeletedSize) {
-                    this.delete(key);
+                    this.delete(data.ID);
                     deleted++;
                 }
             }
@@ -435,9 +439,7 @@ module.exports = class SqliteDatabase {
      * @returns {{ ID: string, data: any }[]}
      */
     filter(callback) {
-        let all = this.all();
-
-        return all.filter(callback);
+        return this.all().filter(callback);
     }
 
     /**
@@ -527,7 +529,7 @@ module.exports = class SqliteDatabase {
             );
 
         let oldArr = this.get(key);
-        let newArr = oldArr.filter((x) => x !== value);
+        let newArr = oldArr.filter(x => x !== value);
         return this.set(key, newArr);
     }
 
@@ -537,8 +539,7 @@ module.exports = class SqliteDatabase {
      * @returns {number}
      */
     size() {
-        let all = this.all();
-        return all.length;
+        return this.all().length;
     }
 
     /**
@@ -550,7 +551,7 @@ module.exports = class SqliteDatabase {
         let arr = [];
         let all = this.all();
 
-        all.forEach((data) => {
+        all.forEach(data => {
             arr.push(data.ID);
         });
 
@@ -566,7 +567,7 @@ module.exports = class SqliteDatabase {
         let arr = [];
         let all = this.all();
 
-        all.forEach((data) => {
+        all.forEach(data => {
             arr.push(data.data);
         });
 
@@ -576,10 +577,10 @@ module.exports = class SqliteDatabase {
     /**
      *
      * @param {string} path
-     * @example db.import("./database.json");
+     * @example db.import("database.json");
      * @returns {boolean}
      */
-    import(path = "./database.json") {
+    import(path = "database.json") {
         let processFolder = process.cwd();
         let databasePath = path;
 
@@ -587,11 +588,20 @@ module.exports = class SqliteDatabase {
             databasePath += ".json";
         }
 
+        databasePath = databasePath
+            .replace(processFolder, "")
+            .replace("/", sep)
+            .replace("\\", sep);
+
+        if (databasePath.startsWith(sep)) {
+            databasePath = databasePath.slice(1);
+        }
+
         if (!checkFile(`${processFolder}${sep}${databasePath}`)) return null;
 
         let file = read(`${processFolder}${sep}${databasePath}`);
 
-        Object.entries(file).forEach((entry) => {
+        Object.entries(file).forEach(entry => {
             let [key, value] = entry;
             this.set(key, value);
         });
@@ -601,7 +611,7 @@ module.exports = class SqliteDatabase {
     /**
      *
      * @param {string} path
-     * @example db.export("./database.json");
+     * @example db.export("database.json");
      * @returns {boolean}
      */
     export(path = "database.json") {
@@ -616,7 +626,16 @@ module.exports = class SqliteDatabase {
             }
         }
 
-        let dirs = databasePath.split(sep).filter((dir) => dir !== "");
+        databasePath = databasePath
+            .replace(processFolder, "")
+            .replace("/", sep)
+            .replace("\\", sep);
+
+        if (databasePath.startsWith(sep)) {
+            databasePath = databasePath.slice(1);
+        }
+
+        let dirs = databasePath.split(sep);
         let dbName = "";
         let dirNames = "";
 
@@ -630,7 +649,7 @@ module.exports = class SqliteDatabase {
                 dbName = `${dirs[i]}`;
 
                 if (!checkFile(`${processFolder}${sep}${dirNames}${dbName}`)) {
-                    write(`${processFolder}${sep}${dirNames}${dbName}`, "{}");
+                    writeFileSync(`${processFolder}${sep}${dirNames}${dbName}`, "{}");
                 }
             }
         }
@@ -640,7 +659,7 @@ module.exports = class SqliteDatabase {
         let json = {};
         let all = this.all();
 
-        all.forEach((data) => {
+        all.forEach(data => {
             let key = data.ID;
             let value = data.data;
 
@@ -685,17 +704,14 @@ module.exports = class SqliteDatabase {
         maxDeletedSize === undefined ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
-        let all = this.all();
-
-        let filtered = all.filter(callback);
-
-        filtered.forEach((data) => {
+        let filtered = this.filter(callback);
+        filtered.forEach(obj => {
             if (maxDeletedSize === 0) {
-                this.delete(data.ID);
+                this.delete(obj.ID);
                 deleted++;
             } else {
                 if (deleted < maxDeletedSize) {
-                    this.delete(data.ID);
+                    this.delete(obj.ID);
                     deleted++;
                 }
             }
@@ -710,19 +726,16 @@ module.exports = class SqliteDatabase {
      * @returns {any[]}
      */
     map(callback) {
-        let arr = [];
-        let all = this.all();
+        return this.all().map(callback);
+    }
 
-        all.forEach((data) => {
-            let key = data.ID;
-            let value = data.data;
-
-            arr.push({
-                ID: key,
-                data: value
-            });
-        });
-
-        return arr.map(callback);
+    /**
+     *
+     * @param {(a: { ID: string, data: any }, b: { ID: string, data: any }) => boolean} callback
+     * @example db.reduce((a, b) => a + b);
+     * @returns {any[]}
+     */
+    reduce(callback) {
+        return this.all().reduce(callback);
     }
 };
