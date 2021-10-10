@@ -9,7 +9,7 @@ const YAML = require("yaml");
 module.exports = class Util {
     /**
      *
-     * @returns {{ updated: boolean, installedVersion: string, packageData: string }}
+     * @returns {Promise<{ updated: boolean, installedVersion: string, packageData: string }>}
      */
     static async updateCheck() {
         let version = require("../../package.json").version;
