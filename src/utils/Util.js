@@ -1,6 +1,5 @@
 const FETCH = require("node-fetch");
 const fs = require("fs");
-const { set, get, unset } = require("lodash");
 const YAML = require("yaml");
 
 /**
@@ -14,7 +13,7 @@ module.exports = class Util {
      */
     static async updateCheck() {
         let version = require("../../package.json").version;
-        let packageData = await FETCH("https://registry.npmjs.com/erax.db").then(text =>
+        let packageData = await FETCH("https://registry.npmjs.com/erax.db").then((text) =>
             text.json()
         );
         if (version === packageData["dist-tags"].latest) {
@@ -114,46 +113,5 @@ module.exports = class Util {
         } else {
             return null;
         }
-    }
-
-    /**
-     *
-     * @param {{ [key: string]: any }} data
-     * @param {string} key
-     * @param {any} value
-     * @returns {void}
-     */
-    static dataSet(data, key, value) {
-        return set(data, key, value);
-    }
-
-    /**
-     *
-     * @param {{ [key: string]: any }} data
-     * @param {string} key
-     * @returns {any}
-     */
-    static dataGet(data, key) {
-        return get(data, key) ? get(data, key) : null;
-    }
-
-    /**
-     *
-     * @param {{ [key: string]: any }} data
-     * @param {string} key
-     * @returns {boolean}
-     */
-    static dataHas(data, key) {
-        return get(data, key) ? true : false;
-    }
-
-    /**
-     *
-     * @param {{ [key: string]: any }} data
-     * @param {string} key
-     * @returns {null | void}
-     */
-    static dataDelete(data, key) {
-        return get(data, key) ? unset(data, key) : null;
     }
 };

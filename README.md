@@ -8,9 +8,8 @@
 # News
 
 ```npm
-- Fixed Errors.
-- Added reduce method.
-- Fixed TypeScript.
+- Fixed Bugs.
+- Added destroy method for SQlite.
 ```
 
 # Warn

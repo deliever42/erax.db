@@ -1,23 +1,14 @@
 const { mkdirSync, writeFileSync } = require("fs");
 const ErrorManager = require("../utils/ErrorManager");
 const { sep } = require("path");
-const {
-    parseKey,
-    checkFile,
-    isString,
-    isNumber,
-    dataSet,
-    dataGet,
-    dataDelete,
-    write,
-    read
-} = require("../utils/Util");
+const { parseKey, checkFile, isString, isNumber, write, read } = require("../utils/Util");
 const chalk = require("chalk");
-const db = require("better-sqlite3");
+const SQL = require("better-sqlite3");
+const { set, get, unset } = require("lodash");
 
 /**
  *
- * @class
+ * @class SqliteDatabase
  */
 module.exports = class SqliteDatabase {
     /**
@@ -30,9 +21,9 @@ module.exports = class SqliteDatabase {
     /**
      *
      * @constructor
-     * @param {{ databasePath?: string }} options
+     * @param {{ databasePath?: string, tableName?: string }} options
      */
-    constructor(options) {
+    constructor(options = {}) {
         let path;
         if (
             !options ||
@@ -44,7 +35,19 @@ module.exports = class SqliteDatabase {
             path = "database.db";
         else if (options && options.databasePath) path = options.databasePath;
 
+        let tableName;
+        if (
+            !options ||
+            (options &&
+                (options.tableName === null ||
+                    options.tableName === undefined ||
+                    options.tableName === ""))
+        )
+            tableName = "EraxDB";
+        else if (options && options.tableName) tableName = options.tableName;
+
         if (!isString(path)) throw new ErrorManager("Database name must be string!");
+        if (!isString(tableName)) throw new ErrorManager("Table name must be string!");
 
         let processFolder = process.cwd();
         let databasePath = path;
@@ -57,10 +60,7 @@ module.exports = class SqliteDatabase {
             }
         }
 
-        databasePath = databasePath
-            .replace(processFolder, "")
-            .replace("/", sep)
-            .replace("\\", sep);
+        databasePath = databasePath.replace(processFolder, "").replace("/", sep).replace("\\", sep);
 
         if (databasePath.startsWith(sep)) {
             databasePath = databasePath.slice(1);
@@ -83,8 +83,11 @@ module.exports = class SqliteDatabase {
 
         this.dbName = `${dirNames}${dbName}`;
         this.dbPath = `${processFolder}${sep}${dirNames}${dbName}`;
-        this.sql = new db(this.dbPath);
-        this.sql.prepare("CREATE TABLE IF NOT EXISTS EraxDB (key TEXT, value TEXT)").run();
+        this.sql = new SQL(this.dbPath);
+        this.tableName = tableName;
+        this.sql
+            .prepare(`CREATE TABLE IF NOT EXISTS ${this.tableName} (key TEXT, value TEXT)`)
+            .run();
 
         if (!SqliteDatabase.DBCollection.includes(this.dbName)) {
             SqliteDatabase.DBCollection.push(this.dbName);
@@ -106,26 +109,31 @@ module.exports = class SqliteDatabase {
             throw new ErrorManager("Please specify a value.");
 
         let parsedKey = parseKey(key);
-
+        let data =
+            this.sql.prepare(`SELECT * FROM ${this.tableName} WHERE key = (?)`).get(parsedKey) ||
+            {};
         let json = {};
-        let data = this.sql.prepare(`SELECT * FROM EraxDB WHERE key = (?)`).get(parsedKey);
 
-        dataSet(json, key, value);
-
-        let parsedValue = json[parseKey(key)];
-        parsedValue = JSON.stringify(parsedValue);
-
-        if (!data) {
+        if (!data.key) {
+            set(json, key, value);
+            data.key = parseKey(key);
+            data.value = json[data.key];
             this.sql
-                .prepare(`INSERT INTO EraxDB (key, value) VALUES (?,?)`)
-                .run(parsedKey, parsedValue);
+                .prepare(`INSERT INTO ${this.tableName} (key, value) VALUES (?, ?)`)
+                .run(data.key, JSON.stringify(data.value));
         } else {
+            set(json, parsedKey, JSON.parse(data.value));
+            set(json, key, value);
+            data.key = parseKey(key);
+            data.value = json[data.key];
+
             this.sql
-                .prepare(`UPDATE EraxDB SET value = (?) WHERE key = (?)`)
-                .run(parsedValue, parsedKey);
+                .prepare(`UPDATE ${this.tableName} SET value = (?) WHERE key = (?)`)
+                .run(JSON.stringify(data.value), data.key);
         }
 
-        return parsedValue;
+        json = {};
+        return data.value;
     }
 
     /**
@@ -144,8 +152,10 @@ module.exports = class SqliteDatabase {
      * @returns {boolean}
      */
     deleteAll() {
-        let all = this.all();
-        all.forEach(data => this.delete(data.ID));
+        this.destroy();
+        this.sql
+            .prepare(`CREATE TABLE IF NOT EXISTS ${this.tableName} (key TEXT, value TEXT)`)
+            .run();
         return true;
     }
 
@@ -159,25 +169,20 @@ module.exports = class SqliteDatabase {
         if (key === "" || key === null || key === undefined)
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
+        let parsedKey = parseKey(key);
+        let json = {};
 
-        if (key.includes(".")) {
-            let parsedKey = parseKey(key);
-            let json = {};
+        let data = this.sql
+            .prepare(`SELECT * FROM ${this.tableName} WHERE key = (?)`)
+            .get(parsedKey);
+        if (!data) return null;
 
-            let data = this.sql.prepare(`SELECT * FROM EraxDB WHERE key = (?)`).get(parsedKey);
-            if (!data) return null;
+        let value = data.value;
 
-            let value = data.value;
-
-            dataSet(json, parsedKey, JSON.parse(value));
-            let parsedValue = dataGet(json, key);
-            json = {};
-            return parsedValue;
-        } else {
-            let data = this.sql.prepare(`SELECT * FROM EraxDB WHERE key = (?)`).get(key);
-            if (!data) return null;
-            return JSON.parse(data.value);
-        }
+        set(json, parsedKey, JSON.parse(value));
+        let parsedValue = get(json, key) ? get(json, key) : null;
+        json = {};
+        return parsedValue;
     }
 
     /**
@@ -213,26 +218,26 @@ module.exports = class SqliteDatabase {
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
 
-        if (key.includes(".")) {
-            let parsedKey = parseKey(key);
-            let json = {};
+        let parsedKey = parseKey(key);
+        let json = {};
 
-            let data = this.sql.prepare(`SELECT * FROM EraxDB WHERE key = (?)`).get(parsedKey);
-            if (!data) return null;
+        let data = this.sql
+            .prepare(`SELECT * FROM ${this.tableName} WHERE key = (?)`)
+            .get(parsedKey);
+        if (!data || !this.has(key)) return null;
 
-            let value = data.value;
+        let value = data.value;
 
-            dataSet(json, parsedKey, JSON.parse(value));
-            dataDelete(json, key);
+        set(json, parsedKey, JSON.parse(value));
+        unset(json, key);
 
-            let parsedValue = dataGet(json, parsedKey);
-            this.set(parsedKey, parsedValue);
+        let parsedValue = get(json, parsedKey);
 
-            json = {};
-        } else {
-            if (this.has(key) === false) return null;
-            this.sql.prepare(`DELETE FROM EraxDB WHERE key = (?)`).run(key);
-        }
+        if (!parsedValue)
+            this.sql.prepare(`DELETE FROM ${this.tableName} WHERE key = (?)`).run(parsedKey);
+        else this.set(parsedKey, parsedValue);
+
+        json = {};
         return true;
     }
 
@@ -253,7 +258,9 @@ module.exports = class SqliteDatabase {
      * @returns {{ ID: string, data: any }[]}
      */
     all() {
-        let all = this.sql.prepare(`SELECT * FROM EraxDB WHERE key IS NOT NULL`).iterate();
+        let all = this.sql
+            .prepare(`SELECT * FROM ${this.tableName} WHERE key IS NOT NULL`)
+            .iterate();
         let arr = [];
 
         for (let data of all) {
@@ -372,7 +379,7 @@ module.exports = class SqliteDatabase {
     startsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return this.filter(x => x.ID.startsWith(value));
+        return this.filter((x) => x.ID.startsWith(value));
     }
 
     /**
@@ -384,7 +391,17 @@ module.exports = class SqliteDatabase {
     endsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return this.filter(x => x.ID.endsWith(value));
+        return this.filter((x) => x.ID.endsWith(value));
+    }
+
+    /**
+     *
+     * @example db.destroy();
+     * @returns {boolean}
+     */
+    destroy() {
+        this.sql.prepare(`DROP TABLE IF EXISTS ${this.tableName}`).run();
+        return true;
     }
 
     /**
@@ -396,7 +413,7 @@ module.exports = class SqliteDatabase {
     includes(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return this.filter(x => x.ID.includes(value));
+        return this.filter((x) => x.ID.includes(value));
     }
 
     /**
@@ -417,7 +434,7 @@ module.exports = class SqliteDatabase {
         maxDeletedSize === undefined ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
-        this.includes(value).forEach(data => {
+        this.includes(value).forEach((data) => {
             if (maxDeletedSize === 0) {
                 this.delete(data.ID);
                 deleted++;
@@ -529,7 +546,7 @@ module.exports = class SqliteDatabase {
             );
 
         let oldArr = this.get(key);
-        let newArr = oldArr.filter(x => x !== value);
+        let newArr = oldArr.filter((x) => x !== value);
         return this.set(key, newArr);
     }
 
@@ -551,7 +568,7 @@ module.exports = class SqliteDatabase {
         let arr = [];
         let all = this.all();
 
-        all.forEach(data => {
+        all.forEach((data) => {
             arr.push(data.ID);
         });
 
@@ -567,7 +584,7 @@ module.exports = class SqliteDatabase {
         let arr = [];
         let all = this.all();
 
-        all.forEach(data => {
+        all.forEach((data) => {
             arr.push(data.data);
         });
 
@@ -588,10 +605,7 @@ module.exports = class SqliteDatabase {
             databasePath += ".json";
         }
 
-        databasePath = databasePath
-            .replace(processFolder, "")
-            .replace("/", sep)
-            .replace("\\", sep);
+        databasePath = databasePath.replace(processFolder, "").replace("/", sep).replace("\\", sep);
 
         if (databasePath.startsWith(sep)) {
             databasePath = databasePath.slice(1);
@@ -601,7 +615,7 @@ module.exports = class SqliteDatabase {
 
         let file = read(`${processFolder}${sep}${databasePath}`);
 
-        Object.entries(file).forEach(entry => {
+        Object.entries(file).forEach((entry) => {
             let [key, value] = entry;
             this.set(key, value);
         });
@@ -626,10 +640,7 @@ module.exports = class SqliteDatabase {
             }
         }
 
-        databasePath = databasePath
-            .replace(processFolder, "")
-            .replace("/", sep)
-            .replace("\\", sep);
+        databasePath = databasePath.replace(processFolder, "").replace("/", sep).replace("\\", sep);
 
         if (databasePath.startsWith(sep)) {
             databasePath = databasePath.slice(1);
@@ -659,11 +670,11 @@ module.exports = class SqliteDatabase {
         let json = {};
         let all = this.all();
 
-        all.forEach(data => {
+        all.forEach((data) => {
             let key = data.ID;
             let value = data.data;
 
-            dataSet(json, key, value);
+            set(json, key, value);
             write(dbPath, json);
         });
 
@@ -705,7 +716,7 @@ module.exports = class SqliteDatabase {
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
         let filtered = this.filter(callback);
-        filtered.forEach(obj => {
+        filtered.forEach((obj) => {
             if (maxDeletedSize === 0) {
                 this.delete(obj.ID);
                 deleted++;

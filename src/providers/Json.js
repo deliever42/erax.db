@@ -2,22 +2,12 @@ const { mkdirSync, writeFileSync } = require("fs");
 const ErrorManager = require("../utils/ErrorManager");
 const { sep } = require("path");
 const chalk = require("chalk");
-const {
-    destroy,
-    checkFile,
-    isString,
-    isNumber,
-    write,
-    read,
-    dataSet,
-    dataGet,
-    dataHas,
-    dataDelete
-} = require("../utils/Util");
+const { destroy, checkFile, isString, isNumber, write, read } = require("../utils/Util");
+const { set, get, unset } = require("lodash");
 
 /**
  *
- * @class
+ * @class JsonDatabase
  */
 module.exports = class JsonDatabase {
     /**
@@ -32,7 +22,7 @@ module.exports = class JsonDatabase {
      * @constructor
      * @param {{ databasePath?: string }} options
      */
-    constructor(options) {
+    constructor(options = {}) {
         let path;
         if (
             !options ||
@@ -57,10 +47,7 @@ module.exports = class JsonDatabase {
             }
         }
 
-        databasePath = databasePath
-            .replace(processFolder, "")
-            .replace("/", sep)
-            .replace("\\", sep);
+        databasePath = databasePath.replace(processFolder, "").replace("/", sep).replace("\\", sep);
 
         if (databasePath.startsWith(sep)) {
             databasePath = databasePath.slice(1);
@@ -107,9 +94,9 @@ module.exports = class JsonDatabase {
         if (!isString(key)) throw new ErrorManager("Key must be string!");
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        dataSet(this.data, key, value);
+        set(this.data, key, value);
         write(this.dbPath, this.data);
-        return dataGet(this.data, key);
+        return get(this.data, key);
     }
 
     /**
@@ -119,7 +106,7 @@ module.exports = class JsonDatabase {
      * @returns {boolean}
      */
     has(key) {
-        return dataHas(this.data, key);
+        return this.get(key) ? true : false;
     }
 
     /**
@@ -154,7 +141,7 @@ module.exports = class JsonDatabase {
         if (key === "" || key === null || key === undefined)
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
-        return dataGet(this.data, key);
+        return get(this.data, key);
     }
 
     /**
@@ -187,7 +174,7 @@ module.exports = class JsonDatabase {
      */
     delete(key) {
         if (this.has(key) === false) return null;
-        dataDelete(this.data, key);
+        unset(this.data, key);
         write(this.dbPath, this.data);
         return true;
     }
@@ -208,7 +195,7 @@ module.exports = class JsonDatabase {
      */
     all() {
         let arr = [];
-        Object.entries(this.data).forEach(entry => {
+        Object.entries(this.data).forEach((entry) => {
             const [key, value] = entry;
             const data = {
                 ID: key,
@@ -237,7 +224,7 @@ module.exports = class JsonDatabase {
     startsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return this.all().filter(x => x.ID.startsWith(value));
+        return this.all().filter((x) => x.ID.startsWith(value));
     }
 
     /**
@@ -249,7 +236,7 @@ module.exports = class JsonDatabase {
     endsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return this.all().filter(x => x.ID.endsWith(value));
+        return this.all().filter((x) => x.ID.endsWith(value));
     }
 
     /**
@@ -261,7 +248,7 @@ module.exports = class JsonDatabase {
     includes(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return this.all().filter(x => x.ID.includes(value));
+        return this.all().filter((x) => x.ID.includes(value));
     }
 
     /**
@@ -416,7 +403,7 @@ module.exports = class JsonDatabase {
         maxDeletedSize === undefined ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
-        this.includes(value).forEach(data => {
+        this.includes(value).forEach((data) => {
             if (maxDeletedSize === 0) {
                 this.delete(data.ID);
                 deleted++;
@@ -453,7 +440,7 @@ module.exports = class JsonDatabase {
             );
 
         let oldArr = this.get(key);
-        let newArr = oldArr.filter(x => x !== value);
+        let newArr = oldArr.filter((x) => x !== value);
 
         return this.set(key, newArr);
     }
@@ -503,7 +490,7 @@ module.exports = class JsonDatabase {
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
         let filtered = this.filter(callback);
-        filtered.forEach(obj => {
+        filtered.forEach((obj) => {
             if (maxDeletedSize === 0) {
                 this.delete(obj.ID);
                 deleted++;
@@ -524,7 +511,7 @@ module.exports = class JsonDatabase {
      */
     keyArray() {
         let arr = [];
-        Object.keys(this.data).forEach(key => arr.push(key));
+        Object.keys(this.data).forEach((key) => arr.push(key));
         return arr;
     }
 
@@ -535,7 +522,7 @@ module.exports = class JsonDatabase {
      */
     valueArray() {
         let arr = [];
-        Object.values(this.data).forEach(value => arr.push(value));
+        Object.values(this.data).forEach((value) => arr.push(value));
         return arr;
     }
 

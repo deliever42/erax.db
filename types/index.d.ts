@@ -8,9 +8,9 @@ declare module "erax.db" {
     export class JsonDatabase {
         public static DBCollection: string[];
         public constructor(options?: { databasePath?: string });
-        public dbPath: string;
-        public dbName: string;
-        public readonly data: data;
+        private dbPath: string;
+        private dbName: string;
+        private readonly data: data;
         public set(key: string, value: any): any;
         public fetch(key: string): any;
         public get(key: string): any;
@@ -55,9 +55,9 @@ declare module "erax.db" {
     export class YamlDatabase {
         public static DBCollection: string[];
         public constructor(options?: { databasePath?: string });
-        public dbPath: string;
-        public dbName: string;
-        public readonly data: data;
+        private dbPath: string;
+        private dbName: string;
+        private readonly data: data;
         public set(key: string, value: any): any;
         public fetch(key: string): any;
         public get(key: string): any;
@@ -101,9 +101,10 @@ declare module "erax.db" {
 
     export class SqliteDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { databasePath?: string });
-        public dbPath: string;
-        public dbName: string;
+        public constructor(options?: { databasePath?: string; tableName?: string });
+        private dbPath: string;
+        private dbName: string;
+        private tableName: string;
         private sql: any;
         public set(key: string, value: any): any;
         public fetch(key: string): any;
@@ -114,6 +115,7 @@ declare module "erax.db" {
         public arrayHas(key: string): boolean;
         public arrayHasValue(key: string, value: any): boolean;
         public deleteAll(): boolean;
+        public destroy(): boolean;
         public fetchAll(): AllData[];
         public all(): AllData[];
         public size(): number;
@@ -150,9 +152,9 @@ declare module "erax.db" {
     export class MongoDatabase {
         public static DBCollection: string[];
         public constructor(options: { mongoURL: string });
-        public dbName: string;
+        private dbName: string;
         private mongo: any;
-        public url: string;
+        private url: string;
         public set(key: string, value: any): Promise<any>;
         public fetch(key: string): Promise<any>;
         public get(key: string): Promise<any>;
@@ -204,10 +206,6 @@ declare module "erax.db" {
         }>;
         public static parseKey(key: string): string;
         public static write(path: string, data: data): void;
-        public static dataSet(data: data, key: string, value: any): void;
-        public static dataGet(data: data, key: string): any;
-        public static dataHas(data: data, key: string): boolean;
-        public static dataDelete(data: data, key: string): void;
         public static destroy(path: string): void;
         public static checkFile(path: string): boolean;
         public static isString(key: any): boolean;

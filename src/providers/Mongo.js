@@ -3,21 +3,12 @@ const { mkdirSync, writeFileSync } = require("fs");
 const ErrorManager = require("../utils/ErrorManager");
 const { sep } = require("path");
 const chalk = require("chalk");
-const {
-    parseKey,
-    checkFile,
-    isString,
-    isNumber,
-    dataSet,
-    dataGet,
-    dataDelete,
-    write,
-    read
-} = require("../utils/Util");
+const { parseKey, checkFile, isString, isNumber, write, read } = require("../utils/Util");
+const { set, get, unset } = require("lodash");
 
 /**
  *
- * @class
+ * @class MongoDatabase
  */
 module.exports = class MongoDatabase {
     /**
@@ -32,7 +23,7 @@ module.exports = class MongoDatabase {
      * @constructor
      * @param {{ mongoURL: string }} options
      */
-    constructor(options) {
+    constructor(options = {}) {
         if (
             !options ||
             (options &&
@@ -46,10 +37,7 @@ module.exports = class MongoDatabase {
             throw new ErrorManager("Invalid MongoDB URL!");
 
         this.url = options.mongoURL;
-        this.dbName = this.url
-            .split("mongodb.net/")
-            .pop()
-            .split("?")[0];
+        this.dbName = this.url.split("mongodb.net/").pop().split("?")[0];
 
         mongoose.connect(this.url, {
             useNewUrlParser: true,
@@ -92,19 +80,22 @@ module.exports = class MongoDatabase {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
 
-        let json = {};
         let parsedKey = parseKey(key);
-
-        dataSet(json, key, value);
-
-        let parsedValue = json[parseKey(key)];
-        parsedValue = parsedValue;
-
         let data = await this.mongo.findOne({ key: parsedKey });
+        let json = {};
+        let parseds = {};
+
         if (!data) {
-            await this.mongo.create({ key: parsedKey, value: parsedValue });
+            set(json, key, value);
+            parseds.key = parseKey(key);
+            parseds.value = json[parseds.key];
+            await this.mongo.create({ key: parseds.key, value: parseds.value });
         } else {
-            await this.mongo.updateOne({ key: parsedKey }, { value: parsedValue });
+            set(json, parsedKey, parseds.value);
+            set(json, key, value);
+            parseds.key = parseKey(key);
+            parseds.value = json[parseds.key];
+            await this.mongo.updateOne({ key: parseds.key }, { value: parseds.value });
         }
 
         json = {};
@@ -141,25 +132,18 @@ module.exports = class MongoDatabase {
         if (key === "" || key === null || key === undefined)
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
+        let parsedKey = parseKey(key);
+        let json = {};
 
-        if (key.includes(".")) {
-            let parsedKey = parseKey(key);
-            let json = {};
+        let data = await this.mongo.findOne({ key: parsedKey });
+        if (!data) return null;
 
-            let data = await this.mongo.findOne({ key: parsedKey });
-            if (!data) return null;
+        let value = await data.get("value");
 
-            let value = await data.get("value");
-
-            dataSet(json, parsedKey, value);
-            let parsedValue = dataGet(json, key);
-            json = {};
-            return parsedValue;
-        } else {
-            let data = await this.mongo.findOne({ key: key });
-            if (!data) return null;
-            return await data.get("value");
-        }
+        set(json, parsedKey, value);
+        let parsedValue = get(json, key) ? get(json, key) : null;
+        json = {};
+        return parsedValue;
     }
 
     /**
@@ -195,28 +179,22 @@ module.exports = class MongoDatabase {
             throw new ErrorManager("Please specify a key.");
         if (!isString(key)) throw new ErrorManager("Key must be string!");
 
-        if (key.includes(".")) {
-            let parsedKey = parseKey(key);
-            let json = {};
+        let parsedKey = parseKey(key);
+        let json = {};
 
-            let data = await this.mongo.findOne({ key: parsedKey });
-            if (!data) return null;
+        let data = await this.mongo.findOne({ key: parsedKey });
+        if (!data || !(await this.has(key))) return null;
 
-            let value = await data.get("value");
+        let value = await data.get("value");
 
-            dataSet(json, parsedKey, value);
-            dataDelete(json, key);
+        set(json, parsedKey, value);
+        unset(json, key);
 
-            let parsedValue = dataGet(json, parsedKey);
+        let parsedValue = get(json, parsedKey);
 
-            await this.set(parsedKey, parsedValue);
-            json = {};
-        } else {
-            let data = await this.mongo.findOne({ key: key });
-            if (!data) return null;
-            let value = await data.get("value");
-            await this.mongo.deleteOne({ key: key }, { value: value });
-        }
+        await this.set(parsedKey, parsedValue);
+        json = {};
+
         return true;
     }
 
@@ -228,8 +206,8 @@ module.exports = class MongoDatabase {
     async fetchAll() {
         let arr = [];
 
-        await this.mongo.find().then(async data => {
-            data.forEach(async obj => {
+        await this.mongo.find().then(async (data) => {
+            data.forEach(async (obj) => {
                 let key = await obj.key;
                 let value = await obj.value;
 
@@ -252,8 +230,8 @@ module.exports = class MongoDatabase {
     async all() {
         let arr = [];
 
-        await this.mongo.find().then(async data => {
-            data.forEach(async obj => {
+        await this.mongo.find().then(async (data) => {
+            data.forEach(async (obj) => {
                 let key = await obj.key;
                 let value = await obj.value;
 
@@ -374,7 +352,7 @@ module.exports = class MongoDatabase {
     async startsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return await this.filter(x => x.ID.startsWith(value));
+        return await this.filter((x) => x.ID.startsWith(value));
     }
 
     /**
@@ -386,7 +364,7 @@ module.exports = class MongoDatabase {
     async endsWith(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return await this.filter(x => x.ID.endsWith(value));
+        return await this.filter((x) => x.ID.endsWith(value));
     }
 
     /**
@@ -398,7 +376,7 @@ module.exports = class MongoDatabase {
     async includes(value) {
         if (value === "" || value === null || value === undefined)
             throw new ErrorManager("Please specify a value.");
-        return await this.filter(x => x.ID.includes(value));
+        return await this.filter((x) => x.ID.includes(value));
     }
 
     /**
@@ -419,8 +397,8 @@ module.exports = class MongoDatabase {
         maxDeletedSize === undefined ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
-        await this.mongo.find().then(async data => {
-            data.forEach(async obj => {
+        await this.mongo.find().then(async (data) => {
+            data.forEach(async (obj) => {
                 let key = await obj.key;
                 let dval = await obj.value;
                 if (!key.includes(value)) return;
@@ -448,8 +426,8 @@ module.exports = class MongoDatabase {
      */
     async filter(callback) {
         let arr = [];
-        await this.mongo.find().then(async data => {
-            data.forEach(async obj => {
+        await this.mongo.find().then(async (data) => {
+            data.forEach(async (obj) => {
                 let key = await obj.key;
                 let value = await obj.value;
 
@@ -472,8 +450,8 @@ module.exports = class MongoDatabase {
      */
     async map(callback) {
         let arr = [];
-        await this.mongo.find().then(async data => {
-            data.forEach(async obj => {
+        await this.mongo.find().then(async (data) => {
+            data.forEach(async (obj) => {
                 let key = await obj.key;
                 let value = await obj.value;
 
@@ -496,8 +474,8 @@ module.exports = class MongoDatabase {
      */
     async reduce(callback) {
         let arr = [];
-        await this.mongo.find().then(async data => {
-            data.forEach(async obj => {
+        await this.mongo.find().then(async (data) => {
+            data.forEach(async (obj) => {
                 let key = await obj.key;
                 let value = await obj.value;
 
@@ -599,7 +577,7 @@ module.exports = class MongoDatabase {
             );
 
         let oldArr = await this.get(key);
-        let newArr = oldArr.filter(x => x !== value);
+        let newArr = oldArr.filter((x) => x !== value);
 
         return await this.set(key, newArr);
     }
@@ -612,8 +590,8 @@ module.exports = class MongoDatabase {
     async size() {
         let arr = [];
 
-        await this.mongo.find().then(async data => {
-            data.forEach(async obj => {
+        await this.mongo.find().then(async (data) => {
+            data.forEach(async (obj) => {
                 let key = await obj.key;
                 arr.push(key);
             });
@@ -630,8 +608,8 @@ module.exports = class MongoDatabase {
     async keyArray() {
         let arr = [];
 
-        await this.mongo.find().then(async data => {
-            data.forEach(async obj => {
+        await this.mongo.find().then(async (data) => {
+            data.forEach(async (obj) => {
                 let key = await obj.key;
                 arr.push(key);
             });
@@ -648,8 +626,8 @@ module.exports = class MongoDatabase {
     async valueArray() {
         let arr = [];
 
-        await this.mongo.find().then(async data => {
-            data.forEach(async obj => {
+        await this.mongo.find().then(async (data) => {
+            data.forEach(async (obj) => {
                 let value = await obj.value;
                 arr.push(value);
             });
@@ -672,10 +650,7 @@ module.exports = class MongoDatabase {
             databasePath += ".json";
         }
 
-        databasePath = databasePath
-            .replace(processFolder, "")
-            .replace("/", sep)
-            .replace("\\", sep);
+        databasePath = databasePath.replace(processFolder, "").replace("/", sep).replace("\\", sep);
 
         if (databasePath.startsWith(sep)) {
             databasePath = databasePath.slice(1);
@@ -685,7 +660,7 @@ module.exports = class MongoDatabase {
 
         let file = read(`${processFolder}${sep}${databasePath}`);
 
-        Object.entries(file).forEach(async entry => {
+        Object.entries(file).forEach(async (entry) => {
             let [key, value] = entry;
             await this.set(key, value);
         });
@@ -710,10 +685,7 @@ module.exports = class MongoDatabase {
             }
         }
 
-        databasePath = databasePath
-            .replace(processFolder, "")
-            .replace("/", sep)
-            .replace("\\", sep);
+        databasePath = databasePath.replace(processFolder, "").replace("/", sep).replace("\\", sep);
 
         if (databasePath.startsWith(sep)) {
             databasePath = databasePath.slice(1);
@@ -742,12 +714,12 @@ module.exports = class MongoDatabase {
 
         let json = {};
 
-        await this.mongo.find().then(async data => {
-            data.forEach(async obj => {
+        await this.mongo.find().then(async (data) => {
+            data.forEach(async (obj) => {
                 let key = await obj.key;
                 let value = await obj.value;
 
-                dataSet(json, key, value);
+                set(json, key, value);
                 write(dbPath, json);
             });
         });
@@ -790,7 +762,7 @@ module.exports = class MongoDatabase {
         maxDeletedSize === "" ? maxDeletedSize === 0 : maxDeletedSize === maxDeletedSize;
 
         let filtered = await this.filter(callback);
-        filtered.forEach(async obj => {
+        filtered.forEach(async (obj) => {
             if (maxDeletedSize === 0) {
                 await this.mongo.deleteOne({ key: obj.ID }, { value: obj.data });
                 deleted++;
