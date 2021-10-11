@@ -1,51 +1,49 @@
 {
-  "name": "erax.db",
-  "version": "3.0.7",
-  "description": "Advanced JSON, Yaml, Sqlite and Mongo Database Module.",
-  "main": "src/index.js",
-  "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "types": "types/index.d.ts",
-  "keywords": [
-      "erax.db",
-      "quick.db",
-      "wio.db",
-      "fast",
-      "quick",
-      "database",
-      "db",
-      "storage",
-      "turkish",
-      "json",
-      "yaml",
-      "sqlite3",
-      "sqlite",
-      "mongo",
-      "mongodb",
-      "mongoose",
-      "easy"
-  ],
-  "author": "emirhanbaltas34",
-  "license": "Apache-2.0",
-  "repository": {
-      "type": "git",
-      "url": "git+https://github.com/emirhanbaltas34/erax.db.git"
-  },
-  "bugs": {
-      "url": "https://github.com/emirhanbaltas34/erax.db/issues"
-  },
-  "homepage": "https://github.com/emirhanbaltas34/erax.db#readme",
-  "dependencies": {
-      "better-sqlite3": "^7.4.3",
-      "chalk": "^4.1.2",
-      "lodash": "^4.17.21",
-      "mongoose": "^5.13.9",
-      "node-fetch": "^2.6.4",
-      "yaml": "^1.10.2"
-  },
-  "devDependencies": {
-      "eslint": "^7.31.0",
-      "prettierrc": "0.0.0-5"
-  }
+    "name": "erax.db",
+    "version": "3.0.7",
+    "description": "Advanced JSON, Yaml, Sqlite and Mongo Database Module.",
+    "main": "Structures/Index.js",
+    "scripts": {},
+    "types": "Types/Index.d.ts",
+    "keywords": [
+        "erax.db",
+        "quick.db",
+        "wio.db",
+        "fast",
+        "quick",
+        "database",
+        "db",
+        "storage",
+        "turkish",
+        "json",
+        "yaml",
+        "sqlite3",
+        "sqlite",
+        "mongo",
+        "mongodb",
+        "mongoose",
+        "easy"
+    ],
+    "author": "emirhanbaltas34",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/emirhanbaltas34/erax.db.git"
+    },
+    "bugs": {
+        "url": "https://github.com/emirhanbaltas34/erax.db/issues"
+    },
+    "homepage": "https://github.com/emirhanbaltas34/erax.db#readme",
+    "dependencies": {
+        "better-sqlite3": "^7.4.3",
+        "chalk": "^4.1.2",
+        "lodash": "^4.17.21",
+        "mongoose": "^5.13.9",
+        "node-fetch": "^2.6.4",
+        "yaml": "^1.10.2"
+    },
+    "devDependencies": {
+        "eslint": "^7.31.0",
+        "prettierrc": "0.0.0-5"
+    }
 }
