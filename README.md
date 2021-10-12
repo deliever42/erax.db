@@ -8,14 +8,15 @@
 # News
 
 ```npm
-- Fixed Bugs.
+- Fixed bugs.
 - Added destroy method for SQlite.
+- Fixed Mongo errors.
 ```
 
 # Warn
 
 ```npm
-- Node.JS version must be greater than 14.
+- Node.JS version must be greater than 12.
 ```
 
 # Use

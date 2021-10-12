@@ -13,22 +13,17 @@ module.exports = class Util {
      */
     static async updateCheck() {
         let version = require("../../package.json").version;
-        let packageData = await FETCH("https://registry.npmjs.com/erax.db").then((text) =>
-            text.json()
+        let packageData = await FETCH("https://registry.npmjs.com/erax.db").then((data) =>
+            data.json()
         );
-        if (version === packageData["dist-tags"].latest) {
-            return {
-                updated: true,
-                installedVersion: version,
-                packageVersion: packageData["dist-tags"].latest
-            };
-        } else {
-            return {
-                updated: false,
-                installedVersion: version,
-                packageVersion: packageData["dist-tags"].latest
-            };
-        }
+        let updated = false;
+        if (version === packageData["dist-tags"].latest) updated = true;
+
+        return {
+            updated: updated,
+            installedVersion: version,
+            packageVersion: packageData["dist-tags"].latest
+        };
     }
 
     /**

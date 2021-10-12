@@ -182,25 +182,5 @@ declare module "erax.db" {
         ): Promise<number>;
         public reduce(callback: (a: All, b: All) => boolean): Promise<any[]>;
         public map(callback: (element: All) => boolean): any[];
-        s;
-    }
-
-    export class Util {
-        public static updateCheck(): Promise<{
-            updated: boolean;
-            installedVersion: string;
-            packageData: string;
-        }>;
-        public static parseKey(key: string): string;
-        public static write(path: string, data: Schema): void;
-        public static destroy(path: string): void;
-        public static checkFile(path: string): boolean;
-        public static isString(key: any): boolean;
-        public static isNumber(key: any): boolean;
-        public static read(path: string): void;
-    }
-
-    export class ErrorManager extends Error {
-        public constructor(message: string);
     }
 }

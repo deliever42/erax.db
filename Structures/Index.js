@@ -1,19 +1,17 @@
 const Util = require("./Utils/Util");
-const chalk = require("chalk");
+const { red, gray, green, blue } = require("./Utils/ColorStyles");
 
 Util.updateCheck().then((checked) => {
     if (checked.updated === false) {
-        console.log(chalk.bold("--------------------------------------------------"));
+        console.log("--------------------------------------------------");
         console.log(
-            chalk.blue("EraxDB: ") +
-                chalk.red(checked.installedVersion) +
+            blue("EraxDB: ") +
+                red(checked.installedVersion) +
                 " => " +
-                chalk.green(checked.packageVersion)
+                green(checked.packageVersion)
         );
-        console.log(
-            chalk.blue("For New Version") + " => " + chalk.gray("npm install erax.db@latest")
-        );
-        console.log(chalk.bold("--------------------------------------------------"));
+        console.log(blue("For New Version") + " => " + gray("npm install erax.db@latest"));
+        console.log("--------------------------------------------------");
     }
 });
 

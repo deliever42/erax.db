@@ -1,9 +1,9 @@
 const { mkdirSync, writeFileSync } = require("fs");
-const ErrorManager = require("../Utils/ErrorManager");
+const DatabaseError = require("../Utils/DatabaseError");
 const { sep } = require("path");
-const chalk = require("chalk");
 const { destroy, checkFile, isString, isNumber, write, read } = require("../Utils/Util");
 const { set, get, unset, pull } = require("lodash");
+const { red, gray, blue } = require("../Utils/ColorStyles");
 
 /**
  *
@@ -34,7 +34,7 @@ module.exports = class JsonDatabase {
             path = "database.json";
         else if (options && options.databasePath) path = options.databasePath;
 
-        if (!isString(path)) throw new ErrorManager("Database name must be string!");
+        if (!isString(path)) throw new DatabaseError("Database name must be string!");
 
         let processFolder = process.cwd();
         let databasePath = path;
@@ -90,10 +90,10 @@ module.exports = class JsonDatabase {
      */
     set(key, value) {
         if (key === "" || key === null || key === undefined)
-            throw new ErrorManager("Please specify a key.");
-        if (!isString(key)) throw new ErrorManager("Key must be string!");
+            throw new DatabaseError("Please specify a key.");
+        if (!isString(key)) throw new DatabaseError("Key must be string!");
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
         set(this.data, key, value);
         write(this.dbPath, this.data);
         return get(this.data, key);
@@ -139,8 +139,8 @@ module.exports = class JsonDatabase {
      */
     fetch(key) {
         if (key === "" || key === null || key === undefined)
-            throw new ErrorManager("Please specify a key.");
-        if (!isString(key)) throw new ErrorManager("Key must be string!");
+            throw new DatabaseError("Please specify a key.");
+        if (!isString(key)) throw new DatabaseError("Key must be string!");
         return get(this.data, key);
     }
 
@@ -223,7 +223,7 @@ module.exports = class JsonDatabase {
      */
     startsWith(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
         return this.all().filter((x) => x.ID.startsWith(value));
     }
 
@@ -235,7 +235,7 @@ module.exports = class JsonDatabase {
      */
     endsWith(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
         return this.all().filter((x) => x.ID.endsWith(value));
     }
 
@@ -247,7 +247,7 @@ module.exports = class JsonDatabase {
      */
     includes(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
         return this.all().filter((x) => x.ID.includes(value));
     }
 
@@ -265,7 +265,7 @@ module.exports = class JsonDatabase {
             let newval = this.get(key);
             if (newval.includes(value) && valueIgnoreIfPresent === true)
                 return console.log(
-                    `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                    `${blue("EraxDB")} => ${red("Error:")} ${gray(
                         "Data was not pushed because the conditions were not suitable."
                     )}`
                 );
@@ -273,7 +273,7 @@ module.exports = class JsonDatabase {
             return this.set(key, newval);
         } else {
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
                     "Data was not pushed because the conditions were not suitable."
                 )}`
             );
@@ -291,10 +291,10 @@ module.exports = class JsonDatabase {
      */
     math(key, operator, value, goToNegative = false) {
         if (operator === null || operator === undefined || operator === "")
-            throw new ErrorManager("Please specify a operator. (-  +  *  /  %)");
+            throw new DatabaseError("Please specify a operator. (-  +  *  /  %)");
         if (value === null || value === undefined || value === "")
-            throw new ErrorManager("Please specify a value.");
-        if (!isNumber(value)) throw new ErrorManager(`Value must be number!`);
+            throw new DatabaseError("Please specify a value.");
+        if (!isNumber(value)) throw new DatabaseError(`Value must be number!`);
 
         value = Number(value);
 
@@ -332,7 +332,7 @@ module.exports = class JsonDatabase {
                 data %= value;
                 break;
             default:
-                throw new ErrorManager("Invalid Operator! (-  +  *  /  %)");
+                throw new DatabaseError("Invalid Operator! (-  +  *  /  %)");
         }
 
         return this.set(key, data);
@@ -428,13 +428,13 @@ module.exports = class JsonDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
                     "The type of data you specify must be array!"
                 )}`
             );
         if (this.arrayHasValue(key, value) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
                     "The value you specified is not in the array of the data you specified."
                 )}`
             );
@@ -456,7 +456,7 @@ module.exports = class JsonDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
                     "The type of data you specify must be array!"
                 )}`
             );

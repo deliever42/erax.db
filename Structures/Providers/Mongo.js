@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 const { mkdirSync, writeFileSync } = require("fs");
-const ErrorManager = require("../Utils/ErrorManager");
+const DatabaseError = require("../Utils/DatabaseError");
 const { sep } = require("path");
-const chalk = require("chalk");
 const { parseKey, checkFile, isString, isNumber, write, read } = require("../Utils/Util");
 const { set, get, unset, pull } = require("lodash");
+const { red, gray, blue } = require("../Utils/ColorStyles");
 
 /**
  *
@@ -31,10 +31,10 @@ module.exports = class MongoDatabase {
                     options.mongoURL === undefined ||
                     options.mongoURL === ""))
         )
-            throw new ErrorManager("Please specify a MongoDB URL.");
-        if (!isString(mongoURL)) throw new ErrorManager("MongoDB URL must be string!");
+            throw new DatabaseError("Please specify a MongoDB URL.");
+        if (!isString(options.mongoURL)) throw new DatabaseError("MongoDB URL must be string!");
         if (!options.mongoURL.match(/^mongodb([a-z+]{0,15})?.+/g))
-            throw new ErrorManager("Invalid MongoDB URL!");
+            throw new DatabaseError("Invalid MongoDB URL!");
 
         this.url = options.mongoURL;
         this.dbName = this.url.split("mongodb.net/").pop().split("?")[0];
@@ -75,10 +75,10 @@ module.exports = class MongoDatabase {
      */
     async set(key, value) {
         if (key === "" || key === null || key === undefined)
-            throw new ErrorManager("Please specify a key.");
-        if (!isString(key)) throw new ErrorManager("Key must be string!");
+            throw new DatabaseError("Please specify a key.");
+        if (!isString(key)) throw new DatabaseError("Key must be string!");
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
 
         let parsedKey = parseKey(key);
         let data = await this.mongo.findOne({ key: parsedKey });
@@ -99,7 +99,7 @@ module.exports = class MongoDatabase {
         }
 
         json = {};
-        return parsedValue;
+        return value;
     }
 
     /**
@@ -130,8 +130,8 @@ module.exports = class MongoDatabase {
      */
     async fetch(key) {
         if (key === "" || key === null || key === undefined)
-            throw new ErrorManager("Please specify a key.");
-        if (!isString(key)) throw new ErrorManager("Key must be string!");
+            throw new DatabaseError("Please specify a key.");
+        if (!isString(key)) throw new DatabaseError("Key must be string!");
         let parsedKey = parseKey(key);
         let json = {};
 
@@ -176,8 +176,8 @@ module.exports = class MongoDatabase {
      */
     async delete(key) {
         if (key === "" || key === null || key === undefined)
-            throw new ErrorManager("Please specify a key.");
-        if (!isString(key)) throw new ErrorManager("Key must be string!");
+            throw new DatabaseError("Please specify a key.");
+        if (!isString(key)) throw new DatabaseError("Key must be string!");
 
         let parsedKey = parseKey(key);
         let json = {};
@@ -257,10 +257,10 @@ module.exports = class MongoDatabase {
      */
     async math(key, operator, value, goToNegative = false) {
         if (operator === null || operator === undefined || operator === "")
-            throw new ErrorManager("Please specify a operator. (-  +  *  /  %)");
+            throw new DatabaseError("Please specify a operator. (-  +  *  /  %)");
         if (value === null || value === undefined || value === "")
-            throw new ErrorManager("Please specify a value.");
-        if (!isNumber(value)) throw new ErrorManager(`Value must be number!`);
+            throw new DatabaseError("Please specify a value.");
+        if (!isNumber(value)) throw new DatabaseError(`Value must be number!`);
 
         value = Number(value);
 
@@ -298,7 +298,7 @@ module.exports = class MongoDatabase {
                 data %= value;
                 break;
             default:
-                throw new ErrorManager("Invalid Operator! (-  +  *  /  %)");
+                throw new DatabaseError("Invalid Operator! (-  +  *  /  %)");
         }
 
         return await this.set(key, data);
@@ -351,7 +351,7 @@ module.exports = class MongoDatabase {
      */
     async startsWith(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
         return await this.filter((x) => x.ID.startsWith(value));
     }
 
@@ -363,7 +363,7 @@ module.exports = class MongoDatabase {
      */
     async endsWith(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
         return await this.filter((x) => x.ID.endsWith(value));
     }
 
@@ -375,7 +375,7 @@ module.exports = class MongoDatabase {
      */
     async includes(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
         return await this.filter((x) => x.ID.includes(value));
     }
 
@@ -388,7 +388,7 @@ module.exports = class MongoDatabase {
      */
     async deleteEach(value, maxDeletedSize = 0) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
 
         let deleted = 0;
         maxDeletedSize = Number(maxDeletedSize);
@@ -504,7 +504,7 @@ module.exports = class MongoDatabase {
             let newval = await this.get(key);
             if (newval.includes(value) && valueIgnoreIfPresent === true)
                 return console.log(
-                    `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                    `${blue("EraxDB")} => ${red("Error:")} ${gray(
                         "Data was not pushed because the conditions were not suitable."
                     )}`
                 );
@@ -512,7 +512,7 @@ module.exports = class MongoDatabase {
             return await this.set(key, newval);
         } else {
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
                     "Data was not pushed because the conditions were not suitable."
                 )}`
             );
@@ -526,7 +526,7 @@ module.exports = class MongoDatabase {
      * @returns {Promise<boolean>}
      */
     async arrayHas(key) {
-        if (!key || key === "") throw new ErrorManager("Please specify a key.");
+        if (!key || key === "") throw new DatabaseError("Please specify a key.");
         let value = await this.get(key);
         if (Array.isArray(await value)) return true;
         return false;
@@ -544,7 +544,7 @@ module.exports = class MongoDatabase {
         if ((await this.has(key)) === false) return null;
         if ((await this.arrayHas(key)) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
                     "The type of data you specify must be array!"
                 )}`
             );
@@ -564,14 +564,14 @@ module.exports = class MongoDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
                     "The type of data you specify must be array!"
                 )}`
             );
 
         if ((await this.arrayHasValue(key, value)) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
                     "The value you specified is not in the array of the data you specified."
                 )}`
             );

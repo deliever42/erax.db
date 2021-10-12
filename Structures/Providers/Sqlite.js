@@ -1,10 +1,10 @@
 const { mkdirSync, writeFileSync } = require("fs");
-const ErrorManager = require("../Utils/ErrorManager");
+const DatabaseError = require("../Utils/DatabaseError");
 const { sep } = require("path");
 const { parseKey, checkFile, isString, isNumber, write, read } = require("../Utils/Util");
-const chalk = require("chalk");
 const SQL = require("better-sqlite3");
 const { set, get, unset, pull } = require("lodash");
+const { red, gray, blue } = require("../Utils/ColorStyles");
 
 /**
  *
@@ -46,8 +46,8 @@ module.exports = class SqliteDatabase {
             tableName = "EraxDB";
         else if (options && options.tableName) tableName = options.tableName;
 
-        if (!isString(path)) throw new ErrorManager("Database name must be string!");
-        if (!isString(tableName)) throw new ErrorManager("Table name must be string!");
+        if (!isString(path)) throw new DatabaseError("Database name must be string!");
+        if (!isString(tableName)) throw new DatabaseError("Table name must be string!");
 
         let processFolder = process.cwd();
         let databasePath = path;
@@ -103,10 +103,10 @@ module.exports = class SqliteDatabase {
      */
     set(key, value) {
         if (key === "" || key === null || key === undefined)
-            throw new ErrorManager("Please specify a key.");
-        if (!isString(key)) throw new ErrorManager("Key must be string!");
+            throw new DatabaseError("Please specify a key.");
+        if (!isString(key)) throw new DatabaseError("Key must be string!");
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
 
         let parsedKey = parseKey(key);
         let data =
@@ -167,8 +167,8 @@ module.exports = class SqliteDatabase {
      */
     fetch(key) {
         if (key === "" || key === null || key === undefined)
-            throw new ErrorManager("Please specify a key.");
-        if (!isString(key)) throw new ErrorManager("Key must be string!");
+            throw new DatabaseError("Please specify a key.");
+        if (!isString(key)) throw new DatabaseError("Key must be string!");
         let parsedKey = parseKey(key);
         let json = {};
 
@@ -215,8 +215,8 @@ module.exports = class SqliteDatabase {
      */
     delete(key) {
         if (key === "" || key === null || key === undefined)
-            throw new ErrorManager("Please specify a key.");
-        if (!isString(key)) throw new ErrorManager("Key must be string!");
+            throw new DatabaseError("Please specify a key.");
+        if (!isString(key)) throw new DatabaseError("Key must be string!");
 
         let parsedKey = parseKey(key);
         let json = {};
@@ -284,10 +284,10 @@ module.exports = class SqliteDatabase {
      */
     math(key, operator, value, goToNegative = false) {
         if (operator === null || operator === undefined || operator === "")
-            throw new ErrorManager("Please specify a operator. (-  +  *  /  %)");
+            throw new DatabaseError("Please specify a operator. (-  +  *  /  %)");
         if (value === null || value === undefined || value === "")
-            throw new ErrorManager("Please specify a value.");
-        if (!isNumber(value)) throw new ErrorManager(`Value must be number!`);
+            throw new DatabaseError("Please specify a value.");
+        if (!isNumber(value)) throw new DatabaseError(`Value must be number!`);
 
         value = Number(value);
 
@@ -325,7 +325,7 @@ module.exports = class SqliteDatabase {
                 data %= value;
                 break;
             default:
-                throw new ErrorManager("Invalid Operator! (-  +  *  /  %)");
+                throw new DatabaseError("Invalid Operator! (-  +  *  /  %)");
         }
 
         return this.set(key, data);
@@ -378,7 +378,7 @@ module.exports = class SqliteDatabase {
      */
     startsWith(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
         return this.filter((x) => x.ID.startsWith(value));
     }
 
@@ -390,7 +390,7 @@ module.exports = class SqliteDatabase {
      */
     endsWith(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
         return this.filter((x) => x.ID.endsWith(value));
     }
 
@@ -412,7 +412,7 @@ module.exports = class SqliteDatabase {
      */
     includes(value) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
         return this.filter((x) => x.ID.includes(value));
     }
 
@@ -425,7 +425,7 @@ module.exports = class SqliteDatabase {
      */
     deleteEach(value, maxDeletedSize = 0) {
         if (value === "" || value === null || value === undefined)
-            throw new ErrorManager("Please specify a value.");
+            throw new DatabaseError("Please specify a value.");
 
         let deleted = 0;
         maxDeletedSize = Number(maxDeletedSize);
@@ -473,7 +473,7 @@ module.exports = class SqliteDatabase {
             let data = this.get(key);
             if (data.includes(value) && valueIgnoreIfPresent === true)
                 return console.log(
-                    `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                    `${blue("EraxDB")} => ${red("Error:")} ${gray(
                         "Data was not pushed because the conditions were not suitable."
                     )}`
                 );
@@ -481,7 +481,7 @@ module.exports = class SqliteDatabase {
             return this.set(key, data);
         } else {
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
                     "Data was not pushed because the conditions were not suitable."
                 )}`
             );
@@ -512,7 +512,7 @@ module.exports = class SqliteDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
                     "The value you specified is not in the array of the data you specified."
                 )}`
             );
@@ -533,14 +533,14 @@ module.exports = class SqliteDatabase {
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
                     "The type of data you specify must be array!"
                 )}`
             );
 
         if (this.arrayHasValue(key, value) === false)
             return console.log(
-                `${chalk.blue("EraxDB")} => ${chalk.red("Error:")} ${chalk.gray(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
                     "The value you specified is not in the array of the data you specified."
                 )}`
             );
