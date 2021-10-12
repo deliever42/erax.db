@@ -3,7 +3,6 @@
  * @param {string} message
  * @returns {string}
  */
-
 const red = function (message) {
     return `\x1b[31m${message}\x1b[37m`;
 };
