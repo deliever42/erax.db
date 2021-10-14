@@ -20,7 +20,12 @@ declare module "erax.db" {
         public fetchAll(): All[];
         public all(): All[];
         public size(): number;
-        public push(key: string, value: any, valueIgnoreIfPresent?: boolean): any[];
+        public push(
+            key: string,
+            value: any,
+            valueIgnoreIfPresent?: boolean,
+            multiple?: boolean
+        ): any[];
         public math(
             key: string,
             operator: Operators,
@@ -33,7 +38,7 @@ declare module "erax.db" {
         public endsWith(key: string): All[];
         public deleteEach(key: string, maxDeletedSize?: number): boolean;
         public type(key: string): DataTypes;
-        public pull(key: string, value: any): any[];
+        public pull(key: string, value: any, multiple?: boolean): any[];
         public filter(callback: (element: All) => boolean): All[];
         public info(): Info<"json">;
         public keyArray(): string[];
@@ -64,7 +69,12 @@ declare module "erax.db" {
         public fetchAll(): All[];
         public all(): All[];
         public size(): number;
-        public push(key: string, value: any, valueIgnoreIfPresent?: boolean): any[];
+        public push(
+            key: string,
+            value: any,
+            valueIgnoreIfPresent?: boolean,
+            multiple?: boolean
+        ): any[];
         public math(
             key: string,
             operator: Operators,
@@ -77,7 +87,7 @@ declare module "erax.db" {
         public endsWith(key: string): All[];
         public deleteEach(key: string, maxDeletedSize?: number): boolean;
         public type(key: string): DataTypes;
-        public pull(key: string, value: any): any[];
+        public pull(key: string, value: any, multiple?: boolean): any[];
         public filter(callback: (element: All) => boolean): All[];
         public info(): Info<"yaml">;
         public keyArray(): string[];
@@ -109,7 +119,12 @@ declare module "erax.db" {
         public fetchAll(): All[];
         public all(): All[];
         public size(): number;
-        public push(key: string, value: any, valueIgnoreIfPresent?: boolean): any[];
+        public push(
+            key: string,
+            value: any,
+            valueIgnoreIfPresent?: boolean,
+            multiple?: boolean
+        ): any[];
         public math(
             key: string,
             operator: Operators,
@@ -122,7 +137,7 @@ declare module "erax.db" {
         public endsWith(key: string): All[];
         public deleteEach(key: string, maxDeletedSize?: number): boolean;
         public type(key: string): DataTypes;
-        public pull(key: string, value: any): any[];
+        public pull(key: string, value: any, multiple?: boolean): any[];
         public filter(callback: (element: All) => boolean): All[];
         public info(): Info<"sqlite">;
         public keyArray(): string[];
@@ -154,7 +169,12 @@ declare module "erax.db" {
         public fetchAll(): Promise<All[]>;
         public all(): Promise<All[]>;
         public size(): Promise<number>;
-        public push(key: string, value: any, valueIgnoreIfPresent?: boolean): Promise<any[]>;
+        public push(
+            key: string,
+            value: any,
+            valueIgnoreIfPresent?: boolean,
+            multiple?: boolean
+        ): Promise<any[]>;
         public math(
             key: string,
             operator: Operators,
@@ -167,7 +187,7 @@ declare module "erax.db" {
         public endsWith(key: string): Promise<All[]>;
         public deleteEach(key: string, maxDeletedSize?: number): Promise<boolean>;
         public type(key: string): Promise<DataTypes>;
-        public pull(key: string, value: any): Promise<any[]>;
+        public pull(key: string, value: any, multiple?: boolean): Promise<any[]>;
         public filter(callback: (element: All) => boolean): Promise<All[]>;
         public info(): Promise<Info<"mongo">>;
         public keyArray(): Promise<string[]>;
