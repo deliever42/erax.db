@@ -284,6 +284,9 @@ module.exports = class MongoDatabase {
                 break;
             case "*":
             case "multiplication":
+            case "multiple":
+            case "mult":
+            case "multip":
                 data *= value;
                 break;
             case "division":
@@ -495,28 +498,31 @@ module.exports = class MongoDatabase {
      * @param {string} key
      * @param {any} value
      * @param {boolean} [valueIgnoreIfPresent]
+     * @param {boolean} [multiple]
      * @example await db.push("key", "value");
      * @returns {Promise<any[]>}
      */
-    async push(key, value, valueIgnoreIfPresent = true) {
-        if ((await this.has(key)) === false) return await this.set(key, [value]);
-        else if ((await this.arrayHas(key)) === true && (await this.has(key)) === true) {
-            let newval = await this.get(key);
-            if (newval.includes(value) && valueIgnoreIfPresent === true)
-                return console.log(
-                    `${blue("EraxDB")} => ${red("Error:")} ${gray(
-                        "Data was not pushed because the conditions were not suitable."
-                    )}`
-                );
-            newval.push(value);
-            return await this.set(key, newval);
-        } else {
+    async push(key, value, valueIgnoreIfPresent = false, multiple = false) {
+        let filteredValue = Array.isArray(value) ? value : [value];
+        let array = this.get(key);
+
+        if ((await this.has(key)) === false) return await this.set(key, filteredValue);
+        if ((await this.arrayHas(key)) === false)
             return console.log(
                 `${blue("EraxDB")} => ${red("Error:")} ${gray(
-                    "Data was not pushed because the conditions were not suitable."
+                    "The type of data you specify must be array!"
                 )}`
             );
+        if (Array.isArray(value) && multiple === true) {
+            value.forEach((item) => {
+                if (this.arrayHasValue(key, item) && valueIgnoreIfPresent === false)
+                    array.push(item);
+            });
+        } else {
+            if (this.arrayHasValue(key, value) && valueIgnoreIfPresent === false) array.push(value);
         }
+
+        return await this.set(key, array);
     }
 
     /**
@@ -557,29 +563,30 @@ module.exports = class MongoDatabase {
      *
      * @param {string} key
      * @param {any} value
+     * @param {boolean} [multiple]
      * @example await db.pull("key", "value");
      * @returns {Promise<any[]>}
      */
-    async pull(key, value) {
-        if (this.has(key) === false) return null;
-        if (this.arrayHas(key) === false)
+    async pull(key, value, multiple = false) {
+        let array = await this.get(key);
+
+        if ((await this.has(key)) === false) return null;
+        if ((await this.arrayHas(key)) === false)
             return console.log(
                 `${blue("EraxDB")} => ${red("Error:")} ${gray(
                     "The type of data you specify must be array!"
                 )}`
             );
 
-        if ((await this.arrayHasValue(key, value)) === false)
-            return console.log(
-                `${blue("EraxDB")} => ${red("Error:")} ${gray(
-                    "The value you specified is not in the array of the data you specified."
-                )}`
-            );
+        if (Array.isArray(value) && multiple === true) {
+            value.forEach((item) => {
+                pull(array, item);
+            });
+        } else {
+            pull(array, value);
+        }
 
-        let data = await this.get(key);
-        data = pull(data, value);
-
-        return await this.set(key, data);
+        return await this.set(key, array);
     }
 
     /**

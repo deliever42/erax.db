@@ -311,6 +311,9 @@ module.exports = class SqliteDatabase {
                 break;
             case "*":
             case "multiplication":
+            case "multiple":
+            case "mult":
+            case "multip":
                 data *= value;
                 break;
             case "division":
@@ -464,28 +467,31 @@ module.exports = class SqliteDatabase {
      * @param {string} key
      * @param {any} value
      * @param {boolean} [valueIgnoreIfPresent]
+     * @param {boolean} [multiple]
      * @example db.push("key", "value");
      * @returns {any[]}
      */
-    push(key, value, valueIgnoreIfPresent = true) {
-        if (this.has(key) === false) return this.set(key, [value]);
-        else if (this.arrayHas(key) === true && this.has(key) === true) {
-            let data = this.get(key);
-            if (data.includes(value) && valueIgnoreIfPresent === true)
-                return console.log(
-                    `${blue("EraxDB")} => ${red("Error:")} ${gray(
-                        "Data was not pushed because the conditions were not suitable."
-                    )}`
-                );
-            data.push(value);
-            return this.set(key, data);
-        } else {
+    push(key, value, valueIgnoreIfPresent = false, multiple = false) {
+        let filteredValue = Array.isArray(value) ? value : [value];
+        let array = this.get(key);
+
+        if (this.has(key) === false) return this.set(key, filteredValue);
+        if (this.arrayHas(key) === false)
             return console.log(
                 `${blue("EraxDB")} => ${red("Error:")} ${gray(
-                    "Data was not pushed because the conditions were not suitable."
+                    "The type of data you specify must be array!"
                 )}`
             );
+        if (Array.isArray(value) && multiple === true) {
+            value.forEach((item) => {
+                if (this.arrayHasValue(key, item) && valueIgnoreIfPresent === false)
+                    array.push(item);
+            });
+        } else {
+            if (this.arrayHasValue(key, value) && valueIgnoreIfPresent === false) array.push(value);
         }
+
+        return this.set(key, array);
     }
 
     /**
@@ -526,10 +532,13 @@ module.exports = class SqliteDatabase {
      *
      * @param {string} key
      * @param {any} value
+     * @param {boolean} [multiple]
      * @example db.pull("key", "value");
      * @returns {any[]}
      */
-    pull(key, value) {
+    pull(key, value, multiple = false) {
+        let array = this.get(key);
+
         if (this.has(key) === false) return null;
         if (this.arrayHas(key) === false)
             return console.log(
@@ -538,17 +547,15 @@ module.exports = class SqliteDatabase {
                 )}`
             );
 
-        if (this.arrayHasValue(key, value) === false)
-            return console.log(
-                `${blue("EraxDB")} => ${red("Error:")} ${gray(
-                    "The value you specified is not in the array of the data you specified."
-                )}`
-            );
-            
-        let data = this.get(key);
-        data = pull(data, value);
+        if (Array.isArray(value) && multiple === true) {
+            value.forEach((item) => {
+                pull(array, item);
+            });
+        } else {
+            pull(array, value);
+        }
 
-        return this.set(key, data);
+        return this.set(key, array);
     }
 
     /**
