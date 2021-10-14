@@ -8,9 +8,7 @@
 # News
 
 ```npm
-- Fixed bugs.
-- Added destroy method for SQlite.
-- Fixed Mongo errors.
+- Added multiple option for pull and push methods.
 ```
 
 # Warn
