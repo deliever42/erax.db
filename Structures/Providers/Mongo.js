@@ -23,8 +23,10 @@ module.exports = class MongoDatabase {
      * @param {{ mongoURL: string }} options
      */
     constructor(options) {
+        let mongoose;
+        
         try {
-            const mongoose = require("mongoose");
+            mongoose = require("mongoose");
         } catch {
             throw new DatabaseError("Please install module mongoose (npm install mongoose)");
         }

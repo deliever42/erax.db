@@ -23,8 +23,10 @@ module.exports = class SqliteDatabase {
      * @param {{ databasePath?: string, tableName?: string }} options
      */
     constructor(options = {}) {
+        let SQL;
+
         try {
-            const SQL = require("better-sqlite3");
+            SQL = require("better-sqlite3");
         } catch {
             throw new DatabaseError(
                 "Please install module better-sqlite3 (npm install better-sqlite3)"
