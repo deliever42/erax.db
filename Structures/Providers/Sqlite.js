@@ -49,8 +49,7 @@ module.exports = class SqliteDatabase {
         if (!isString(path)) throw new DatabaseError("Database name must be string!");
         if (!isString(tableName)) throw new DatabaseError("Table name must be string!");
 
-        tableName = tableName.split(/ +/);
-        tableName = tableName.reduce((a, b) => a + b);
+        tableName = tableName.split(/ +/).join("");
 
         let processFolder = process.cwd();
         let databasePath = path;
