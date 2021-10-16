@@ -9,6 +9,7 @@
 
 ```npm
 - Added multiple option for pull and push methods.
+- Now if you are using Sqlite or Mongo you have to download the modules yourself.
 ```
 
 # Warn
@@ -31,7 +32,10 @@ const yamldb = new YamlDatabase({ databasePath: "MyYamlDatabase.yml" });
 console.log(YamlDatabase.DBCollection); //It sends all Databases created for Yaml to the console.
 
 //SQlite
-const sqlitedb = new SqliteDatabase({ databasePath: "MySqliteDatabase.db" });
+const sqlitedb = new SqliteDatabase({
+    databasePath: "MySqliteDatabase.db",
+    tableName: "MySqliteDatabase"
+});
 console.log(SqliteDatabase.DBCollection); //It sends all Databases created for Sqlite to the console.
 
 //Mongo
