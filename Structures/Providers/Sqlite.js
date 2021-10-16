@@ -2,7 +2,6 @@ const { mkdirSync, writeFileSync } = require("fs");
 const DatabaseError = require("../Utils/DatabaseError");
 const { sep } = require("path");
 const { parseKey, checkFile, isString, isNumber, write, read } = require("../Utils/Util");
-const SQL = require("better-sqlite3");
 const { set, get, unset, pull } = require("lodash");
 const { red, gray, blue } = require("../Utils/ColorStyles");
 
@@ -24,6 +23,14 @@ module.exports = class SqliteDatabase {
      * @param {{ databasePath?: string, tableName?: string }} options
      */
     constructor(options = {}) {
+        try {
+            const SQL = require("better-sqlite3");
+        } catch {
+            throw new DatabaseError(
+                "Please install module better-sqlite3 (npm install better-sqlite3)"
+            );
+        }
+
         let path;
         if (
             !options ||

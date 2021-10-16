@@ -1,4 +1,3 @@
-const mongoose = require("mongoose");
 const { mkdirSync, writeFileSync } = require("fs");
 const DatabaseError = require("../Utils/DatabaseError");
 const { sep } = require("path");
@@ -23,7 +22,13 @@ module.exports = class MongoDatabase {
      * @constructor
      * @param {{ mongoURL: string }} options
      */
-    constructor(options = {}) {
+    constructor(options) {
+        try {
+            const mongoose = require("mongoose");
+        } catch {
+            throw new DatabaseError("Please install module mongoose (npm install mongoose)");
+        }
+
         if (
             !options ||
             (options &&
