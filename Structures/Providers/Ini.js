@@ -407,7 +407,7 @@ module.exports = class IniDatabase {
     /**
      *
      * @example db.info();
-     * @returns {{ Version: number, DatabaseName: string, DataSize: number, DatabaseType: "json" }}
+     * @returns {{ Version: number, DatabaseName: string, DataSize: number, DatabaseType: "ini" }}
      */
     info() {
         let p = require("../../package.json");
@@ -416,7 +416,7 @@ module.exports = class IniDatabase {
             Version: p.version,
             DatabaseName: this.dbName,
             DataSize: this.size(),
-            DatabaseType: "json"
+            DatabaseType: "ini"
         };
     }
 
