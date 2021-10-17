@@ -25,7 +25,9 @@
     "mongo",
     "mongodb",
     "mongoose",
-    "easy"
+    "easy",
+    "storing",
+    "values"
   ],
   "author": "emirhanbaltas34",
   "license": "Apache-2.0",
@@ -34,7 +36,6 @@
   },
   "homepage": "https://github.com/emirhanbaltas34/erax.db#readme",
   "dependencies": {
-    "lodash": "^4.17.21",
     "node-fetch": "^2.6.4",
     "yaml": "^1.10.2"
   },

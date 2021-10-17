@@ -1,8 +1,18 @@
 const { mkdirSync, writeFileSync } = require("fs");
 const DatabaseError = require("../Utils/DatabaseError");
 const { sep } = require("path");
-const { destroy, checkFile, isString, isNumber, write, read } = require("../Utils/Util");
-const { set, get, unset, pull } = require("lodash");
+const {
+    destroy,
+    checkFile,
+    isString,
+    isNumber,
+    write,
+    read,
+    set,
+    get,
+    unset,
+    pull
+} = require("../Utils/Util");
 const { red, gray, blue } = require("../Utils/ColorStyles");
 
 /**
@@ -20,7 +30,7 @@ module.exports = class YamlDatabase {
     /**
      *
      * @constructor
-     * @param {{ databasePath?: string }} options
+     * @param {{ databasePath?: string, seperator?: string }} options
      */
     constructor(options = {}) {
         let path;
@@ -35,6 +45,19 @@ module.exports = class YamlDatabase {
         else if (options && options.databasePath) path = options.databasePath;
 
         if (!isString(path)) throw new DatabaseError("Database name must be string!");
+
+        let seperator;
+        if (
+            !options ||
+            (options &&
+                (options.seperator === null ||
+                    options.seperator === undefined ||
+                    options.seperator === ""))
+        )
+            seperator = "database.ini";
+        else if (options && options.seperator) path = options.seperator;
+
+        if (!isString(path)) throw new DatabaseError("Seperator must be string!");
 
         let processFolder = process.cwd();
         let databasePath = path;
@@ -75,6 +98,7 @@ module.exports = class YamlDatabase {
         this.dbPath = `${processFolder}${sep}${dirNames}${dbName}`;
         this.dbName = `${dirNames}${dbName}`;
         this.data = read(this.dbPath);
+        this.sep = seperator;
 
         if (!YamlDatabase.DBCollection.includes(this.dbName)) {
             YamlDatabase.DBCollection.push(this.dbName);
@@ -94,9 +118,9 @@ module.exports = class YamlDatabase {
         if (!isString(key)) throw new DatabaseError("Key must be string!");
         if (value === "" || value === null || value === undefined)
             throw new DatabaseError("Please specify a value.");
-        set(this.data, key, value);
+        set(this.data, key, value, this.sep);
         write(this.dbPath, this.data);
-        return get(this.data, key);
+        return value;
     }
 
     /**
@@ -141,7 +165,7 @@ module.exports = class YamlDatabase {
         if (key === "" || key === null || key === undefined)
             throw new DatabaseError("Please specify a key.");
         if (!isString(key)) throw new DatabaseError("Key must be string!");
-        return get(this.data, key);
+        return get(this.data, key, this.sep);
     }
 
     /**
@@ -174,7 +198,7 @@ module.exports = class YamlDatabase {
      */
     delete(key) {
         if (this.has(key) === false) return null;
-        unset(this.data, key);
+        unset(this.data, key, this.sep);
         write(this.dbPath, this.data);
         return true;
     }

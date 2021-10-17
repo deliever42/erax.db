@@ -1,6 +1,7 @@
 const FETCH = require("node-fetch");
 const fs = require("fs");
 const YAML = require("yaml");
+const DatabaseError = require("./DatabaseError");
 
 /**
  *
@@ -86,6 +87,16 @@ module.exports = class Util {
             return fs.writeFileSync(path, JSON.stringify(data, null, 4));
         } else if (path.endsWith(".yml")) {
             return fs.writeFileSync(path, YAML.stringify(data));
+        } else if (path.endsWith(".ini")) {
+            let INI;
+
+            try {
+                INI = require("multi-ini");
+            } catch {
+                throw new DatabaseError("Please install module multi-ini (npm install multi-ini)");
+            }
+
+            return INI.write(path, data, { encoding: "utf-8" });
         } else {
             return null;
         }
@@ -102,11 +113,102 @@ module.exports = class Util {
                 return JSON.parse(fs.readFileSync(path, "utf-8"));
             } else if (path.endsWith(".yml")) {
                 return YAML.parse(fs.readFileSync(path, "utf-8"));
+            } else if (path.endsWith(".ini")) {
+                let INI;
+
+                try {
+                    INI = require("multi-ini");
+                } catch {
+                    throw new DatabaseError(
+                        "Please install module multi-ini (npm install multi-ini)"
+                    );
+                }
+
+                return INI.read(path, { encoding: "utf-8" });
             } else {
                 return null;
             }
         } else {
             return null;
         }
+    }
+
+    /**
+     *
+     * @param {{ [key: string]: any }} obj
+     * @param {string} key
+     * @param {any} value
+     * @param {string} sep
+     * @returns {any}
+     */
+    static set(obj, key, value, sep = ".") {
+        let locations = key.split(sep);
+        let length = locations.length - 1;
+        let i = 0;
+
+        while (i < length) {
+            if (typeof obj[locations[i]] !== "object") {
+                obj[locations[i]] = {};
+            }
+            obj = obj[locations[i]];
+            i++;
+        }
+
+        obj[locations[length]] = value;
+        return value;
+    }
+
+    /**
+     *
+     * @param {{ [key: string]: any }} obj
+     * @param {string} key
+     * @param {string} sep
+     * @returns {any}
+     */
+    static get(obj, key, sep = ".") {
+        let locations = key.split(sep);
+        let length = locations.length - 1;
+        let i = 0;
+
+        while (i < length) {
+            if (!obj[locations[i]]) return null;
+            obj = obj[locations[i]];
+            i++;
+        }
+
+        return obj[locations[length]];
+    }
+
+    /**
+     *
+     * @param {{ [key: string]: any }} obj
+     * @param {string} key
+     * @param {string} sep
+     * @returns {boolean}
+     */
+    static unset(obj, key, sep = ".") {
+        let locations = key.split(sep);
+        let length = locations.length - 1;
+        let i = 0;
+
+        while (i < length) {
+            if (!obj[locations[i]]) return null;
+            obj = obj[locations[i]];
+            i++;
+        }
+
+        delete obj[locations[length]];
+        return true;
+    }
+
+    /**
+     *
+     * @param {any[]} array
+     * @param {any} item
+     * @returns {boolean}
+     */
+    static pull(array, item) {
+        array = array.filter((element) => element !== item);
+        return true;
     }
 };

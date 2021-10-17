@@ -17,9 +17,9 @@ const { red, gray, blue } = require("../Utils/ColorStyles");
 
 /**
  *
- * @class JsonDatabase
+ * @class IniDatabase
  */
-module.exports = class JsonDatabase {
+module.exports = class IniDatabase {
     /**
      *
      * @static
@@ -41,7 +41,7 @@ module.exports = class JsonDatabase {
                     options.databasePath === undefined ||
                     options.databasePath === ""))
         )
-            path = "database.json";
+            path = "database.ini";
         else if (options && options.databasePath) path = options.databasePath;
 
         if (!isString(path)) throw new DatabaseError("Database name must be string!");
@@ -63,10 +63,10 @@ module.exports = class JsonDatabase {
         let databasePath = path;
 
         if (databasePath.endsWith(sep)) {
-            databasePath += "database.json";
+            databasePath += "database.ini";
         } else {
-            if (!databasePath.endsWith(".json")) {
-                databasePath += ".json";
+            if (!databasePath.endsWith(".ini")) {
+                databasePath += ".ini";
             }
         }
 
@@ -81,7 +81,7 @@ module.exports = class JsonDatabase {
         let dirNames = "";
 
         for (let i = 0; i < dirs.length; i++) {
-            if (!dirs[i].endsWith(".json")) {
+            if (!dirs[i].endsWith(".ini")) {
                 dirNames += `${dirs[i]}${sep}`;
                 if (!checkFile(`${processFolder}${sep}${dirNames}`)) {
                     mkdirSync(`${processFolder}${sep}${dirNames}`);
@@ -90,18 +90,18 @@ module.exports = class JsonDatabase {
                 dbName = `${dirs[i]}`;
 
                 if (!checkFile(`${processFolder}${sep}${dirNames}${dbName}`)) {
-                    writeFileSync(`${processFolder}${sep}${dirNames}${dbName}`, "{}");
+                    writeFileSync(`${processFolder}${sep}${dirNames}${dbName}`, "");
                 }
             }
         }
 
         this.dbPath = `${processFolder}${sep}${dirNames}${dbName}`;
-        this.dbName = `${dirNames}${dbName}`;
+        this.dbName = `${dirNames}${dbName}`;d
         this.data = read(this.dbPath);
         this.sep = seperator;
 
-        if (!JsonDatabase.DBCollection.includes(this.dbName)) {
-            JsonDatabase.DBCollection.push(this.dbName);
+        if (!IniDatabase.DBCollection.includes(this.dbName)) {
+            IniDatabase.DBCollection.push(this.dbName);
         }
     }
 
@@ -140,7 +140,7 @@ module.exports = class JsonDatabase {
      */
     deleteAll() {
         this.data = {};
-        write(this.dbPath, {});
+        write(this.dbPath, "");
         return true;
     }
 
@@ -566,7 +566,7 @@ module.exports = class JsonDatabase {
      * @returns {number}
      */
     DBCollectionSize() {
-        return JsonDatabase.DBCollection.length;
+        return IniDatabase.DBCollection.length;
     }
 
     /**

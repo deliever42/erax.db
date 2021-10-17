@@ -19,5 +19,6 @@ module.exports = {
     JsonDatabase: require("./Providers/Json"),
     YamlDatabase: require("./Providers/Yaml"),
     SqliteDatabase: require("./Providers/Sqlite"),
-    MongoDatabase: require("./Providers/Mongo")
+    MongoDatabase: require("./Providers/Mongo"),
+    IniDatabase: require("./Providers/Ini")
 };

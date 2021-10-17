@@ -1,8 +1,18 @@
 const { mkdirSync, writeFileSync } = require("fs");
 const DatabaseError = require("../Utils/DatabaseError");
 const { sep } = require("path");
-const { parseKey, checkFile, isString, isNumber, write, read } = require("../Utils/Util");
-const { set, get, unset, pull } = require("lodash");
+const {
+    parseKey,
+    checkFile,
+    isString,
+    isNumber,
+    write,
+    read,
+    set,
+    get,
+    unset,
+    pull
+} = require("../Utils/Util");
 const { red, gray, blue } = require("../Utils/ColorStyles");
 
 /**
@@ -20,7 +30,7 @@ module.exports = class MongoDatabase {
     /**
      *
      * @constructor
-     * @param {{ mongoURL: string }} options
+     * @param {{ mongoURL: string, seperator?: string }} options
      */
     constructor(options) {
         let mongoose;
@@ -40,11 +50,26 @@ module.exports = class MongoDatabase {
         )
             throw new DatabaseError("Please specify a MongoDB URL.");
         if (!isString(options.mongoURL)) throw new DatabaseError("MongoDB URL must be string!");
+
+        let seperator;
+        if (
+            !options ||
+            (options &&
+                (options.seperator === null ||
+                    options.seperator === undefined ||
+                    options.seperator === ""))
+        )
+            seperator = "database.ini";
+        else if (options && options.seperator) path = options.seperator;
+
+        if (!isString(path)) throw new DatabaseError("Seperator must be string!");
+
         if (!options.mongoURL.match(/^mongodb([a-z+]{0,15})?.+/g))
             throw new DatabaseError("Invalid MongoDB URL!");
 
         this.url = options.mongoURL;
         this.dbName = this.url.split("mongodb.net/").pop().split("?")[0];
+        this.sep = seperator;
 
         mongoose.connect(this.url, {
             useNewUrlParser: true,
@@ -148,7 +173,7 @@ module.exports = class MongoDatabase {
         let value = await data.get("value");
 
         set(json, parsedKey, value);
-        let parsedValue = get(json, key) ? get(json, key) : null;
+        let parsedValue = get(json, key, this.sep);
         json = {};
         return parsedValue;
     }
@@ -194,12 +219,14 @@ module.exports = class MongoDatabase {
 
         let value = await data.get("value");
 
-        set(json, parsedKey, value);
-        unset(json, key);
+        set(json, parsedKey, value, this.sep);
+        unset(json, key, this.sep);
 
-        let parsedValue = get(json, parsedKey);
+        let parsedValue = get(json, parsedKey, this.sep);
 
-        await this.set(parsedKey, parsedValue);
+        if (!parsedValue) await this.delete(parsedKey);
+        else await this.set(parsedKey, parsedValue);
+        
         json = {};
 
         return true;
@@ -735,7 +762,7 @@ module.exports = class MongoDatabase {
                 let key = await obj.key;
                 let value = await obj.value;
 
-                set(json, key, value);
+                set(json, key, value, this.sep);
                 write(dbPath, json);
             });
         });

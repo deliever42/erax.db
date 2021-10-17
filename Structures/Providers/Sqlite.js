@@ -1,8 +1,18 @@
 const { mkdirSync, writeFileSync } = require("fs");
 const DatabaseError = require("../Utils/DatabaseError");
 const { sep } = require("path");
-const { parseKey, checkFile, isString, isNumber, write, read } = require("../Utils/Util");
-const { set, get, unset, pull } = require("lodash");
+const {
+    parseKey,
+    checkFile,
+    isString,
+    isNumber,
+    write,
+    read,
+    set,
+    get,
+    unset,
+    pull
+} = require("../Utils/Util");
 const { red, gray, blue } = require("../Utils/ColorStyles");
 
 /**
@@ -20,7 +30,7 @@ module.exports = class SqliteDatabase {
     /**
      *
      * @constructor
-     * @param {{ databasePath?: string, tableName?: string }} options
+     * @param {{ databasePath?: string, tableName?: string, seperator?: string }} options
      */
     constructor(options = {}) {
         let SQL;
@@ -44,6 +54,8 @@ module.exports = class SqliteDatabase {
             path = "database.db";
         else if (options && options.databasePath) path = options.databasePath;
 
+        if (!isString(path)) throw new DatabaseError("Database name must be string!");
+
         let tableName;
         if (
             !options ||
@@ -55,8 +67,20 @@ module.exports = class SqliteDatabase {
             tableName = "EraxDB";
         else if (options && options.tableName) tableName = options.tableName;
 
-        if (!isString(path)) throw new DatabaseError("Database name must be string!");
         if (!isString(tableName)) throw new DatabaseError("Table name must be string!");
+
+        let seperator;
+        if (
+            !options ||
+            (options &&
+                (options.seperator === null ||
+                    options.seperator === undefined ||
+                    options.seperator === ""))
+        )
+            seperator = "database.ini";
+        else if (options && options.seperator) path = options.seperator;
+
+        if (!isString(path)) throw new DatabaseError("Seperator must be string!");
 
         tableName = tableName.split(/ +/).join("");
 
@@ -95,6 +119,7 @@ module.exports = class SqliteDatabase {
         this.dbName = `${dirNames}${dbName}`;
         this.dbPath = `${processFolder}${sep}${dirNames}${dbName}`;
         this.sql = new SQL(this.dbPath);
+        this.sep = seperator;
         this.tableName = tableName;
         this.sql
             .prepare(`CREATE TABLE IF NOT EXISTS ${this.tableName} (key TEXT, value TEXT)`)
@@ -126,15 +151,15 @@ module.exports = class SqliteDatabase {
         let json = {};
 
         if (!data.key) {
-            set(json, key, value);
+            set(json, key, value, this.sep);
             data.key = parseKey(key);
             data.value = json[data.key];
             this.sql
                 .prepare(`INSERT INTO ${this.tableName} (key, value) VALUES (?, ?)`)
                 .run(data.key, JSON.stringify(data.value));
         } else {
-            set(json, parsedKey, JSON.parse(data.value));
-            set(json, key, value);
+            set(json, parsedKey, JSON.parse(data.value), this.sep);
+            set(json, key, value, this.sep);
             data.key = parseKey(key);
             data.value = json[data.key];
 
@@ -144,7 +169,7 @@ module.exports = class SqliteDatabase {
         }
 
         json = {};
-        return data.value;
+        return value;
     }
 
     /**
@@ -190,8 +215,8 @@ module.exports = class SqliteDatabase {
 
         let value = data.value;
 
-        set(json, parsedKey, JSON.parse(value));
-        let parsedValue = get(json, key) ? get(json, key) : null;
+        set(json, parsedKey, JSON.parse(value), this.sep);
+        let parsedValue = get(json, key, this.sep);
         json = {};
         return parsedValue;
     }
@@ -239,10 +264,10 @@ module.exports = class SqliteDatabase {
 
         let value = data.value;
 
-        set(json, parsedKey, JSON.parse(value));
-        unset(json, key);
+        set(json, parsedKey, JSON.parse(value), this.sep);
+        unset(json, key, this.sep);
 
-        let parsedValue = get(json, parsedKey);
+        let parsedValue = get(json, parsedKey, this.sep);
 
         if (!parsedValue)
             this.sql.prepare(`DELETE FROM ${this.tableName} WHERE key = (?)`).run(parsedKey);
@@ -695,7 +720,7 @@ module.exports = class SqliteDatabase {
             let key = data.ID;
             let value = data.data;
 
-            set(json, key, value);
+            set(json, key, value, this.sep);
             write(dbPath, json);
         });
 

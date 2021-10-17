@@ -10,6 +10,8 @@
 ```npm
 - Added multiple option for pull and push methods.
 - Now if you are using Sqlite or Mongo you have to download the modules yourself.
+- Added ini.
+- Added seperator option for database options.
 ```
 
 # Warn
@@ -21,7 +23,13 @@
 # Use
 
 ```js
-const { JsonDatabase, YamlDatabase, SqliteDatabase, MongoDatabase } = require("erax.db");
+const {
+    JsonDatabase,
+    YamlDatabase,
+    SqliteDatabase,
+    MongoDatabase,
+    IniDatabase
+} = require("erax.db");
 
 //JSON
 const jsondb = new JsonDatabase({ databasePath: "MyJsonDatabase.json" });
@@ -30,6 +38,10 @@ console.log(JsonDatabase.DBCollection); //It sends all Databases created for Jso
 //Yaml
 const yamldb = new YamlDatabase({ databasePath: "MyYamlDatabase.yml" });
 console.log(YamlDatabase.DBCollection); //It sends all Databases created for Yaml to the console.
+
+//Ini
+const inidb = new IniDatabase({ databasePath: "MyInilDatabase.ini" });
+console.log(IniDatabase.DBCollection); //It sends all Databases created for Ini to the console.
 
 //SQlite
 const sqlitedb = new SqliteDatabase({
