@@ -1,7 +1,7 @@
 {
   "name": "erax.db",
-  "version": "3.0.9",
-  "description": "Advanced JSON, Yaml, Sqlite and Mongo Database Module.",
+  "version": "3.0.10",
+  "description": "Advanced JSON, Yaml, Sqlite, Ini and Mongo Database Module.",
   "main": "Structures/Index.js",
   "types": "Types/Index.d.ts",
   "scripts": {},
@@ -27,7 +27,8 @@
     "mongoose",
     "easy",
     "storing",
-    "values"
+    "values",
+    "ini"
   ],
   "author": "emirhanbaltas34",
   "license": "Apache-2.0",
