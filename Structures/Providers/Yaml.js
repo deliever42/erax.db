@@ -271,13 +271,15 @@ module.exports = class YamlDatabase {
                     "The type of data you specify must be array!"
                 )}`
             );
+
         if (Array.isArray(value) && multiple === true) {
             value.forEach((item) => {
-                if (this.arrayHasValue(key, item) && valueIgnoreIfPresent === false)
-                    array.push(item);
+                if (this.arrayHasValue(key, item) && valueIgnoreIfPresent === true) {
+                } else array.push(item);
             });
         } else {
-            if (this.arrayHasValue(key, value) && valueIgnoreIfPresent === false) array.push(value);
+            if (this.arrayHasValue(key, value) && valueIgnoreIfPresent === true) {
+            } else array.push(value);
         }
 
         return this.set(key, array);
