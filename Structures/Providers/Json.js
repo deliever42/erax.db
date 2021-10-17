@@ -54,10 +54,10 @@ module.exports = class JsonDatabase {
                     options.seperator === undefined ||
                     options.seperator === ""))
         )
-            seperator = "database.ini";
-        else if (options && options.seperator) path = options.seperator;
+            seperator = ".";
+        else if (options && options.seperator) seperator = options.seperator;
 
-        if (!isString(path)) throw new DatabaseError("Seperator must be string!");
+        if (!isString(seperator)) throw new DatabaseError("Seperator must be string!");
 
         let processFolder = process.cwd();
         let databasePath = path;

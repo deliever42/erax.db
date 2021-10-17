@@ -59,10 +59,10 @@ module.exports = class MongoDatabase {
                     options.seperator === undefined ||
                     options.seperator === ""))
         )
-            seperator = "database.ini";
-        else if (options && options.seperator) path = options.seperator;
+            seperator = ".";
+        else if (options && options.seperator) seperator = options.seperator;
 
-        if (!isString(path)) throw new DatabaseError("Seperator must be string!");
+        if (!isString(seperator)) throw new DatabaseError("Seperator must be string!");
 
         if (!options.mongoURL.match(/^mongodb([a-z+]{0,15})?.+/g))
             throw new DatabaseError("Invalid MongoDB URL!");

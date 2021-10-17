@@ -54,10 +54,10 @@ module.exports = class IniDatabase {
                     options.seperator === undefined ||
                     options.seperator === ""))
         )
-            seperator = "database.ini";
-        else if (options && options.seperator) path = options.seperator;
+            seperator = ".";
+        else if (options && options.seperator) seperator = options.seperator;
 
-        if (!isString(path)) throw new DatabaseError("Seperator must be string!");
+        if (!isString(seperator)) throw new DatabaseError("Seperator must be string!");
 
         let processFolder = process.cwd();
         let databasePath = path;
@@ -96,7 +96,7 @@ module.exports = class IniDatabase {
         }
 
         this.dbPath = `${processFolder}${sep}${dirNames}${dbName}`;
-        this.dbName = `${dirNames}${dbName}`;d
+        this.dbName = `${dirNames}${dbName}`;
         this.data = read(this.dbPath);
         this.sep = seperator;
 
