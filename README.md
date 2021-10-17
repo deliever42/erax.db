@@ -9,9 +9,10 @@
 
 ```npm
 - Added multiple option for pull and push methods.
-- Now if you are using Sqlite or Mongo you have to download the modules yourself.
+- Now if you are using Sqlite, Mongo or Ini you will download the necessary modules yourself.
 - Added ini.
 - Added seperator option for database options.
+- The module now descends much faster.
 ```
 
 # Warn
