@@ -425,7 +425,7 @@ module.exports = class JsonDatabase {
      * @param {string} value
      * @param {number} [maxDeletedSize]
      * @example db.deleteEach("key");
-     * @returns {boolean}
+     * @returns {number}
      */
     deleteEach(value, maxDeletedSize = 0) {
         let deleted = 0;

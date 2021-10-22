@@ -37,7 +37,7 @@ declare module "erax.db" {
         public includes(key: string): All[];
         public startsWith(key: string): All[];
         public endsWith(key: string): All[];
-        public deleteEach(key: string, maxDeletedSize?: number): boolean;
+        public deleteEach(key: string, maxDeletedSize?: number): number;
         public type(key: string): DataTypes;
         public pull(key: string, value: any, multiple?: boolean): any[];
         public filter(callback: (element: All) => boolean): All[];
@@ -87,7 +87,7 @@ declare module "erax.db" {
         public includes(key: string): All[];
         public startsWith(key: string): All[];
         public endsWith(key: string): All[];
-        public deleteEach(key: string, maxDeletedSize?: number): boolean;
+        public deleteEach(key: string, maxDeletedSize?: number): number;
         public type(key: string): DataTypes;
         public pull(key: string, value: any, multiple?: boolean): any[];
         public filter(callback: (element: All) => boolean): All[];
@@ -142,7 +142,7 @@ declare module "erax.db" {
         public includes(key: string): All[];
         public startsWith(key: string): All[];
         public endsWith(key: string): All[];
-        public deleteEach(key: string, maxDeletedSize?: number): boolean;
+        public deleteEach(key: string, maxDeletedSize?: number): number;
         public type(key: string): DataTypes;
         public pull(key: string, value: any, multiple?: boolean): any[];
         public filter(callback: (element: All) => boolean): All[];
@@ -193,7 +193,7 @@ declare module "erax.db" {
         public includes(key: string): Promise<All[]>;
         public startsWith(key: string): Promise<All[]>;
         public endsWith(key: string): Promise<All[]>;
-        public deleteEach(key: string, maxDeletedSize?: number): Promise<boolean>;
+        public deleteEach(key: string, maxDeletedSize?: number): Promise<number>;
         public type(key: string): Promise<DataTypes>;
         public pull(key: string, value: any, multiple?: boolean): Promise<any[]>;
         public filter(callback: (element: All) => boolean): Promise<All[]>;
@@ -248,7 +248,7 @@ declare module "erax.db" {
         public includes(key: string): All[];
         public startsWith(key: string): All[];
         public endsWith(key: string): All[];
-        public deleteEach(key: string, maxDeletedSize?: number): boolean;
+        public deleteEach(key: string, maxDeletedSize?: number): number;
         public type(key: string): DataTypes;
         public pull(key: string, value: any, multiple?: boolean): any[];
         public filter(callback: (element: All) => boolean): All[];

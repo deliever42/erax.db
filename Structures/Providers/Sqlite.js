@@ -460,7 +460,7 @@ module.exports = class SqliteDatabase {
      * @param {string} value
      * @param {number} [maxDeletedSize]
      * @example db.deleteEach("key");
-     * @returns {boolean}
+     * @returns {number}
      */
     deleteEach(value, maxDeletedSize = 0) {
         if (value === "" || value === null || value === undefined)

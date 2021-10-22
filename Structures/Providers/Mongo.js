@@ -421,7 +421,7 @@ module.exports = class MongoDatabase {
      * @param {string} value
      * @param {number} [maxDeletedSize]
      * @example await db.deleteEach("key");
-     * @returns {Promise<boolean>}
+     * @returns {Promise<number>}
      */
     async deleteEach(value, maxDeletedSize = 0) {
         if (value === "" || value === null || value === undefined)
