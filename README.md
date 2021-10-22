@@ -9,6 +9,7 @@
 
 ```npm
 - Fixed Bugs.
+- Added ready method for Mongo.
 ```
 
 # Warn
@@ -97,6 +98,9 @@ console.log(MongoDatabase.DBCollection); //It sends all Databases created for Mo
 <db>.type("key")
 <db>.DBCollectionSize()
 <db>.getDBName()
+
+//Mongo ready Method
+<db>.ready(() => console.log("Connected to MongoDB!"))
 
 //SQLite and Mongo Extra Methods
 await <db>.export("database.json")

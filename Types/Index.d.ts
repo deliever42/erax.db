@@ -1,4 +1,5 @@
 import { Operators, Schema, Info, All, DataTypes } from "./Types";
+import { EventEmitter } from "events";
 
 declare module "erax.db" {
     export class JsonDatabase {
@@ -158,7 +159,7 @@ declare module "erax.db" {
         public map(callback: (element: All) => boolean): any[];
     }
 
-    export class MongoDatabase {
+    export class MongoDatabase extends EventEmitter {
         public static DBCollection: string[];
         public constructor(options: { mongoURL: string, seperator?: string });
         private dbName: string;
@@ -210,6 +211,7 @@ declare module "erax.db" {
         ): Promise<number>;
         public reduce(callback: (a: All, b: All) => boolean): Promise<any[]>;
         public map(callback: (element: All) => boolean): any[];
+        public ready(...args: any): void;
     }
 
     export class IniDatabase {

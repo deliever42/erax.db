@@ -14,12 +14,13 @@ const {
     pull
 } = require("../Utils/Util");
 const { red, gray, blue } = require("../Utils/ColorStyles");
+const { EventEmitter } = require("events");
 
 /**
  *
  * @class MongoDatabase
  */
-module.exports = class MongoDatabase {
+module.exports = class MongoDatabase extends EventEmitter {
     /**
      *
      * @static
@@ -33,6 +34,7 @@ module.exports = class MongoDatabase {
      * @param {{ mongoURL: string, seperator?: string }} options
      */
     constructor(options) {
+        super();
         let mongoose;
 
         try {
@@ -71,11 +73,8 @@ module.exports = class MongoDatabase {
         this.dbName = this.url.split("mongodb.net/").pop().split("?")[0];
         this.sep = seperator;
 
-        mongoose.connect(this.url, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            useCreateIndex: true,
-            useFindAndModify: false
+        mongoose.connect(this.url).then(() => {
+            this.emit("ready", "Connected to MongoDB!");
         });
 
         const Schema = new mongoose.Schema({
@@ -97,6 +96,15 @@ module.exports = class MongoDatabase {
             MongoDatabase.DBCollection.push(this.dbName);
         }
     }
+
+    /**
+     * @param  {any} args 
+     * @example db.ready(() => console.log("Connected to MongoDB!"))
+     * @returns {void}
+     */
+    ready(...args) {
+        return this.on("ready", ...args);
+    };
 
     /**
      *
