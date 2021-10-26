@@ -19,6 +19,6 @@
 ```
 
 # Documenation
-<a href="http://eraxdb.js.org/documenation/">Go!</a>
+<a href="http://eraxdb.js.org/documenation/" style="text-decoration: none;">Go!</a>
 
 #### You can reach Emirhan77#0001 on Discord to report a bug.
