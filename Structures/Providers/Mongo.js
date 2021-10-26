@@ -120,20 +120,20 @@ module.exports = class MongoDatabase extends EventEmitter {
         if (value === "" || value === null || value === undefined)
             throw new DatabaseError("Please specify a value.");
 
-        let parsedKey = parseKey(key);
+        let parsedKey = parseKey(key, this.sep);
         let data = await this.mongo.findOne({ key: parsedKey });
         let json = {};
         let parseds = {};
 
         if (!data) {
             set(json, key, value);
-            parseds.key = parseKey(key);
+            parseds.key = parseKey(key, this.sep);
             parseds.value = json[parseds.key];
             await this.mongo.create({ key: parseds.key, value: parseds.value });
         } else {
             set(json, parsedKey, parseds.value);
             set(json, key, value);
-            parseds.key = parseKey(key);
+            parseds.key = parseKey(key, this.sep);
             parseds.value = json[parseds.key];
             await this.mongo.updateOne({ key: parseds.key }, { value: parseds.value });
         }
@@ -172,7 +172,7 @@ module.exports = class MongoDatabase extends EventEmitter {
         if (key === "" || key === null || key === undefined)
             throw new DatabaseError("Please specify a key.");
         if (!isString(key)) throw new DatabaseError("Key must be string!");
-        let parsedKey = parseKey(key);
+        let parsedKey = parseKey(key, this.sep);
         let json = {};
 
         let data = await this.mongo.findOne({ key: parsedKey });
@@ -219,7 +219,7 @@ module.exports = class MongoDatabase extends EventEmitter {
             throw new DatabaseError("Please specify a key.");
         if (!isString(key)) throw new DatabaseError("Key must be string!");
 
-        let parsedKey = parseKey(key);
+        let parsedKey = parseKey(key, this.sep);
         let json = {};
 
         let data = await this.mongo.findOne({ key: parsedKey });

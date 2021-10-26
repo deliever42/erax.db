@@ -144,7 +144,7 @@ module.exports = class SqliteDatabase {
         if (value === "" || value === null || value === undefined)
             throw new DatabaseError("Please specify a value.");
 
-        let parsedKey = parseKey(key);
+        let parsedKey = parseKey(key, this.sep);
         let data =
             this.sql.prepare(`SELECT * FROM ${this.tableName} WHERE key = (?)`).get(parsedKey) ||
             {};
@@ -152,7 +152,7 @@ module.exports = class SqliteDatabase {
 
         if (!data.key) {
             set(json, key, value, this.sep);
-            data.key = parseKey(key);
+            data.key = parseKey(key, this.sep);
             data.value = json[data.key];
             this.sql
                 .prepare(`INSERT INTO ${this.tableName} (key, value) VALUES (?, ?)`)
@@ -160,7 +160,7 @@ module.exports = class SqliteDatabase {
         } else {
             set(json, parsedKey, JSON.parse(data.value), this.sep);
             set(json, key, value, this.sep);
-            data.key = parseKey(key);
+            data.key = parseKey(key, this.sep);
             data.value = json[data.key];
 
             this.sql
@@ -205,7 +205,7 @@ module.exports = class SqliteDatabase {
         if (key === "" || key === null || key === undefined)
             throw new DatabaseError("Please specify a key.");
         if (!isString(key)) throw new DatabaseError("Key must be string!");
-        let parsedKey = parseKey(key);
+        let parsedKey = parseKey(key, this.sep);
         let json = {};
 
         let data = this.sql
@@ -254,7 +254,7 @@ module.exports = class SqliteDatabase {
             throw new DatabaseError("Please specify a key.");
         if (!isString(key)) throw new DatabaseError("Key must be string!");
 
-        let parsedKey = parseKey(key);
+        let parsedKey = parseKey(key, this.sep);
         let json = {};
 
         let data = this.sql

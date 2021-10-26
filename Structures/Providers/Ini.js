@@ -118,6 +118,7 @@ module.exports = class IniDatabase {
         if (!isString(key)) throw new DatabaseError("Key must be string!");
         if (value === "" || value === null || value === undefined)
             throw new DatabaseError("Please specify a value.");
+        if (typeof value === "number") value = String(value);
         set(this.data, key, value, this.sep);
         write(this.dbPath, this.data);
         return value;
@@ -165,7 +166,7 @@ module.exports = class IniDatabase {
         if (key === "" || key === null || key === undefined)
             throw new DatabaseError("Please specify a key.");
         if (!isString(key)) throw new DatabaseError("Key must be string!");
-        return get(this.data, key, this.sep);
+        return typeof get(this.data, key, this.sep) === "number" ? Number(get(this.data, key, this.sep)) : get(this.data, key, this.sep);
     }
 
     /**

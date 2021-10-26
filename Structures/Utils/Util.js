@@ -43,10 +43,11 @@ module.exports = class Util {
     /**
      *
      * @param {string} key
+     * @param {string} sep
      * @returns {string}
      */
-    static parseKey(key) {
-        return key.includes(".") ? key.split(".").shift() : key;
+    static parseKey(key, sep = ".") {
+        return key.includes(sep) ? key.split(sep).shift() : key;
     }
 
     /**
