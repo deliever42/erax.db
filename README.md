@@ -19,6 +19,6 @@
 ```
 
 # Documenation
-<a href="https://eraxdb.js.org/documenatation/">Go!</a>
+<a href="https://eraxdb.js.org/documentation/">Go!</a>
 
 #### You can reach Emirhan77#0001 on Discord to report a bug or error.
