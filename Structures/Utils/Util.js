@@ -56,25 +56,25 @@ module.exports = class Util {
      * @returns {boolean}
      */
     static checkFile(path) {
-        return fs.existsSync(path) ? true : false;
+        return fs.existsSync(path);
     }
 
     /**
      *
-     * @param {any} key
+     * @param {any} value
      * @returns {boolean}
      */
-    static isString(key) {
-        return typeof key === "string" ? true : false;
+    static isString(value) {
+        return typeof value === "string";
     }
 
     /**
      *
-     * @param {any} key
+     * @param {any} value
      * @returns {boolean}
      */
-    static isNumber(key) {
-        return isNaN(key) ? false : true;
+    static isNumber(value) {
+        return +value !== +value;
     }
 
     /**
@@ -185,7 +185,7 @@ module.exports = class Util {
      * @param {{ [key: string]: any }} obj
      * @param {string} key
      * @param {string} sep
-     * @returns {boolean}
+     * @returns {void}
      */
     static unset(obj, key, sep = ".") {
         let locations = key.split(sep);
@@ -198,18 +198,16 @@ module.exports = class Util {
             i++;
         }
 
-        delete obj[locations[length]];
-        return true;
+        return delete obj[locations[length]];
     }
 
     /**
      *
      * @param {any[]} array
      * @param {any} item
-     * @returns {boolean}
+     * @returns {void}
      */
     static pull(array, item) {
-        array = array.filter((element) => element !== item);
-        return true;
+        return array = array.filter((element) => element !== item);
     }
 };
