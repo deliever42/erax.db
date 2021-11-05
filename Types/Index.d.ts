@@ -50,6 +50,7 @@ declare module "erax.db" {
         public findAndDelete(callback: (element: All) => boolean, maxDeletedSize?: number): number;
         public reduce(callback: (a: All, b: All) => boolean): any[];
         public map(callback: (element: All) => boolean): any[];
+        public toJSON(): Schema;
     }
 
     export class YamlDatabase {
@@ -100,6 +101,7 @@ declare module "erax.db" {
         public findAndDelete(callback: (element: All) => boolean, maxDeletedSize?: number): number;
         public reduce(callback: (a: All, b: All) => boolean): any[];
         public map(callback: (element: All) => boolean): any[];
+        public toJSON(): Schema;
     }
 
     export class SqliteDatabase {
@@ -157,6 +159,7 @@ declare module "erax.db" {
         public findAndDelete(callback: (element: All) => boolean, maxDeletedSize?: number): number;
         public reduce(callback: (a: All, b: All) => boolean): any[];
         public map(callback: (element: All) => boolean): any[];
+        public toJSON(): Schema;
     }
 
     export class MongoDatabase extends EventEmitter {
@@ -212,6 +215,7 @@ declare module "erax.db" {
         public reduce(callback: (a: All, b: All) => boolean): Promise<any[]>;
         public map(callback: (element: All) => boolean): any[];
         public ready(...args: any): void;
+        public toJSON(): Promise<Schema>;
     }
 
     export class IniDatabase {
@@ -262,5 +266,6 @@ declare module "erax.db" {
         public findAndDelete(callback: (element: All) => boolean, maxDeletedSize?: number): number;
         public reduce(callback: (a: All, b: All) => boolean): any[];
         public map(callback: (element: All) => boolean): any[];
+        public toJSON(): Schema;
     }
 }

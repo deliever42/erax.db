@@ -597,4 +597,19 @@ module.exports = class JsonDatabase {
     reduce(callback) {
         return this.all().reduce(callback);
     }
+
+    /**
+     * 
+     * @example db.toJSON();
+     * @returns {{ [key: string]: any }}
+     */
+    toJSON() {
+        let obj = {};
+
+        this.all().forEach(data => {
+            obj[data.ID] = data.data;
+        });
+
+        return obj;
+    }
 };

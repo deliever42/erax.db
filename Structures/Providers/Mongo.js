@@ -126,14 +126,14 @@ module.exports = class MongoDatabase extends EventEmitter {
         let parseds = {};
 
         if (!data) {
-            set(json, key, value);
-            parseds.key = parseKey(key, this.sep);
+            set(json, key, value, this.sep);
+            parseds.key = parsedKey;
             parseds.value = json[parseds.key];
             await this.mongo.create({ key: parseds.key, value: parseds.value });
         } else {
-            set(json, parsedKey, parseds.value);
-            set(json, key, value);
-            parseds.key = parseKey(key, this.sep);
+            set(json, parsedKey, data.value, this.sep);
+            set(json, key, value, this.sep);
+            parseds.key = parsedKey;
             parseds.value = json[parseds.key];
             await this.mongo.updateOne({ key: parseds.key }, { value: parseds.value });
         }
@@ -180,7 +180,7 @@ module.exports = class MongoDatabase extends EventEmitter {
 
         let value = await data.get("value");
 
-        set(json, parsedKey, value);
+        set(json, parsedKey, value, this.sep);
         let parsedValue = get(json, key, this.sep);
         json = {};
         return parsedValue;
@@ -375,16 +375,16 @@ module.exports = class MongoDatabase extends EventEmitter {
     /**
      *
      * @example await db.info();
-     * @returns {Promise<{ Sürüm: number, DatabaseAdı: string, ToplamVeriSayısı: number, DatabaseTürü: "mongo" }>}
+     * @returns {Promise<{ Version: number, DatabaseName: string, DataSize: number, DatabaseType: "mongo" }>}
      */
     async info() {
         let p = require("../../package.json");
 
         return {
-            Sürüm: p.version,
-            DatabaseAdı: this.dbName,
-            ToplamVeriSayısı: await this.size(),
-            DatabaseTürü: "mongo"
+            Version: p.version,
+            DatabaseName: this.dbName,
+            DataSize: await this.size(),
+            DatabaseType: "mongo"
         };
     }
 
@@ -825,5 +825,25 @@ module.exports = class MongoDatabase extends EventEmitter {
             }
         });
         return deleted;
+    }
+
+    /**
+     * 
+     * @example db.toJSON();
+     * @returns {Promise<{ [key: string]: any }>}
+     */
+    async toJSON() {
+        let obj = {};
+
+        await this.mongo.find().then(async (data) => {
+            data.forEach(async (obj) => {
+                let key = await obj.key;
+                let value = await obj.value;
+
+                obj[key] = value;
+            });
+        });
+
+        return obj;
     }
 };

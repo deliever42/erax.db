@@ -152,7 +152,7 @@ module.exports = class SqliteDatabase {
 
         if (!data.key) {
             set(json, key, value, this.sep);
-            data.key = parseKey(key, this.sep);
+            data.key = parsedKey;
             data.value = json[data.key];
             this.sql
                 .prepare(`INSERT INTO ${this.tableName} (key, value) VALUES (?, ?)`)
@@ -160,7 +160,7 @@ module.exports = class SqliteDatabase {
         } else {
             set(json, parsedKey, JSON.parse(data.value), this.sep);
             set(json, key, value, this.sep);
-            data.key = parseKey(key, this.sep);
+            data.key = parsedKey;
             data.value = json[data.key];
 
             this.sql
@@ -794,5 +794,20 @@ module.exports = class SqliteDatabase {
      */
     reduce(callback) {
         return this.all().reduce(callback);
+    }
+
+    /**
+     * 
+     * @example db.toJSON();
+     * @returns {{ [key: string]: any }}
+     */
+    toJSON() {
+        let obj = {};
+
+        this.all().forEach(data => {
+            obj[data.ID] = data.data;
+        });
+
+        return obj;
     }
 };

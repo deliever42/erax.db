@@ -8,8 +8,8 @@
 # News
 
 ```npm
-- Fixed Bugs.
-- Added ready method for Mongo.
+- Fixed Errors.
+- Added toJSON Method.
 ```
 
 # Warn
