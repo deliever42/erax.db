@@ -8,8 +8,7 @@
 # News
 
 ```npm
-- Fixed Errors.
-- Added toJSON Method.
+- Fixed The delete Method in MongoDB.
 ```
 
 # Warn

@@ -232,7 +232,7 @@ module.exports = class MongoDatabase extends EventEmitter {
 
         let parsedValue = get(json, parsedKey, this.sep);
 
-        if (!parsedValue) await this.delete(parsedKey);
+        if (!parsedValue) await this.mongo.deleteOne({ key: parsedKey });
         else await this.set(parsedKey, parsedValue);
         
         json = {};
