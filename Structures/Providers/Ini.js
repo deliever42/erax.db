@@ -13,7 +13,6 @@ const {
     unset,
     pull
 } = require("../Utils/Util");
-const { red, gray, blue } = require("../Utils/ColorStyles");
 
 /**
  *
@@ -290,12 +289,7 @@ module.exports = class IniDatabase {
         let array = this.get(key);
 
         if (this.has(key) === false) return this.set(key, filteredValue);
-        if (this.arrayHas(key) === false)
-            return console.log(
-                `${blue("EraxDB")} => ${red("Error:")} ${gray(
-                    "The type of data you specify must be array!"
-                )}`
-            );
+        if (this.arrayHas(key) === false) array = [array];
 
         if (Array.isArray(value) && multiple === true) {
             value.forEach((item) => {
@@ -462,12 +456,7 @@ module.exports = class IniDatabase {
         let array = this.get(key);
 
         if (this.has(key) === false) return null;
-        if (this.arrayHas(key) === false)
-            return console.log(
-                `${blue("EraxDB")} => ${red("Error:")} ${gray(
-                    "The type of data you specify must be array!"
-                )}`
-            );
+        if (this.arrayHas(key) === false) array = [array];
 
         if (Array.isArray(value) && multiple === true) {
             value.forEach((item) => {
@@ -489,12 +478,7 @@ module.exports = class IniDatabase {
      */
     arrayHasValue(key, value) {
         if (this.has(key) === false) return null;
-        if (this.arrayHas(key) === false)
-            return console.log(
-                `${blue("EraxDB")} => ${red("Error:")} ${gray(
-                    "The type of data you specify must be array!"
-                )}`
-            );
+        if (this.arrayHas(key) === false) this.get(key) = [this.get(key)];
         if (this.get(key).indexOf(value) > -1) return true;
         return false;
     }

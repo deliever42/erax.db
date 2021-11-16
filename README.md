@@ -8,7 +8,7 @@
 # News
 
 ```npm
-- Fixed The delete Method in MongoDB.
+- Fixed MongoDB errors.
 ```
 
 # Warn

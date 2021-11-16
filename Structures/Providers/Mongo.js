@@ -13,7 +13,6 @@ const {
     unset,
     pull
 } = require("../Utils/Util");
-const { red, gray, blue } = require("../Utils/ColorStyles");
 const { EventEmitter } = require("events");
 
 /**
@@ -546,23 +545,18 @@ module.exports = class MongoDatabase extends EventEmitter {
      */
     async push(key, value, valueIgnoreIfPresent = false, multiple = false) {
         let filteredValue = Array.isArray(value) ? value : [value];
-        let array = this.get(key);
+        let array = await this.get(key);
 
         if ((await this.has(key)) === false) return await this.set(key, filteredValue);
-        if ((await this.arrayHas(key)) === false)
-            return console.log(
-                `${blue("EraxDB")} => ${red("Error:")} ${gray(
-                    "The type of data you specify must be array!"
-                )}`
-            );
+        if ((await this.arrayHas(key)) === false) array = [array];
 
         if (Array.isArray(value) && multiple === true) {
             value.forEach((item) => {
-                if (this.arrayHasValue(key, item) && valueIgnoreIfPresent === true) {
+                if (await this.arrayHasValue(key, item) && valueIgnoreIfPresent === true) {
                 } else array.push(item);
             });
         } else {
-            if (this.arrayHasValue(key, value) && valueIgnoreIfPresent === true) {
+            if (await this.arrayHasValue(key, value) && valueIgnoreIfPresent === true) {
             } else array.push(value);
         }
 
@@ -578,7 +572,7 @@ module.exports = class MongoDatabase extends EventEmitter {
     async arrayHas(key) {
         if (!key || key === "") throw new DatabaseError("Please specify a key.");
         let value = await this.get(key);
-        if (Array.isArray(await value)) return true;
+        if (Array.isArray(value)) return true;
         return false;
     }
 
@@ -592,14 +586,9 @@ module.exports = class MongoDatabase extends EventEmitter {
      */
     async arrayHasValue(key, value) {
         if ((await this.has(key)) === false) return null;
-        if ((await this.arrayHas(key)) === false)
-            return console.log(
-                `${blue("EraxDB")} => ${red("Error:")} ${gray(
-                    "The type of data you specify must be array!"
-                )}`
-            );
         let datavalue = await this.get(key);
-        if ((await datavalue.indexOf(value)) > -1) return true;
+        if ((await this.arrayHas(key)) === false) datavalue = [datavalue];
+        if ((datavalue.indexOf(value)) > -1) return true;
         return false;
     }
 
@@ -615,12 +604,7 @@ module.exports = class MongoDatabase extends EventEmitter {
         let array = await this.get(key);
 
         if ((await this.has(key)) === false) return null;
-        if ((await this.arrayHas(key)) === false)
-            return console.log(
-                `${blue("EraxDB")} => ${red("Error:")} ${gray(
-                    "The type of data you specify must be array!"
-                )}`
-            );
+        if ((await this.arrayHas(key)) === false) array = [array];
 
         if (Array.isArray(value) && multiple === true) {
             value.forEach((item) => {
