@@ -13,6 +13,7 @@ const {
     unset,
     pull
 } = require("../Utils/Util");
+const { red, gray, blue } = require("../Utils/ColorStyles");
 
 /**
  *
@@ -104,14 +105,14 @@ module.exports = class SqliteDatabase {
         let dbName = "";
         let dirNames = "";
 
-        for (let i = 0; i < dirs.length; i++) {
-            if (!dirs[i].endsWith(".db")) {
-                dirNames += `${dirs[i]}${sep}`;
+        for (let dir of dirs) {
+            if (!dir.endsWith(".db")) {
+                dirNames += `${dir}${sep}`;
                 if (!checkFile(`${processFolder}${sep}${dirNames}`)) {
                     mkdirSync(`${processFolder}${sep}${dirNames}`);
                 }
             } else {
-                dbName = `${dirs[i]}`;
+                dbName = `${dir}`;
             }
         }
 
@@ -511,15 +512,22 @@ module.exports = class SqliteDatabase {
         let array = this.get(key);
 
         if (this.has(key) === false) return this.set(key, filteredValue);
-        if (this.arrayHas(key) === false) array = [array];
+        if (this.arrayHas(key) === false)
+            return console.log(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
+                    "The type of data you specify must be array!"
+                )}`
+            );
 
         if (Array.isArray(value) && multiple === true) {
-            value.forEach((item) => {
-                if (this.arrayHasValue(key, item) && valueIgnoreIfPresent === true) {
+            for (let item of value) {
+                if (valueIgnoreIfPresent === true) {
+                    if (!this.arrayHasValue(key, item)) array.push(item);
                 } else array.push(item);
-            });
+            }
         } else {
-            if (this.arrayHasValue(key, value) && valueIgnoreIfPresent === true) {
+            if (valueIgnoreIfPresent === true) {
+                if (!this.arrayHasValue(key, value)) array.push(value);
             } else array.push(value);
         }
 
@@ -548,7 +556,12 @@ module.exports = class SqliteDatabase {
      */
     arrayHasValue(key, value) {
         if (this.has(key) === false) return null;
-        if (this.arrayHas(key) === false) this.get(key) = [this.get(key)];
+        if (this.arrayHas(key) === false)
+            return console.log(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
+                    "The value you specified is not in the array of the data you specified."
+                )}`
+            );
 
         let datavalue = this.get(key);
         if (datavalue.indexOf(value) > -1) return true;
@@ -567,7 +580,12 @@ module.exports = class SqliteDatabase {
         let array = this.get(key);
 
         if (this.has(key) === false) return null;
-        if (this.arrayHas(key) === false) array = [array];
+        if (this.arrayHas(key) === false)
+            return console.log(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
+                    "The type of data you specify must be array!"
+                )}`
+            );
 
         if (Array.isArray(value) && multiple === true) {
             value.forEach((item) => {
@@ -680,14 +698,14 @@ module.exports = class SqliteDatabase {
         let dbName = "";
         let dirNames = "";
 
-        for (let i = 0; i < dirs.length; i++) {
-            if (!dirs[i].endsWith(".json")) {
-                dirNames += `${dirs[i]}${sep}`;
+        for (let dir of dirs) {
+            if (!dir.endsWith(".json")) {
+                dirNames += `${dir}${sep}`;
                 if (!checkFile(`${processFolder}${sep}${dirNames}`)) {
                     mkdirSync(`${processFolder}${sep}${dirNames}`);
                 }
             } else {
-                dbName = `${dirs[i]}`;
+                dbName = `${dir}`;
 
                 if (!checkFile(`${processFolder}${sep}${dirNames}${dbName}`)) {
                     writeFileSync(`${processFolder}${sep}${dirNames}${dbName}`, "{}");
@@ -704,9 +722,10 @@ module.exports = class SqliteDatabase {
             let key = data.ID;
             let value = data.data;
 
-            set(json, key, value, this.sep);
-            write(dbPath, json);
+            json[key] = value;
         });
+
+        write(dbPath, json);
 
         json = {};
         return true;

@@ -13,6 +13,7 @@ const {
     unset,
     pull
 } = require("../Utils/Util");
+const { red, gray, blue } = require("../Utils/ColorStyles");
 const { EventEmitter } = require("events");
 
 /**
@@ -548,15 +549,22 @@ module.exports = class MongoDatabase extends EventEmitter {
         let array = await this.get(key);
 
         if ((await this.has(key)) === false) return await this.set(key, filteredValue);
-        if ((await this.arrayHas(key)) === false) array = [array];
+        if ((await this.arrayHas(key)) === false)
+            return console.log(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
+                    "The type of data you specify must be array!"
+                )}`
+            );
 
         if (Array.isArray(value) && multiple === true) {
-            value.forEach((item) => {
-                if (await this.arrayHasValue(key, item) && valueIgnoreIfPresent === true) {
+            for (let item of value) {
+                if (valueIgnoreIfPresent === true) {
+                    if (!await this.arrayHasValue(key, item)) array.push(item);
                 } else array.push(item);
-            });
+            }
         } else {
-            if (await this.arrayHasValue(key, value) && valueIgnoreIfPresent === true) {
+            if (valueIgnoreIfPresent === true) {
+                if (!await this.arrayHasValue(key, value)) array.push(value);
             } else array.push(value);
         }
 
@@ -572,7 +580,7 @@ module.exports = class MongoDatabase extends EventEmitter {
     async arrayHas(key) {
         if (!key || key === "") throw new DatabaseError("Please specify a key.");
         let value = await this.get(key);
-        if (Array.isArray(value)) return true;
+        if (Array.isArray(await value)) return true;
         return false;
     }
 
@@ -586,9 +594,14 @@ module.exports = class MongoDatabase extends EventEmitter {
      */
     async arrayHasValue(key, value) {
         if ((await this.has(key)) === false) return null;
+        if ((await this.arrayHas(key)) === false)
+            return console.log(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
+                    "The type of data you specify must be array!"
+                )}`
+            );
         let datavalue = await this.get(key);
-        if ((await this.arrayHas(key)) === false) datavalue = [datavalue];
-        if ((datavalue.indexOf(value)) > -1) return true;
+        if ((await datavalue.indexOf(value)) > -1) return true;
         return false;
     }
 
@@ -604,7 +617,12 @@ module.exports = class MongoDatabase extends EventEmitter {
         let array = await this.get(key);
 
         if ((await this.has(key)) === false) return null;
-        if ((await this.arrayHas(key)) === false) array = [array];
+        if ((await this.arrayHas(key)) === false)
+            return console.log(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
+                    "The type of data you specify must be array!"
+                )}`
+            );
 
         if (Array.isArray(value) && multiple === true) {
             value.forEach((item) => {
@@ -730,14 +748,14 @@ module.exports = class MongoDatabase extends EventEmitter {
         let dbName = "";
         let dirNames = "";
 
-        for (let i = 0; i < dirs.length; i++) {
-            if (!dirs[i].endsWith(".json")) {
-                dirNames += `${dirs[i]}${sep}`;
+        for (let dir of dirs) {
+            if (!dir.endsWith(".json")) {
+                dirNames += `${dir}${sep}`;
                 if (!checkFile(`${processFolder}${sep}${dirNames}`)) {
                     mkdirSync(`${processFolder}${sep}${dirNames}`);
                 }
             } else {
-                dbName = `${dirs[i]}`;
+                dbName = `${dir}`;
 
                 if (!checkFile(`${processFolder}${sep}${dirNames}${dbName}`)) {
                     writeFileSync(`${processFolder}${sep}${dirNames}${dbName}`, "{}");
@@ -754,10 +772,11 @@ module.exports = class MongoDatabase extends EventEmitter {
                 let key = await obj.key;
                 let value = await obj.value;
 
-                set(json, key, value, this.sep);
-                write(dbPath, json);
+                json[key] = value;
             });
         });
+
+        write(dbPath, json);
 
         json = {};
         return true;
@@ -813,7 +832,7 @@ module.exports = class MongoDatabase extends EventEmitter {
 
     /**
      * 
-     * @example db.toJSON();
+     * @example await db.toJSON();
      * @returns {Promise<{ [key: string]: any }>}
      */
     async toJSON() {

@@ -13,6 +13,7 @@ const {
     unset,
     pull
 } = require("../Utils/Util");
+const { red, gray, blue } = require("../Utils/ColorStyles");
 
 /**
  *
@@ -79,14 +80,14 @@ module.exports = class IniDatabase {
         let dbName = "";
         let dirNames = "";
 
-        for (let i = 0; i < dirs.length; i++) {
-            if (!dirs[i].endsWith(".ini")) {
-                dirNames += `${dirs[i]}${sep}`;
+        for (let dir of dirs) {
+            if (!dir.endsWith(".ini")) {
+                dirNames += `${dir}${sep}`;
                 if (!checkFile(`${processFolder}${sep}${dirNames}`)) {
                     mkdirSync(`${processFolder}${sep}${dirNames}`);
                 }
             } else {
-                dbName = `${dirs[i]}`;
+                dbName = `${dir}`;
 
                 if (!checkFile(`${processFolder}${sep}${dirNames}${dbName}`)) {
                     writeFileSync(`${processFolder}${sep}${dirNames}${dbName}`, "");
@@ -289,15 +290,22 @@ module.exports = class IniDatabase {
         let array = this.get(key);
 
         if (this.has(key) === false) return this.set(key, filteredValue);
-        if (this.arrayHas(key) === false) array = [array];
+        if (this.arrayHas(key) === false)
+            return console.log(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
+                    "The type of data you specify must be array!"
+                )}`
+            );
 
         if (Array.isArray(value) && multiple === true) {
-            value.forEach((item) => {
-                if (this.arrayHasValue(key, item) && valueIgnoreIfPresent === true) {
+            for (let item of value) {
+                if (valueIgnoreIfPresent === true) {
+                    if (!this.arrayHasValue(key, item)) array.push(item);
                 } else array.push(item);
-            });
+            }
         } else {
-            if (this.arrayHasValue(key, value) && valueIgnoreIfPresent === true) {
+            if (valueIgnoreIfPresent === true) {
+                if (!this.arrayHasValue(key, value)) array.push(value);
             } else array.push(value);
         }
 
@@ -456,7 +464,12 @@ module.exports = class IniDatabase {
         let array = this.get(key);
 
         if (this.has(key) === false) return null;
-        if (this.arrayHas(key) === false) array = [array];
+        if (this.arrayHas(key) === false)
+            return console.log(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
+                    "The type of data you specify must be array!"
+                )}`
+            );
 
         if (Array.isArray(value) && multiple === true) {
             value.forEach((item) => {
@@ -478,7 +491,12 @@ module.exports = class IniDatabase {
      */
     arrayHasValue(key, value) {
         if (this.has(key) === false) return null;
-        if (this.arrayHas(key) === false) this.get(key) = [this.get(key)];
+        if (this.arrayHas(key) === false)
+            return console.log(
+                `${blue("EraxDB")} => ${red("Error:")} ${gray(
+                    "The type of data you specify must be array!"
+                )}`
+            );
         if (this.get(key).indexOf(value) > -1) return true;
         return false;
     }

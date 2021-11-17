@@ -8,7 +8,7 @@
 # News
 
 ```npm
-- Fixed MongoDB errors.
+- Fixed push method.
 ```
 
 # Warn
