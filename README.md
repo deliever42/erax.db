@@ -8,7 +8,7 @@
 # News
 
 ```npm
-- Fixed push method.
+- Fixed all errors.
 ```
 
 # Warn

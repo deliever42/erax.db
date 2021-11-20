@@ -74,7 +74,7 @@ module.exports = class Util {
      * @returns {boolean}
      */
     static isNumber(value) {
-        return +value !== +value;
+        return +value === +value;
     }
 
     /**
