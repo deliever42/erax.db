@@ -79,6 +79,15 @@ module.exports = class Util {
 
     /**
      *
+     * @param {any} value
+     * @returns {boolean}
+     */
+    static isObject(value) {
+        return Array.isArray(value) ? false : typeof value === "object";
+    }
+
+    /**
+     *
      * @param {string} path
      * @param {{ [key: string]: any }} data
      * @returns {void}
@@ -208,6 +217,6 @@ module.exports = class Util {
      * @returns {void}
      */
     static pull(array, item) {
-        return array = array.filter((element) => element !== item);
+        return (array = array.filter((element) => element !== item));
     }
 };

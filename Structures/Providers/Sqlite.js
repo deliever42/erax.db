@@ -64,7 +64,7 @@ module.exports = class SqliteDatabase {
                     options.tableName === undefined ||
                     options.tableName === ""))
         )
-            tableName = "EraxDB";
+            tableName = "Erax_SQLITEDB";
         else if (options && options.tableName) tableName = options.tableName;
 
         if (!isString(tableName)) throw new DatabaseError("Table name must be string!");
@@ -800,14 +800,14 @@ module.exports = class SqliteDatabase {
     }
 
     /**
-     * 
+     *
      * @example db.toJSON();
      * @returns {{ [key: string]: any }}
      */
     toJSON() {
         let obj = {};
 
-        this.all().forEach(data => {
+        this.all().forEach((data) => {
             obj[data.ID] = data.data;
         });
 

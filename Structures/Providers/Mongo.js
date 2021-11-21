@@ -6,6 +6,7 @@ const {
     checkFile,
     isString,
     isNumber,
+    isObject,
     write,
     read,
     set,
@@ -31,14 +32,14 @@ module.exports = class MongoDatabase extends EventEmitter {
     /**
      *
      * @constructor
-     * @param {{ mongoURL: string, seperator?: string }} options
+     * @param {{ mongoURL: string, seperator?: string, modelName?: string, mongoOptions: object }} options
      */
     constructor(options) {
         super();
-        let mongoose;
+        this.mongoose;
 
         try {
-            mongoose = require("mongoose");
+            this.mongoose = require("mongoose");
         } catch {
             throw new DatabaseError("Please install module mongoose (npm install mongoose)");
         }
@@ -66,31 +67,48 @@ module.exports = class MongoDatabase extends EventEmitter {
 
         if (!isString(seperator)) throw new DatabaseError("Seperator must be string!");
 
+        let modelName;
+        if (
+            !options ||
+            (options &&
+                (options.modelName === null ||
+                    options.modelName === undefined ||
+                    options.modelName === ""))
+        )
+            modelName = "Erax_MONGODB";
+        else if (options && options.modelName) modelName = options.modelName;
+
+        if (!isString(modelName)) throw new DatabaseError("Model Name must be string!");
+
+        let mongoOptions;
+        if (
+            !options ||
+            (options &&
+                (options.mongoOptions === null ||
+                    options.mongoOptions === undefined ||
+                    options.mongoOptions === ""))
+        )
+            mongoOptions = {};
+        else if (options && options.mongoOptions) mongoOptions = options.mongoOptions;
+
+        if (!isObject(mongoOptions)) throw new DatabaseError("Mongo Options must be object!");
+
         if (!options.mongoURL.match(/^mongodb([a-z+]{0,15})?.+/g))
             throw new DatabaseError("Invalid MongoDB URL!");
 
         this.url = options.mongoURL;
         this.dbName = this.url.split("mongodb.net/").pop().split("?")[0];
         this.sep = seperator;
+        this.mongo = require("../Mongo/Schema")(modelName);
+        this.mongoOptions = mongoOptions;
 
-        mongoose.connect(this.url).then(() => {
+        this.connection = this.mongoose.createConnection(this.url, {
+            ...mongoOptions
+        });
+
+        this.connection.on("open", () => {
             this.emit("ready", "Connected to MongoDB!");
         });
-
-        const Schema = new mongoose.Schema({
-            key: {
-                type: mongoose.Schema.Types.String,
-                unique: true,
-                required: true
-            },
-            value: {
-                type: mongoose.Schema.Types.Mixed,
-                unique: true,
-                required: true
-            }
-        });
-
-        this.mongo = mongoose.models.EraxDB || mongoose.model("EraxDB", Schema);
 
         if (!MongoDatabase.DBCollection.includes(this.dbName)) {
             MongoDatabase.DBCollection.push(this.dbName);
@@ -98,13 +116,13 @@ module.exports = class MongoDatabase extends EventEmitter {
     }
 
     /**
-     * @param  {any} args 
+     * @param  {any} args
      * @example db.ready(() => console.log("Connected to MongoDB!"))
      * @returns {void}
      */
     ready(...args) {
         return this.on("ready", ...args);
-    };
+    }
 
     /**
      *
@@ -234,7 +252,7 @@ module.exports = class MongoDatabase extends EventEmitter {
 
         if (!parsedValue) await this.mongo.deleteOne({ key: parsedKey });
         else await this.set(parsedKey, parsedValue);
-        
+
         json = {};
 
         return true;
@@ -559,12 +577,12 @@ module.exports = class MongoDatabase extends EventEmitter {
         if (Array.isArray(value) && multiple === true) {
             for (let item of value) {
                 if (valueIgnoreIfPresent === true) {
-                    if (!await this.arrayHasValue(key, item)) array.push(item);
+                    if (!(await this.arrayHasValue(key, item))) array.push(item);
                 } else array.push(item);
             }
         } else {
             if (valueIgnoreIfPresent === true) {
-                if (!await this.arrayHasValue(key, value)) array.push(value);
+                if (!(await this.arrayHasValue(key, value))) array.push(value);
             } else array.push(value);
         }
 
@@ -831,7 +849,7 @@ module.exports = class MongoDatabase extends EventEmitter {
     }
 
     /**
-     * 
+     *
      * @example await db.toJSON();
      * @returns {Promise<{ [key: string]: any }>}
      */
@@ -848,5 +866,55 @@ module.exports = class MongoDatabase extends EventEmitter {
         });
 
         return obj;
+    }
+
+    /**
+     *
+     * @returns {"CONNECTING" | "CONNECTED" | "DISCONNECTING" | "DISCONNECTED"}
+     */
+    get state() {
+        if (!this.connection || typeof this.connection.readyState !== "number")
+            return "DISCONNECTED";
+        switch (this.connection.readyState) {
+            case 0:
+                return "DISCONNECTED";
+            case 1:
+                return "CONNECTED";
+            case 2:
+                return "CONNECTING";
+            case 3:
+                return "DISCONNECTING";
+        }
+    }
+
+    /**
+     *
+     * @returns {Promise<void>}
+     */
+    get disconnect() {
+        return this.connection.close(true);
+    }
+
+    /**
+     *
+     * @returns {void}
+     */
+    get connect() {
+        this.connection = this.mongoose.createConnection(this.url, {
+            ...this.mongoOptions
+        });
+
+        this.connection.on("open", () => {
+            this.emit("ready", "Connected to MongoDB!");
+        });
+        return;
+    }
+
+    /**
+     *
+     * @returns {string}
+     */
+    get getURL() {
+        return this.url;
     }
 };

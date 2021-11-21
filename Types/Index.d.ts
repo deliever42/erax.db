@@ -1,10 +1,11 @@
 import { Operators, Schema, Info, All, DataTypes } from "./Types";
 import { EventEmitter } from "events";
+import { Connection, Model } from "mongoose";
 
 declare module "erax.db" {
     export class JsonDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { databasePath?: string, seperator?: string });
+        public constructor(options?: { databasePath?: string; seperator?: string });
         private dbPath: string;
         private dbName: string;
         private sep: string;
@@ -55,7 +56,7 @@ declare module "erax.db" {
 
     export class YamlDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { databasePath?: string, seperator?: string });
+        public constructor(options?: { databasePath?: string; seperator?: string });
         private dbPath: string;
         private dbName: string;
         private readonly data: Schema;
@@ -107,9 +108,9 @@ declare module "erax.db" {
     export class SqliteDatabase {
         public static DBCollection: string[];
         public constructor(options?: {
-            databasePath?: string,
-            tableName?: string,
-            seperator?: string
+            databasePath?: string;
+            tableName?: string;
+            seperator?: string;
         });
         private dbPath: string;
         private dbName: string;
@@ -164,11 +165,19 @@ declare module "erax.db" {
 
     export class MongoDatabase extends EventEmitter {
         public static DBCollection: string[];
-        public constructor(options: { mongoURL: string, seperator?: string });
+        public constructor(options: {
+            mongoURL: string;
+            seperator?: string;
+            modelName?: string;
+            mongoOptions: object;
+        });
         private dbName: string;
-        private mongo: any;
+        private mongo: Model<any, {}>;
         private sep: string;
+        private mongoOptions: object;
         private url: string;
+        private mongoose: unknown | NodeRequire;
+        private connection: Connection;
         public set(key: string, value: any): Promise<any>;
         public fetch(key: string): Promise<any>;
         public get(key: string): Promise<any>;
@@ -216,11 +225,15 @@ declare module "erax.db" {
         public map(callback: (element: All) => boolean): any[];
         public ready(...args: any): void;
         public toJSON(): Promise<Schema>;
+        public get state(): "CONNECTING" | "CONNECTED" | "DISCONNECTING" | "DISCONNECTED";
+        public get disconnect(): Promise<void>;
+        public get connect(): void;
+        public get getURL(): string;
     }
 
     export class IniDatabase {
         public static DBCollection: string[];
-        public constructor(options?: { databasePath?: string, seperator?: string });
+        public constructor(options?: { databasePath?: string; seperator?: string });
         private dbPath: string;
         private dbName: string;
         private sep: string;

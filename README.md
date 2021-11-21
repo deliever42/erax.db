@@ -5,10 +5,12 @@
 
 ![Image](https://nodei.co/npm/erax.db.png?downloads=true&downloadRank=true&stars=true)
 
-# News
+# Change Log
 
 ```npm
-- Fixed all errors.
+- Fixed MongoDB Duplicate key error.
+- Added modelName and mongoOptions options to MongoDB.
+- Added state, getURL, disconnect and connect methods to MongoDB.
 ```
 
 # Warn
@@ -18,6 +20,7 @@
 ```
 
 # Documentation
+
 <a href="https://eraxdb.js.org/documentation/">Go!</a>
 
 #### You can reach Emirhan77#0001 on Discord to report a bug or error.

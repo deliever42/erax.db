@@ -1,6 +1,6 @@
 {
   "name": "erax.db",
-  "version": "3.1.0",
+  "version": "3.1.5",
   "description": "Advanced JSON, Yaml, Sqlite, Ini and Mongo Database Module.",
   "main": "Structures/Index.js",
   "types": "Types/Index.d.ts",
@@ -16,6 +16,7 @@
     "fast",
     "quick",
     "database",
+    "storing",
     "db",
     "storage",
     "json",
@@ -28,7 +29,8 @@
     "easy",
     "storing",
     "values",
-    "ini"
+    "ini",
+    "discord.js"
   ],
   "author": "emirhanbaltas34",
   "license": "Apache-2.0",
