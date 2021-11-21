@@ -32,7 +32,7 @@ module.exports = class MongoDatabase extends EventEmitter {
     /**
      *
      * @constructor
-     * @param {{ mongoURL: string, seperator?: string, modelName?: string, mongoOptions: object }} options
+     * @param {{ mongoURL: string, seperator?: string, modelName?: string, mongoOptions?: object }} options
      */
     constructor(options) {
         super();

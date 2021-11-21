@@ -169,7 +169,7 @@ declare module "erax.db" {
             mongoURL: string;
             seperator?: string;
             modelName?: string;
-            mongoOptions: object;
+            mongoOptions?: object;
         });
         private dbName: string;
         private mongo: Model<any, {}>;
