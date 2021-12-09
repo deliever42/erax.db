@@ -8,9 +8,7 @@
 # Change Log
 
 ```npm
-- Fixed MongoDB Duplicate key error.
-- Added modelName and mongoOptions options to MongoDB.
-- Added state, getURL, disconnect and connect methods to MongoDB.
+- Fixed All MongoDB Errors.
 ```
 
 # Warn

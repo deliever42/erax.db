@@ -99,12 +99,13 @@ module.exports = class MongoDatabase extends EventEmitter {
         this.url = options.mongoURL;
         this.dbName = this.url.split("mongodb.net/").pop().split("?")[0];
         this.sep = seperator;
-        this.mongo = require("../Mongo/Schema")(modelName);
         this.mongoOptions = mongoOptions;
 
         this.connection = this.mongoose.createConnection(this.url, {
             ...mongoOptions
         });
+
+        this.mongo = require("../Mongo/Schema")(this.connection, modelName);
 
         this.connection.on("open", () => {
             this.emit("ready", "Connected to MongoDB!");

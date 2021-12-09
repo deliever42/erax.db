@@ -1,4 +1,4 @@
-const { Schema, model, Model } = require("mongoose");
+const { Schema, model, Model, Connection } = require("mongoose");
 
 const schema = new Schema({
     key: {
@@ -14,9 +14,9 @@ const schema = new Schema({
 
 /**
  *
+ * @param {Connection} connection
  * @param {string} modelName
- * @typedef {Model<any, {}>}
  */
-module.exports = (modelName) => {
-    return model(modelName, schema);
+module.exports = (connection, modelName) => {
+    return connection.model(modelName, schema);
 };
