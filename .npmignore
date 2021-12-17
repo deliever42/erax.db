@@ -1,3 +1,8 @@
 .prettierrc
 .eslintrc.json
 .npmrc
+.mocharc.json
+package-lock.json
+babel.config.json
+test/
+node_modules/
