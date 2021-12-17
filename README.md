@@ -8,13 +8,15 @@
 # Change Log
 
 ```npm
-- Fixed All MongoDB Errors.
+- Added sort method.
+- Fixed pull method.
+- Removed ini database system.
 ```
 
 # Warn
 
 ```npm
-- Node.JS version must be greater than 12.
+- Node.JS version must be 16 or greater.
 ```
 
 # Documentation
