@@ -817,10 +817,10 @@ module.exports = class SqliteDatabase {
     /**
      *
      * @param {(a: { ID: string, data: any }, b: { ID: string, data: any }) => any} callback
-     * @example db.short((a, b) => b.data - a.data);
+     * @example db.sort((a, b) => b.data - a.data);
      * @returns {any}
      */
-    short(callback) {
-        return this.all().short(callback);
+    sort(callback) {
+        return this.all().sort(callback)
     }
 };

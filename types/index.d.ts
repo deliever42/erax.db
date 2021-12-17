@@ -52,7 +52,7 @@ declare module 'erax.db' {
         public reduce(callback: (a: All, b: All) => any): any[];
         public map(callback: (element: All) => any): any[];
         public toJSON(): Schema;
-        public short(callback: (a: All, b: All) => any): any;
+        public sort(callback: (a: All, b: All) => any): any;
     }
 
     export class YamlDatabase {
@@ -104,7 +104,7 @@ declare module 'erax.db' {
         public reduce(callback: (a: All, b: All) => any): any[];
         public map(callback: (element: All) => any): any[];
         public toJSON(): Schema;
-        public short(callback: (a: All, b: All) => any): any;
+        public sort(callback: (a: All, b: All) => any): any;
     }
 
     export class SqliteDatabase {
@@ -163,7 +163,7 @@ declare module 'erax.db' {
         public reduce(callback: (a: All, b: All) => any): any[];
         public map(callback: (element: All) => any): any[];
         public toJSON(): Schema;
-        public short(callback: (a: All, b: All) => any): any;
+        public sort(callback: (a: All, b: All) => any): any;
     }
 
     export class MongoDatabase extends EventEmitter {
@@ -232,6 +232,6 @@ declare module 'erax.db' {
         public get disconnect(): Promise<void>;
         public get connect(): void;
         public get getURL(): string;
-        public short(callback: (a: All, b: All) => any): Promise<any>;
+        public sort(callback: (a: All, b: All) => any): Promise<any>;
     }
 }

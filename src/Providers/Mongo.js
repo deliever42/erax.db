@@ -833,11 +833,11 @@ module.exports = class MongoDatabase extends EventEmitter {
     /**
      *
      * @param {(a: { ID: string, data: any }, b: { ID: string, data: any }) => any} callback
-     * @example db.short((a, b) => b.data - a.data);
+     * @example await db.sort((a, b) => b.data - a.data);
      * @returns {Promise<any>}
      */
-    async short(callback) {
+    async sort(callback) {
         const all = await this.all();
-        return all.short(callback);
+        return all.sort(callback);
     }
 };
