@@ -10,61 +10,61 @@ describe('JsonDatabase', () => {
     db.deleteAll();
 
     it('set', () => {
-        assert.deepStrictEqual(db.set('test$prop', 'EraxDB'), 'EraxDB');
+        assert.equal(db.set('test$prop', 'EraxDB'), 'EraxDB');
     });
 
     it('get', () => {
-        assert.deepStrictEqual(db.get('test$prop'), 'EraxDB');
+        assert.equal(db.get('test$prop'), 'EraxDB');
     });
 
     it('type', () => {
-        assert.deepStrictEqual(db.type('test'), 'object');
+        assert.equal(db.type('test'), 'object');
     });
 
     it('has', () => {
-        assert.deepStrictEqual(db.has('test$prop'), true);
+        assert.equal(db.has('test$prop'), true);
     });
 
     it('all', () => {
-        assert.deepStrictEqual(db.all(), [{ ID: 'test', data: { prop: 'EraxDB' } }]);
+        assert.equal(db.all(), [{ ID: 'test', data: { prop: 'EraxDB' } }]);
     });
 
     it('push', () => {
         db.push('array', ['EraxDB', '??', 'Database'], false, true);
-        assert.deepStrictEqual(db.push('array', 'Hello'), ['EraxDB', '??', 'Database', 'Hello']);
+        assert.equal(db.push('array', 'Hello'), ['EraxDB', '??', 'Database', 'Hello']);
     });
 
     it('pull', () => {
-        assert.deepStrictEqual(db.pull('array', ['??', 'Hello'], true), ['EraxDB', 'Database']);
+        assert.equal(db.pull('array', ['??', 'Hello'], true), ['EraxDB', 'Database']);
     });
 
     it('math', () => {
         db.set('math', 34);
-        assert.deepStrictEqual(db.math('math', '*', 2), 68);
+        assert.equal(db.math('math', '*', 2), 68);
     });
 
     it('keyArray', () => {
-        assert.deepStrictEqual(db.keyArray(), ['test', 'array', 'math']);
+        assert.equal(db.keyArray(), ['test', 'array', 'math']);
     });
 
     it('valueArray', () => {
-        assert.deepStrictEqual(db.valueArray(), [{ prop: 'EraxDB' }, ['EraxDB', 'Database'], 68]);
+        assert.equal(db.valueArray(), [{ prop: 'EraxDB' }, ['EraxDB', 'Database'], 68]);
     });
 
     it('startsWith', () => {
-        assert.deepStrictEqual(db.startsWith('test'), [{ ID: 'test', data: { prop: 'EraxDB' } }]);
+        assert.equal(db.startsWith('test'), [{ ID: 'test', data: { prop: 'EraxDB' } }]);
     });
 
     it('arrayHas', () => {
-        assert.deepStrictEqual(db.arrayHas('array'), true);
+        assert.equal(db.arrayHas('array'), true);
     });
 
     it('arrayHasValue', () => {
-        assert.deepStrictEqual(db.arrayHasValue('array', 'EraxDB'), true);
+        assert.equal(db.arrayHasValue('array', 'EraxDB'), true);
     });
 
     it('toJSON', () => {
-        assert.deepStrictEqual(db.toJSON(), {
+        assert.equal(db.toJSON(), {
             test: {
                 prop: 'EraxDB'
             },
