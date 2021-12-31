@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!-- Icon -->
+        <link rel="icon" href="images/favicon.ico" />
+
+        <!-- Title -->
+        <title>Erax.DB</title>
+
+        <!-- Meta -->
+        <meta name="description" content="Advanced Database Module." />
+        <meta name="robots" content="index, fallow" />
+        <meta name="content-language" content="en" />
+        <meta
+            property="keywords"
+            content="emirhan77, emirhan, emirhan7544, emirhanbaltas34, erax.db, eraxdb, quick.db, quickdb, wiodb, wio.db, mongodb, mongoose, mongo, sql, nosql, sqlite, sqlite3, sql3, better-sqlite3, lodash, database"
+        />
+        <meta name="author" content="Emirhan77" />
+
+        <!-- OG Meta -->
+        <meta property="og:title" content="Erax.DB" />
+        <meta property="og:description" content="Advanced Database Module." />
+        <meta property="og:image" content="images/header.png" />
+        <meta property="og:type" content="website" />
+
+        <!-- Twitter Meta -->
+        <meta name="twitter:title" content="Erax.DB" />
+        <meta name="twitter:description" content="Advanced Database Module." />
+        <meta name="twitter:image" content="images/header.png" />
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="../css/style.css" />
+        <link rel="stylesheet" href="../css/font.css" />
+        <link rel="stylesheet" href="../css/bootstrap.min.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css"
+        />
+        <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+    </head>
+
+    <!-- Navbar -->
+    <nav
+        class="navbar navbar-expand-lg navbar-dark"
+        style="font-family: Nunito; background-color: #4752c4"
+    >
+        <div class="container-fluid">
+            <a
+                class="navbar-brand"
+                href="../"
+                style="padding: 4px; background-color: #3c45a5; border-radius: 10px"
+                >EraxDB</a
+            >
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbar"
+                aria-controls="navbar"
+                aria-expanded="false"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../"
+                            >Main Page <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            target="_blank"
+                            href="https://github.com/emirhanbaltas34/erax.db/"
+                            >GitHub <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" target="_blank" href="https://npmjs.com/package/erax.db"
+                            >NPM <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex" style="margin-right: 100px">
+                    <font color=" #fff">
+                        <input
+                            type="search"
+                            on
+                            class="form-control"
+                            id="searchQuery"
+                            placeholder="Search"
+                            oninput="search()"
+                        />
+                        <ul id="searchMenu" class="dropdown-menu" style="display: none">
+                            <div id="searchResults"></div>
+                        </ul>
+                    </font>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SITE -->
+    <body style="background-color: #2b2c2c">
+        <div class="container" style="font-family: Nunito; color: #fff">
+            <!-- DROPDOWNS -->
+
+            <!-- Classes -->
+            <div style="padding: 5px">
+                <button
+                    class="btn btn-secondary"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style="background-color: #4752c4; border: none"
+                >
+                    Classes <i class="bi small bi-caret-down-fill"></i>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="Classes/JsonDatabase/"
+                            class="dropdown-item"
+                            >JsonDatabase</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="Classes/YamlDatabase/"
+                            class="dropdown-item"
+                            >YamlDatabase</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="Classes/SqliteDatabase/"
+                            class="dropdown-item"
+                            >SqliteDatabase</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="Classes/MongoDatabase/"
+                            class="dropdown-item"
+                            >MongoDatabase</a
+                        >
+                    </li>
+                </ul>
+
+                <!-- TypeDefs -->
+                <button
+                    class="btn btn-secondary"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style="background-color: #4752c4; border: none"
+                >
+                    TypeDefs <i class="bi small bi-caret-down-fill"></i>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="TypeDefs/JsonDatabaseOptions/"
+                            class="dropdown-item"
+                            >JsonDatabaseOptions</a
+                        >
+                    </li>
+
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="TypeDefs/YamlDatabaseOptions/"
+                            class="dropdown-item"
+                            >YamlDatabaseOptions</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="TypeDefs/SqliteDatabaseOptions/"
+                            class="dropdown-item"
+                            >SqliteDatabaseOptions</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="TypeDefs/MongoDatabaseOptions/"
+                            class="dropdown-item"
+                            >MongoDatabaseOptions</a
+                        >
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Install Module -->
+            <h1>Install Module</h1>
+            <deckgo-highlight-code language="javascript">
+                <code slot="code"> npm install erax.db </code>
+            </deckgo-highlight-code>
+
+            <!-- Install SQLite -->
+            <h1>If you're going to use sqlite, install module better-sqlite3</h1>
+            <deckgo-highlight-code language="javascript">
+                <code slot="code"> npm install better-sqlite3 </code>
+            </deckgo-highlight-code>
+
+            <!-- Install Mongoose -->
+            <h1>If you're going to use mongo, install module mongoose</h1>
+            <deckgo-highlight-code language="javascript">
+                <code slot="code"> npm install mongoose </code>
+            </deckgo-highlight-code>
+
+            <!-- Footer -->
+            <center>
+                <p class="foo">
+                    2022 Copyright © Erax.DB Guide Using ♥
+                    <a href="https://protonio.js.org" class="noDec">Venosa Studio(Proton-io)</a>
+                </p>
+            </center>
+        </div>
+    </body>
+
+    <!-- Scripts -->
+    <script src="../scripts/jquery.min.js"></script>
+    <script src="../scripts/popper.min.js"></script>
+    <script src="../scripts/bootstrap.min.js"></script>
+    <script src="../scripts/Script.js"></script>
+    <script
+        type="module"
+        src="https://unpkg.com/@deckdeckgo/highlight-code@latest/dist/deckdeckgo-highlight-code/deckdeckgo-highlight-code.esm.js"
+    ></script>
+</html>

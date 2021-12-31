@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!-- Icon -->
+        <link rel="icon" href="images/favicon.ico" />
+
+        <!-- Title -->
+        <title>Erax.DB</title>
+
+        <!-- Meta -->
+        <meta name="description" content="Advanced Database Module." />
+        <meta name="robots" content="index, fallow" />
+        <meta name="content-language" content="en" />
+        <meta
+            property="keywords"
+            content="emirhan77, emirhan, emirhan7544, emirhanbaltas34, erax.db, eraxdb, quick.db, quickdb, wiodb, wio.db, mongodb, mongoose, mongo, sql, nosql, sqlite, sqlite3, sql3, better-sqlite3, lodash, database"
+        />
+        <meta name="author" content="Emirhan77" />
+
+        <!-- OG Meta -->
+        <meta property="og:title" content="Erax.DB" />
+        <meta property="og:description" content="Advanced Database Module." />
+        <meta property="og:image" content="images/header.png" />
+        <meta property="og:type" content="website" />
+
+        <!-- Twitter Meta -->
+        <meta name="twitter:title" content="Erax.DB" />
+        <meta name="twitter:description" content="Advanced Database Module." />
+        <meta name="twitter:image" content="images/header.png" />
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="../../../css/style.css" />
+        <link rel="stylesheet" href="../../../css/font.css" />
+        <link rel="stylesheet" href="../../../css/bootstrap.min.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css"
+        />
+        <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+    </head>
+
+    <!-- Navbar -->
+    <nav
+        class="navbar navbar-expand-lg navbar-dark"
+        style="font-family: Nunito; background-color: #4752c4"
+    >
+        <div class="container-fluid">
+            <a
+                class="navbar-brand"
+                href="../../../"
+                style="padding: 4px; background-color: #3c45a5; border-radius: 10px"
+                >EraxDB</a
+            >
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbar"
+                aria-controls="navbar"
+                aria-expanded="false"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../"
+                            >Main Page <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            target="_blank"
+                            href="https://github.com/emirhanbaltas34/erax.db/"
+                            >GitHub <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" target="_blank" href="https://npmjs.com/package/erax.db"
+                            >NPM <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../"
+                            >Getting Started <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex" style="margin-right: 100px">
+                    <font color=" #fff">
+                        <input
+                            type="search"
+                            on
+                            class="form-control"
+                            id="searchQuery"
+                            placeholder="Search"
+                            oninput="searchInDoc()"
+                        />
+                        <ul id="searchMenu" class="dropdown-menu" style="display: none">
+                            <div id="searchResults"></div>
+                        </ul>
+                    </font>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SITE -->
+    <body style="background-color: #2b2c2c">
+        <div class="container" style="font-family: Nunito; color: #fff">
+            <!-- DROPDOWNS -->
+
+            <!-- Classes -->
+            <div style="padding: 5px">
+                <button
+                    class="btn btn-secondary"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style="background-color: #4752c4; border: none"
+                >
+                    Classes <i class="bi small bi-caret-down-fill"></i>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="../JsonDatabase/"
+                            class="dropdown-item"
+                            >JsonDatabase</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="../YamlDatabase/"
+                            class="dropdown-item"
+                            >YamlDatabase</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="../SqliteDatabase/"
+                            class="dropdown-item"
+                            >SqliteDatabase</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="../MongoDatabase/"
+                            class="dropdown-item"
+                            >MongoDatabase</a
+                        >
+                    </li>
+                </ul>
+
+                <!-- TypeDefs -->
+                <button
+                    class="btn btn-secondary"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style="background-color: #4752c4; border: none"
+                >
+                    TypeDefs <i class="bi small bi-caret-down-fill"></i>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="../../TypeDefs/JsonDatabaseOptions/"
+                            class="dropdown-item"
+                            >JsonDatabaseOptions</a
+                        >
+                    </li>
+
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="../../TypeDefs/YamlDatabaseOptions/"
+                            class="dropdown-item"
+                            >YamlDatabaseOptions</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="../../TypeDefs/SqliteDatabaseOptions/"
+                            class="dropdown-item"
+                            >SqliteDatabaseOptions</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            class="dropdown-item"
+                            type="button"
+                            href="../../TypeDefs/MongoDatabaseOptions/"
+                            class="dropdown-item"
+                            >MongoDatabaseOptions</a
+                        >
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Class  -->
+            <h1>SqliteDatabase</h1>
+            <deckgo-highlight-code language="javascript">
+                <code slot="code"> new EraxDB.SqliteDatabase(options); </code>
+            </deckgo-highlight-code>
+
+            <h1>Database Collection</h1>
+            <deckgo-highlight-code language="javascript">
+                <code slot="code">
+                    console.log(EraxDB.SqliteDatabase.DBCollection) // string[]
+                </code>
+            </deckgo-highlight-code>
+
+            <!-- DESCRIPTION -->
+            <table class="table table-dark">
+                <thead>
+                    <tr align="center">
+                        <th>PARAMETER</th>
+                        <th>TYPE</th>
+                        <th>OPTIONAL</th>
+                        <th>DEFAULT</th>
+                        <th>DESCRIPTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr align="center">
+                        <td>options</td>
+                        <td>
+                            <a href="../../TypeDefs/SqliteDatabaseOptions/" class="noDec"
+                                >SqliteDatabaseOptions</a
+                            >
+                        </td>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td>Options for SqliteDatabase</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Methods -->
+            <h1>Methods</h1>
+            <table class="table table-dark">
+                <thead>
+                    <tr align="center">
+                        <th>METHOD</th>
+                        <th>PARAMETERS</th>
+                        <th>EXAMPLE</th>
+                        <th>RETURNS</th>
+                        <th>DESCRIPTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- set -->
+                    <tr align="center">
+                        <td>.set</td>
+                        <td>key: string, value: any</td>
+                        <td>.set("test", "data")</td>
+                        <td>any</td>
+                        <td>Set a data</td>
+                    </tr>
+                    <!-- get -->
+                    <tr align="center">
+                        <td>.get</td>
+                        <td>key: string</td>
+                        <td>.get("test")</td>
+                        <td>any</td>
+                        <td>Fetch a data</td>
+                    </tr>
+                    <!-- fetch -->
+                    <tr align="center">
+                        <td>.fetch</td>
+                        <td>key: string</td>
+                        <td>.fetch("test")</td>
+                        <td>any</td>
+                        <td>Fetch a data</td>
+                    </tr>
+                    <!-- push -->
+                    <tr align="center">
+                        <td>.push</td>
+                        <td>
+                            key: string, value: any, valueIgnoreIfPresent?: boolean, multiple?:
+                            boolean
+                        </td>
+                        <td>.push("test", [])</td>
+                        <td>any[]</td>
+                        <td>Push a data</td>
+                    </tr>
+                    <!-- delete -->
+                    <tr align="center">
+                        <td>.delete</td>
+                        <td>key: string</td>
+                        <td>.delete("test")</td>
+                        <td>boolean</td>
+                        <td>Delete a data</td>
+                    </tr>
+                    <!-- deleteAll -->
+                    <tr align="center">
+                        <td>.deleteAll</td>
+                        <td></td>
+                        <td>.deleteAll()</td>
+                        <td>boolean</td>
+                        <td>Delete all data</td>
+                    </tr>
+                    <!-- deleteEach -->
+                    <tr align="center">
+                        <td>.deleteEach</td>
+                        <td>value: string, maxDeletedSize?: number</td>
+                        <td>.deleteEach("test")</td>
+                        <td>number</td>
+                        <td>Delete a data with including specified value</td>
+                    </tr>
+                    <!-- findAndDelete -->
+                    <tr align="center">
+                        <td>.findAndDelete</td>
+                        <td>callback: { ID: string, data: any }, maxDeletedSize?: number</td>
+                        <td>.findAndDelete((element) => element.data.includes("data"))</td>
+                        <td>number</td>
+                        <td>Delete a data with filtering all data</td>
+                    </tr>
+                    <!-- destroy -->
+                    <tr align="center">
+                        <td>.destroy</td>
+                        <td></td>
+                        <td>.destroy()</td>
+                        <td>boolean</td>
+                        <td>Delete a database file</td>
+                    </tr>
+                    <!-- pull -->
+                    <tr align="center">
+                        <td>.pull</td>
+                        <td>key: string, value: any, multiple?: boolean</td>
+                        <td>.pull("test", "data")</td>
+                        <td>boolean</td>
+                        <td>Unpush a data</td>
+                    </tr>
+                    <!-- has -->
+                    <tr align="center">
+                        <td>.has</td>
+                        <td>key: string</td>
+                        <td>.has("test")</td>
+                        <td>boolean</td>
+                        <td>Checks if data exists</td>
+                    </tr>
+                    <!-- arrayHas -->
+                    <tr align="center">
+                        <td>.arrayHas</td>
+                        <td>key: string</td>
+                        <td>.arrayHas("test")</td>
+                        <td>boolean</td>
+                        <td>Checks if data is array or not</td>
+                    </tr>
+                    <!-- arrayHasValue -->
+                    <tr align="center">
+                        <td>.arrayHasValue</td>
+                        <td>key: string, value: any</td>
+                        <td>.arrayHasValue("test", "data")</td>
+                        <td>boolean</td>
+                        <td>Checks if the specified value exists in the data</td>
+                    </tr>
+                    <!-- all -->
+                    <tr align="center">
+                        <td>.all</td>
+                        <td></td>
+                        <td>.all()</td>
+                        <td>{ ID: string, data: any}[]</td>
+                        <td>Fetch all data</td>
+                    </tr>
+                    <!-- fetchAll -->
+                    <tr align="center">
+                        <td>.fetchAll</td>
+                        <td></td>
+                        <td>.fetchAll()</td>
+                        <td>{ ID: string, data: any}[]</td>
+                        <td>Fetch all data</td>
+                    </tr>
+                    <!-- startsWith -->
+                    <tr align="center">
+                        <td>.startsWith</td>
+                        <td></td>
+                        <td>.startsWith()</td>
+                        <td>{ ID: string, data: any}[]</td>
+                        <td>Returns data whose key starts with the value you specify.</td>
+                    </tr>
+                    <!-- endsWith -->
+                    <tr align="center">
+                        <td>.endsWith</td>
+                        <td></td>
+                        <td>.endsWith()</td>
+                        <td>{ ID: string, data: any}[]</td>
+                        <td>Returns data whose key contains the value you specify.</td>
+                    </tr>
+                    <!-- includes -->
+                    <tr align="center">
+                        <td>.includes</td>
+                        <td></td>
+                        <td>.includes()</td>
+                        <td>{ ID: string, data: any}[]</td>
+                        <td>Fetch all data</td>
+                    </tr>
+                    <!-- filter -->
+                    <tr align="center">
+                        <td>.filter</td>
+                        <td>element: { ID: string, data: any}</td>
+                        <td>.filter()</td>
+                        <td>{ ID: string, data: any}[]</td>
+                        <td>Filtering all data</td>
+                    </tr>
+                    <!-- map -->
+                    <tr align="center">
+                        <td>.map</td>
+                        <td>element: { ID: string, data: any}</td>
+                        <td>.map((element) => element.ID)</td>
+                        <td>any[]</td>
+                        <td>Map all data</td>
+                    </tr>
+                    <!-- reduce -->
+                    <tr align="center">
+                        <td>.reduce</td>
+                        <td>a: { ID: string, data: any }, b: { ID: string, data: any }</td>
+                        <td>.reduce((a, b) => a + b)</td>
+                        <td>any[]</td>
+                        <td>Reduce all data</td>
+                    </tr>
+                    <!-- keyArray -->
+                    <tr align="center">
+                        <td>.keyArray</td>
+                        <td></td>
+                        <td>.keyArray()</td>
+                        <td>string[]</td>
+                        <td>Fetch all keys</td>
+                    </tr>
+                    <!-- valueArray -->
+                    <tr align="center">
+                        <td>.valueArray</td>
+                        <td></td>
+                        <td>.valueArray()</td>
+                        <td>any[]</td>
+                        <td>Fetch all values</td>
+                    </tr>
+                    <!-- info -->
+                    <tr align="center">
+                        <td>.info</td>
+                        <td></td>
+                        <td>.info()</td>
+                        <td>
+                            { Version: number, DatabaseName: string, DataSize: number, DatabaseType:
+                            "sqlite" }
+                        </td>
+                        <td>Fetch database info</td>
+                    </tr>
+                    <!-- size -->
+                    <tr align="center">
+                        <td>.size</td>
+                        <td></td>
+                        <td>.size()</td>
+                        <td>number</td>
+                        <td>Fetch all data size</td>
+                    </tr>
+                    <!-- type -->
+                    <tr align="center">
+                        <td>.type</td>
+                        <td>key: string</td>
+                        <td>.type("test")</td>
+                        <td>
+                            "array" | "string" | "number" | "boolean" | "symbol" | "function" |
+                            "object" | "null" | "undefined" | "bigint"
+                        </td>
+                        <td>Fetch data type</td>
+                    </tr>
+                    <!-- DBCollectionSize -->
+                    <tr align="center">
+                        <td>.DBCollectionSize</td>
+                        <td></td>
+                        <td>.DBCollectionSize()</td>
+                        <td>number</td>
+                        <td>Returns all created sqlite database size</td>
+                    </tr>
+                    <!-- getDBName -->
+                    <tr align="center">
+                        <td>.getDBName</td>
+                        <td></td>
+                        <td>.getDBName()</td>
+                        <td>string</td>
+                        <td>Fetch database name</td>
+                    </tr>
+                    <!-- math -->
+                    <tr align="center">
+                        <td>.math</td>
+                        <td>
+                            key: string, operator: "+" | "-" | "*" | "/" | "%", value: number,
+                            goToNegative?: boolean
+                        </td>
+                        <td>.math("test", "+", 10)</td>
+                        <td>number</td>
+                        <td>You do the math operation</td>
+                    </tr>
+                    <!-- add -->
+                    <tr align="center">
+                        <td>.add</td>
+                        <td>key: string, value: number</td>
+                        <td>.add("test", 10)</td>
+                        <td>number</td>
+                        <td>It does the collection process</td>
+                    </tr>
+                    <!-- subtract -->
+                    <tr align="center">
+                        <td>.math</td>
+                        <td>
+                            key: string, operator: "+" | "-" | "*" | "/" | "%", value: number,
+                            goToNegative?: boolean
+                        </td>
+                        <td>.math("test", "+", 10)</td>
+                        <td>number</td>
+                        <td>Performs an extraction operation</td>
+                    </tr>
+                    <!-- export -->
+                    <tr align="center">
+                        <td>.export</td>
+                        <td>path?: string</td>
+                        <td>.export("database.json")</td>
+                        <td>boolean</td>
+                        <td>Export data from json</td>
+                    </tr>
+                    <!-- import -->
+                    <tr align="center">
+                        <td>.import</td>
+                        <td>path?: string</td>
+                        <td>.import("database.json")</td>
+                        <td>boolean</td>
+                        <td>Import data from json</td>
+                    </tr>
+                    <!-- toJSON -->
+                    <tr align="center">
+                        <td>.toJSON</td>
+                        <td></td>
+                        <td>.toJSON()</td>
+                        <td>{ [key: string]: any }</td>
+                        <td>Returns data as Object</td>
+                    </tr>
+                    <!-- sort -->
+                    <tr align="center">
+                        <td>.sort</td>
+                        <td></td>
+                        <td>.sort((a, b) => b.data - a.data)</td>
+                        <td>any</td>
+                        <td>sort all data</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <center>
+                <p class="foo">
+                    2022 Copyright © Erax.DB Guide Using ♥
+                    <a href="https://protonio.js.org" class="noDec">Venosa Studio(Proton-io)</a>
+                </p>
+            </center>
+        </div>
+    </body>
+
+    <!-- Scripts -->
+    <script src="../../../scripts/jquery.min.js"></script>
+    <script src="../../../scripts/popper.min.js"></script>
+    <script src="../../../scripts/bootstrap.min.js"></script>
+    <script src="../../../scripts/Script.js"></script>
+    <script
+        type="module"
+        src="https://unpkg.com/@deckdeckgo/highlight-code@latest/dist/deckdeckgo-highlight-code/deckdeckgo-highlight-code.esm.js"
+    ></script>
+</html>
