@@ -1,6 +1,6 @@
 {
     "name": "erax.db",
-    "version": "3.2.1",
+    "version": "3.2.2",
     "description": "Advanced JSON, Yaml, Sqlite and Mongo Database Module.",
     "main": "src/index.js",
     "types": "types/index.d.ts",
