@@ -11,10 +11,10 @@
     "rules": {
         "arrow-spacing": ["warn", { "before": true, "after": true }],
         "brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
-        "comma-dangle": ["error", "always-multiline"],
+        "comma-dangle": ["error", "always-singleline"],
         "comma-spacing": "error",
         "comma-style": "error",
-        "curly": ["error", "multi-line", "consistent"],
+        "curly": ["error", "single-line", "consistent"],
         "dot-location": ["error", "property"],
         "handle-callback-err": "off",
         "indent": ["error", "tab"],
