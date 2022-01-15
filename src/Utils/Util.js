@@ -1,4 +1,4 @@
-const FETCH = require('node-fetch');
+const axios = require('axios');
 const fs = require('fs');
 const YAML = require('yaml');
 
@@ -7,13 +7,13 @@ const YAML = require('yaml');
  * @returns {Promise<{ updated: boolean, installedVersion: string, packageData: string }>}
  */
 this.updateCheck = async () => {
-    let version = require('../../package.json').version;
-    let packageData = await FETCH('https://registry.npmjs.com/erax.db').then((data) => data.json());
+    const version = require('../../package.json').version;
+    const packageData = await axios.get('https://registry.npmjs.com/erax.db');
 
     return {
-        updated: version === packageData['dist-tags'].latest ?? false,
+        updated: version === packageData.data['dist-tags'].latest,
         installedVersion: version,
-        packageVersion: packageData['dist-tags'].latest
+        packageVersion: packageData.data['dist-tags'].latest
     };
 };
 

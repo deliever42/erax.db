@@ -16,35 +16,35 @@ describe('MongoDatabase', () => {
 
     it('set', (done) => {
         (async () => {
-            assert.equal(await db.set('test$prop', 'EraxDB'), 'EraxDB');
+            assert.deepEqual(await db.set('test$prop', 'EraxDB'), 'EraxDB');
         })();
         done();
     });
 
     it('get', (done) => {
         (async () => {
-            assert.equal(await db.get('test$prop'), 'EraxDB');
+            assert.deepEqual(await db.get('test$prop'), 'EraxDB');
         })();
         done();
     });
 
     it('type', (done) => {
         (async () => {
-            assert.equal(await db.type('test'), 'object');
+            assert.deepEqual(await db.type('test'), 'object');
         })();
         done();
     });
 
     it('has', (done) => {
         (async () => {
-            assert.equal(await db.has('test$prop'), true);
+            assert.deepEqual(await db.has('test$prop'), true);
         })();
         done();
     });
 
     it('all', (done) => {
         (async () => {
-            assert.equal(await db.all(), [{ ID: 'test', data: { prop: 'EraxDB' } }]);
+            assert.deepEqual(await db.all(), [{ ID: 'test', data: { prop: 'EraxDB' } }]);
         })();
         done();
     });
@@ -52,14 +52,19 @@ describe('MongoDatabase', () => {
     it('push', (done) => {
         (async () => {
             await db.push('array', ['EraxDB', '??', 'Database'], false, true);
-            assert.equal(await db.push('array', 'Hello'), ['EraxDB', '??', 'Database', 'Hello']);
+            assert.deepEqual(await db.push('array', 'Hello'), [
+                'EraxDB',
+                '??',
+                'Database',
+                'Hello'
+            ]);
         })();
         done();
     });
 
     it('pull', (done) => {
         (async () => {
-            assert.equal(await db.pull('array', ['??', 'Hello'], true), ['EraxDB', 'Database']);
+            assert.deepEqual(await db.pull('array', ['??', 'Hello'], true), ['EraxDB', 'Database']);
         })();
         done();
     });
@@ -67,49 +72,55 @@ describe('MongoDatabase', () => {
     it('math', (done) => {
         (async () => {
             await db.set('math', 34);
-            assert.equal(await db.math('math', '*', 2), 68);
+            assert.deepEqual(await db.math('math', '*', 2), 68);
         })();
         done();
     });
 
     it('keyArray', (done) => {
         (async () => {
-            assert.equal(await db.keyArray(), ['test', 'array', 'math']);
+            assert.deepEqual(await db.keyArray(), ['test', 'array', 'math']);
         })();
         done();
     });
 
     it('valueArray', (done) => {
         (async () => {
-            assert.equal(await db.valueArray(), [{ prop: 'EraxDB' }, ['EraxDB', 'Database'], 68]);
+            assert.deepEqual(await db.valueArray(), [
+                { prop: 'EraxDB' },
+                ['EraxDB', 'Database'],
+                68
+            ]);
         })();
         done();
     });
 
     it('startsWith', (done) => {
         (async () => {
-            assert.equal(await db.startsWith('test'), [{ ID: 'test', data: { prop: 'EraxDB' } }]);
+            assert.deepEqual(await db.startsWith('test'), [
+                { ID: 'test', data: { prop: 'EraxDB' } }
+            ]);
         })();
         done();
     });
 
     it('arrayHas', (done) => {
         (async () => {
-            assert.equal(await db.arrayHas('array'), true);
+            assert.deepEqual(await db.arrayHas('array'), true);
         })();
         done();
     });
 
     it('arrayHasValue', (done) => {
         (async () => {
-            assert.equal(await db.arrayHasValue('array', 'EraxDB'), true);
+            assert.deepEqual(await db.arrayHasValue('array', 'EraxDB'), true);
         })();
         done();
     });
 
     it('toJSON', (done) => {
         (async () => {
-            assert.equal(await db.toJSON(), {
+            assert.deepEqual(await db.toJSON(), {
                 test: {
                     prop: 'EraxDB'
                 },

@@ -8,15 +8,13 @@
 # Change Log
 
 ```npm
-- Added sort method.
-- Fixed pull method.
-- Removed ini database system.
+- Fixed errors.
 ```
 
 # Warn
 
 ```npm
-- Node.JS version must be 16 or greater.
+- Node.JS version must be 14 or greater.
 ```
 
 # Documentation
