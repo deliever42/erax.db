@@ -7,14 +7,18 @@ const YAML = require('yaml');
  * @returns {Promise<{ updated: boolean, installedVersion: string, packageData: string }>}
  */
 this.updateCheck = async () => {
-    const version = require('../../package.json').version;
-    const packageData = await axios.get('https://registry.npmjs.com/erax.db');
+    try {
+        const version = require('../../package.json').version;
+        const packageData = await axios.get('https://registry.npmjs.com/erax.db');
 
-    return {
-        updated: version === packageData.data['dist-tags'].latest,
-        installedVersion: version,
-        packageVersion: packageData.data['dist-tags'].latest
-    };
+        return {
+            updated: version === packageData.data['dist-tags'].latest,
+            installedVersion: version,
+            packageVersion: packageData.data['dist-tags'].latest
+        };
+    } catch {
+        return { updated: true };
+    }
 };
 
 /**

@@ -1,6 +1,6 @@
 {
     "name": "erax.db",
-    "version": "3.2.4",
+    "version": "3.2.6",
     "description": "Advanced JSON, Yaml, Sqlite and Mongo Database Module.",
     "main": "src/index.js",
     "types": "types/index.d.ts",
@@ -9,7 +9,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/emirhanbaltas34/erax.db.git"
+        "url": "git+https://github.com/deliever42/erax.db.git"
     },
     "keywords": [
         "erax.db",
@@ -33,12 +33,12 @@
         "values",
         "discord.js"
     ],
-    "author": "emirhanbaltas34",
+    "author": "deliever42",
     "license": "Apache-2.0",
     "bugs": {
-        "url": "https://github.com/emirhanbaltas34/erax.db/issues"
+        "url": "https://github.com/deliever42/erax.db/issues"
     },
-    "homepage": "https://github.com/emirhanbaltas34/erax.db#readme",
+    "homepage": "https://github.com/deliever42/erax.db#readme",
     "dependencies": {
         "axios": "^0.24.0",
         "yaml": "^1.10.2"
