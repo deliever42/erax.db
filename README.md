@@ -8,7 +8,8 @@
 # Change Log
 
 ```npm
-- Fixed errors.
+- Performance has been increased.
+- Bug fixes.
 ```
 
 # Warn
