@@ -7,7 +7,7 @@
 
 # Change Log
 
-```npm
+```md
 - Performance has been increased.
 - Removed yaml database system.
 - Added bson database system.
