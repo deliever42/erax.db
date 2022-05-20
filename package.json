@@ -41,10 +41,8 @@
     },
     "homepage": "https://github.com/deliever42/erax.db#readme",
     "dependencies": {
-        "better-sqlite3": "^7.5.3",
         "colorette": "^2.0.16",
-        "lodash": "^4.17.21",
-        "mongoose": "^6.3.4"
+        "lodash": "^4.17.21"
     },
     "devDependencies": {
         "@types/better-sqlite3": "^7.5.0",
