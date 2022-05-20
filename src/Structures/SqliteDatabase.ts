@@ -116,9 +116,7 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
                     createdAt.getMonth() + 1
                 }-${createdAt.getDate()}-${createdAt.getFullYear()} ${createdAt.getHours()}_${createdAt.getMinutes()}_${createdAt.getSeconds()}`;
 
-                const sql = new Database(
-                    join(this.options.backup!.filePath!, `${createdAtString}.db`)
-                );
+                const sql = Database(join(this.options.backup!.filePath!, `${createdAtString}.db`));
 
                 sql.prepare(
                     `CREATE TABLE IF NOT EXISTS ${this.options.tableName} (key TEXT, value TEXT)`
@@ -128,9 +126,16 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
                 sql.pragma('journal_mode = OFF');
                 sql.pragma('locking_mode = EXCLUSIVE');
 
-                if (this.options.cache) {
-                } else {
+                for (const { ID, data } of this.getAll({
+                    force: true,
+                    cache: this.options.cache
+                })) {
+                    sql.prepare(
+                        `INSERT INTO ${this.options.tableName} (key, value) VALUES (?, ?)`
+                    ).run(ID, _.stringify('json', data, this.options.space));
                 }
+
+                sql.close();
             }, this.options.backup!.backupInterval);
         }
     }
@@ -152,21 +157,27 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
 
                     this.sql
                         .prepare(`UPDATE ${this.options.tableName} SET value = (?) WHERE key = (?)`)
-                        .run(_.stringify('json', get(this.cache, parsedKey)), parsedKey);
+                        .run(
+                            _.stringify('json', get(this.cache, parsedKey), this.options.space),
+                            parsedKey
+                        );
                 } else {
                     this.sql
                         .prepare(`UPDATE ${this.options.tableName} SET value = (?) WHERE key = (?)`)
-                        .run(_.stringify('json', value), key);
+                        .run(_.stringify('json', value, this.options.space), key);
                 }
             } else {
                 if (key.includes('.')) {
                     this.sql
                         .prepare(`INSERT INTO ${this.options.tableName} (key, value) VALUES (?, ?)`)
-                        .run(parsedKey, _.stringify('json', get(this.cache, parsedKey)));
+                        .run(
+                            parsedKey,
+                            _.stringify('json', get(this.cache, parsedKey), this.options.space)
+                        );
                 } else {
                     this.sql
                         .prepare(`INSERT INTO ${this.options.tableName} (key, value) VALUES (?, ?)`)
-                        .run(key, _.stringify('json', value));
+                        .run(key, _.stringify('json', value, this.options.space));
                 }
             }
         } else {
@@ -184,21 +195,27 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
 
                     this.sql
                         .prepare(`UPDATE ${this.options.tableName} SET value = (?) WHERE key = (?)`)
-                        .run(_.stringify('json', get(json, parsedKey)), parsedKey);
+                        .run(
+                            _.stringify('json', get(json, parsedKey), this.options.space),
+                            parsedKey
+                        );
                 } else {
                     this.sql
                         .prepare(`UPDATE ${this.options.tableName} SET value = (?) WHERE key = (?)`)
-                        .run(_.stringify('json', value), key);
+                        .run(_.stringify('json', value, this.options.space), key);
                 }
             } else {
                 if (key.includes('.')) {
                     this.sql
                         .prepare(`INSERT INTO ${this.options.tableName} (key, value) VALUES (?, ?)`)
-                        .run(parsedKey, _.stringify('json', get(json, parsedKey)));
+                        .run(
+                            parsedKey,
+                            _.stringify('json', get(json, parsedKey), this.options.space)
+                        );
                 } else {
                     this.sql
                         .prepare(`INSERT INTO ${this.options.tableName} (key, value) VALUES (?, ?)`)
-                        .run(key, _.stringify('json', value));
+                        .run(key, _.stringify('json', value, this.options.space));
                 }
             }
 
@@ -336,14 +353,6 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
 
     public valueArray(options?: BaseFetchOptions) {
         return this.getAll(options).map(({ data }) => data);
-    }
-
-    public findAndDelete(fn: (key: string, value: V) => boolean) {
-        const file = _.read<V>('bson', this.options.filePath);
-
-        for (const [key, value] of Object.entries(file)) {
-            if (fn(key, value)) this.delete(key);
-        }
     }
 
     public push(
@@ -504,6 +513,32 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
 
                 this.delete(ID);
                 deleted++;
+            }
+        }
+
+        return deleted;
+    }
+
+    public findAndDelete(
+        fn: (key: string, value: V) => boolean,
+        options: BaseDeleteEachOptions & BaseFetchOptions = {}
+    ) {
+        const datas = this.getAll(options);
+        let deleted = 0;
+
+        options.maxDeletedSize = options.maxDeletedSize ??= 0;
+
+        for (const { ID, data } of datas) {
+            if (fn(ID, data)) {
+                if (options.maxDeletedSize === 0) {
+                    this.delete(ID);
+                    deleted++;
+                } else {
+                    if (deleted >= options.maxDeletedSize) break;
+
+                    this.delete(ID);
+                    deleted++;
+                }
             }
         }
 

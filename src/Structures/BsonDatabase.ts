@@ -221,14 +221,6 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
         return this.getAll(options).map(({ data }) => data);
     }
 
-    public findAndDelete(fn: (key: string, value: V) => boolean) {
-        const file = _.read<V>('bson', this.options.filePath);
-
-        for (const [key, value] of Object.entries(file)) {
-            if (fn(key, value)) this.delete(key);
-        }
-    }
-
     public push(
         key: string,
         values: V | Array<V>,
@@ -387,6 +379,32 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
 
                 this.delete(ID);
                 deleted++;
+            }
+        }
+
+        return deleted;
+    }
+
+    public findAndDelete(
+        fn: (key: string, value: V) => boolean,
+        options: BaseDeleteEachOptions & BaseFetchOptions = {}
+    ) {
+        const datas = this.getAll(options);
+        let deleted = 0;
+
+        options.maxDeletedSize = options.maxDeletedSize ??= 0;
+
+        for (const { ID, data } of datas) {
+            if (fn(ID, data)) {
+                if (options.maxDeletedSize === 0) {
+                    this.delete(ID);
+                    deleted++;
+                } else {
+                    if (deleted >= options.maxDeletedSize) break;
+
+                    this.delete(ID);
+                    deleted++;
+                }
             }
         }
 
