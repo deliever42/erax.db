@@ -7,7 +7,6 @@
 
 # Change Log
 
-```md
 - Performance has been increased.
 - Removed yaml database system.
 - Added bson database system.
@@ -29,7 +28,6 @@
   - clear
 - Removed database collection.
 - Changed database options.
-```
 
 # Warn
 
