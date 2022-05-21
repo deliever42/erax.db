@@ -12,7 +12,6 @@ describe('JsonDatabase', () => {
     });
 
     db.clear();
-    console.log(db.toJSON());
 
     it('set', () => {
         assert.deepEqual(db.set('test.prop', 'EraxDB'), 'EraxDB');
