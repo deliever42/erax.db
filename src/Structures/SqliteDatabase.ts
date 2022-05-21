@@ -140,7 +140,7 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
         }
     }
 
-    public set(key: string, value: V | Array<V>): V | Array<V> {
+    public set(key: string, value: V): V {
         if (!key) throw new DatabaseError('Invalid key!');
 
         const parsedKey = key.split('.')[0];
@@ -225,7 +225,7 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
         return value;
     }
 
-    public get(key: string): V | V[] | null {
+    public get(key: string): V | null {
         if (!key) throw new DatabaseError('Invalid key!');
 
         if (this.options.cache) {
@@ -266,19 +266,17 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
         return;
     }
 
-    public delete(key: string) {
+    public delete(key: string): null | void {
         if (!key) throw new DatabaseError('Invalid key!');
 
         if (this.options.cache) {
-            const data = this.get(key);
-            if (!data) return null;
-
             unset(this.cache, key);
 
             if (key.includes('.')) {
                 const parsedKey = key.split('.')[0];
                 this.set(parsedKey, get(this.cache, parsedKey));
             } else {
+                if (!this.has(key)) return null;
                 this.sql.prepare(`DELETE FROM ${this.options.tableName} WHERE key = (?)`).run(key);
             }
         } else {
@@ -286,16 +284,15 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
                 const parsedKey = key.split('.')[0];
                 let json = {};
 
-                let data = this.sql
-                    .prepare(`SELECT * FROM ${this.options.tableName} WHERE key = (?)`)
-                    .get(parsedKey);
+                const data = this.get(parsedKey);
                 if (!data) return null;
 
-                set(json, parsedKey, _.parse('json', data.value));
+                set(json, parsedKey, _.parse('json', data));
                 unset(json, key);
                 this.set(parsedKey, get(json, parsedKey));
                 json = {};
             } else {
+                if (!this.has(key)) return null;
                 this.sql.prepare(`DELETE FROM ${this.options.tableName} WHERE key = (?)`).run(key);
             }
         }
@@ -380,7 +377,7 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
             }
         }
 
-        return this.set(key, array);
+        return this.set(key, array as any);
     }
 
     public pull(key: string, values: V | Array<V>) {
@@ -404,6 +401,7 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
         if (!key) throw new DatabaseError('Invalid key!');
 
         const data = this.get(key);
+        if (!data) return null;
         return Array.isArray(data) ? 'array' : typeof data;
     }
 
@@ -466,15 +464,10 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
     }
 
     public map(
-        fn: (
-            previousValue: Schema<V>,
-            currentValue: Schema<V>,
-            currentIndex: number,
-            array: Array<Schema<V>>
-        ) => any,
+        fn: (value: Schema<V>, index: number, array: Array<Schema<V>>) => any,
         options?: BaseFetchOptions
     ) {
-        return this.getAll(options).reduce(fn);
+        return this.getAll(options).map(fn);
     }
 
     public reduce(

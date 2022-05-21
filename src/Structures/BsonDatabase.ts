@@ -122,7 +122,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
         }
     }
 
-    public set(key: string, value: V | Array<V>): V | Array<V> {
+    public set(key: string, value: V): V {
         if (!key) throw new DatabaseError('Invalid key!');
 
         if (this.options.cache) {
@@ -137,7 +137,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
         return value;
     }
 
-    public get(key: string): V | Array<V> | null {
+    public get(key: string): V | null {
         if (!key) throw new DatabaseError('Invalid key!');
 
         if (this.options.cache) {
@@ -246,7 +246,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
             }
         }
 
-        return this.set(key, array);
+        return this.set(key, array as any);
     }
 
     public pull(key: string, values: V | Array<V>) {
@@ -270,6 +270,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
         if (!key) throw new DatabaseError('Invalid key!');
 
         const data = this.get(key);
+        if (!data) return null;
         return Array.isArray(data) ? 'array' : typeof data;
     }
 
@@ -332,15 +333,10 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public map(
-        fn: (
-            previousValue: Schema<V>,
-            currentValue: Schema<V>,
-            currentIndex: number,
-            array: Array<Schema<V>>
-        ) => any,
+        fn: (value: Schema<V>, index: number, array: Array<Schema<V>>) => any,
         options?: BaseFetchOptions
     ) {
-        return this.getAll(options).reduce(fn);
+        return this.getAll(options).map(fn);
     }
 
     public reduce(

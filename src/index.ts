@@ -5,6 +5,6 @@ export * from './Structures/MongoDatabase';
 
 export { DatabaseError } from './Structures/DatabaseError';
 export { Utils } from './Structures/Utils';
-export { MongoSchema } from './Structures/Schema';
+export { CollectionModel } from './Structures/CollectionModel';
 
 export * from './Interfaces';
