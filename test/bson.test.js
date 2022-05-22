@@ -1,5 +1,6 @@
 const { BsonDatabase } = require('../dist/index');
-const assert = require('assert');
+
+jest.useFakeTimers();
 
 describe('BsonDatabase', () => {
     const db = new BsonDatabase({
@@ -11,51 +12,53 @@ describe('BsonDatabase', () => {
         }
     });
 
-    db.clear();
-
-    it('set', () => {
-        assert.deepEqual(db.set('test.prop', 'EraxDB'), 'EraxDB');
+    test('set', () => {
+        expect(db.set('test.prop', 'EraxDB')).toEqual('EraxDB');
     });
 
-    it('delete', () => {
-        assert.deepEqual(db.delete('test.prop'), void 0);
+    test('delete', () => {
+        expect(db.delete('test.prop')).toEqual(void 0);
     });
 
-    it('get', () => {
-        assert.deepEqual(db.get('test'), {});
+    test('get', () => {
+        expect(db.get('test')).toEqual({});
     });
 
-    it('type', () => {
-        assert.deepEqual(db.type('test'), 'object');
+    test('type', () => {
+        expect(db.type('test')).toEqual('object');
     });
 
-    it('has', () => {
-        assert.deepEqual(db.has('test'), true);
+    test('has', () => {
+        expect(db.has('test')).toEqual(true);
     });
 
-    it('getAll', () => {
-        assert.deepEqual(db.getAll(), [{ ID: 'test', data: {} }]);
+    test('getAll', () => {
+        expect(db.getAll()).toEqual([{ ID: 'test', data: {} }]);
     });
 
-    it('push', () => {
+    test('push', () => {
         db.push('array', ['EraxDB', '??', 'Database']);
-        assert.deepEqual(db.push('array', 'Hello'), ['EraxDB', '??', 'Database', 'Hello']);
+        expect(db.push('array', 'Hello')).toEqual(['EraxDB', '??', 'Database', 'Hello']);
     });
 
-    it('pull', () => {
-        assert.deepEqual(db.pull('array', ['??', 'Hello']), ['EraxDB', 'Database']);
+    test('pull', () => {
+        expect(db.pull('array', ['??', 'Hello'])).toEqual(['EraxDB', 'Database']);
     });
 
-    it('math', () => {
+    test('math', () => {
         db.set('math', 34);
-        assert.deepEqual(db.math('math', '*', 2), 68);
+        expect(db.math('math', '*', 2)).toEqual(68);
     });
 
-    it('keyArray', () => {
-        assert.deepEqual(db.keyArray(), ['test', 'array', 'math']);
+    test('keyArray', () => {
+        expect(db.keyArray()).toEqual(['test', 'array', 'math']);
     });
 
-    it('valueArray', () => {
-        assert.deepEqual(db.valueArray(), [{}, ['EraxDB', 'Database'], 68]);
+    test('valueArray', () => {
+        expect(db.valueArray()).toEqual([{}, ['EraxDB', 'Database'], 68]);
+    });
+
+    test('backup', () => {
+        jest.advanceTimersByTime(10000);
     });
 });

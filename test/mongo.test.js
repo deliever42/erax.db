@@ -1,5 +1,6 @@
 const { MongoDatabase } = require('../dist/index');
-const assert = require('assert');
+
+jest.useFakeTimers();
 
 describe('MongoDatabase', () => {
     const db = new MongoDatabase({
@@ -9,94 +10,80 @@ describe('MongoDatabase', () => {
             backupInterval: 5000
         },
         url: 'protected',
-        modelName: 'EMAX'
+        modelName: 'test'
     });
 
-    /*(async () => {
-        await db.clear();
-    })();*/
-
-    it('set', (done) => {
-        (async () => {
-            assert.deepEqual(await db.set('test.prop', 'EraxDB'), 'EraxDB');
-        })();
-        done();
+    test('set', () => {
+        db.set('test.prop', 'EraxDB').then((data) => {
+            expect(data).toEqual('EraxDB');
+        });
     });
 
-    it('delete', (done) => {
-        (async () => {
-            assert.deepEqual(await db.delete('test.prop'), void 0);
-        })();
-        done();
+    test('delete', () => {
+        db.delete('test.prop').then((data) => {
+            expect(data).toEqual(void 0);
+        });
     });
 
-    it('get', (done) => {
-        (async () => {
-            assert.deepEqual(await db.get('test'), {});
-        })();
-        done();
+    test('get', () => {
+        db.get('test').then((data) => {
+            expect(data).toEqual({});
+        });
     });
 
-    it('type', (done) => {
-        (async () => {
-            assert.deepEqual(await db.type('test'), 'object');
-        })();
-        done();
+    test('type', () => {
+        db.type('test').then((data) => {
+            expect(data).toEqual('object');
+        });
     });
 
-    it('has', (done) => {
-        (async () => {
-            assert.deepEqual(await db.has('test'), true);
-        })();
-        done();
+    test('has', () => {
+        db.has('test').then((data) => {
+            expect(data).toEqual(true);
+        });
     });
 
-    it('getAll', (done) => {
-        (async () => {
-            assert.deepEqual(await db.all(), [{ ID: 'test', data: { prop: 'EraxDB' } }]);
-        })();
-        done();
+    test('getAll', () => {
+        db.getAll().then((data) => {
+            expect(data).toEqual([{ ID: 'test', data: {} }]);
+        });
     });
 
-    it('push', (done) => {
-        (async () => {
-            await db.push('array', ['EraxDB', '??', 'Database'], false, true);
-            assert.deepEqual(await db.push('array', 'Hello'), [
-                'EraxDB',
-                '??',
-                'Database',
-                'Hello'
-            ]);
-        })();
-        done();
+    test('push', () => {
+        db.push('array', ['EraxDB', '??', 'Database']).then(() => {
+            db.push('array', 'Hello').then((data) => {
+                expect(data).toEqual(['EraxDB', '??', 'Database']);
+            });
+        });
     });
 
-    it('pull', (done) => {
-        (async () => {
-            assert.deepEqual(await db.pull('array', ['??', 'Hello'], true), ['EraxDB', 'Database']);
-        })();
-        done();
+    test('pull', () => {
+        db.pull('array', ['??', 'Hello']).then((data) => {
+            expect(data).toEqual(['EraxDB', 'Database']);
+        });
     });
 
-    it('math', (done) => {
-        (async () => {
-            await db.set('math', 34);
-            assert.deepEqual(await db.math('math', '*', 2), 68);
-        })();
-        done();
+    test('math', () => {
+        db.set('math', 34).then(() => {
+            db.math('math', '*', 2).then((data) => {
+                expect(data).toEqual(68);
+            });
+        });
     });
 
-    it('keyArray', (done) => {
-        (async () => {
-            assert.deepEqual(await db.keyArray(), ['test', 'array', 'math']);
-        })();
-        done();
+    test('keyArray', () => {
+        db.keyArray().then((data) => {
+            expect(data).toEqual(['test', 'array', 'math']);
+        });
     });
 
-    it('valueArray', (done) => {
-        (async () => {
-            assert.deepEqual(await db.valueArray(), [{}, ['EraxDB', 'Database'], 68]);
-        })();
-        done();
+    test('valueArray', () => {
+        db.valueArray().then((data) => {
+            expect(data).toEqual([{}, ['EraxDB', 'Database'], 68]);
+        });
+    });
+
+    test('backup', () => {
+        jest.advanceTimersByTime(10000);
     });
 });
