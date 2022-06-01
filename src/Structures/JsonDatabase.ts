@@ -38,7 +38,8 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
 
         this.options = options;
 
-        if (!this.options.filePath) this.options.filePath = join(process.cwd(), 'database.json');
+        if (!this.options.space) this.options.space = 4;
+        if (!this.options.filePath!) this.options.filePath = join(process.cwd(), 'database.json');
         if (!this.options.cache && this.options.cache !== false) this.options.cache = true;
         if (!this.options.backup) this.options.backup = { enabled: false };
 
@@ -51,7 +52,7 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
             .replace(process.cwd(), '');
 
         if (this.options.filePath.endsWith(sep)) this.options.filePath += 'database.json';
-        if (extname(this.options.filePath) !== '.json') this.options.filePath += '.json';
+        if (extname(this.options.filePath!) !== '.json') this.options.filePath += '.json';
 
         if (this.options.backup.enabled) {
             if (!this.options.backup.backupInterval) this.options.backup.backupInterval = 10800000;
@@ -123,11 +124,11 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
 
         if (this.options.cache) {
             set(this.cache, key, value);
-            _.write<V>('json', this.options.filePath, this.cache, this.options.space);
+            _.write<V>('json', this.options.filePath!, this.cache, this.options.space);
         } else {
-            const file = _.read<V>('json', this.options.filePath);
+            const file = _.read<V>('json', this.options.filePath!);
             set(file, key, value);
-            _.write<V>('json', this.options.filePath, file, this.options.space);
+            _.write<V>('json', this.options.filePath!, file, this.options.space);
         }
 
         return value;
@@ -139,7 +140,7 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
         if (this.options.cache) {
             return get(this.cache, key);
         } else {
-            const file = _.read<V>('json', this.options.filePath);
+            const file = _.read<V>('json', this.options.filePath!);
             return get(file, key);
         }
     }
@@ -158,7 +159,7 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
 
     public clear() {
         this.cache = {};
-        return _.write<V>('json', this.options.filePath, {}, this.options.space);
+        return _.write<V>('json', this.options.filePath!, {}, this.options.space);
     }
 
     public delete(key: string) {
@@ -166,11 +167,11 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
 
         if (this.options.cache) {
             unset(this.cache, key);
-            _.write<V>('json', this.options.filePath, this.cache, this.options.space);
+            _.write<V>('json', this.options.filePath!, this.cache, this.options.space);
         } else {
-            const file = _.read<V>('json', this.options.filePath);
+            const file = _.read<V>('json', this.options.filePath!);
             unset(file, key);
-            _.write<V>('json', this.options.filePath, file, this.options.space);
+            _.write<V>('json', this.options.filePath!, file, this.options.space);
         }
 
         return;
@@ -180,14 +181,14 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
         if (this.options.backup!.enabled && this.options.backup!.filePath)
             clearInterval(this.backupInterval);
         this.cache = {};
-        return unlinkSync(this.options.filePath);
+        return unlinkSync(this.options.filePath!);
     }
 
     public getAll(
         options: BaseFetchOptions = { force: true, cache: true }
     ): Array<{ ID: string; data: V }> {
         if (options.force) {
-            const file = _.read<V>('json', this.options.filePath);
+            const file = _.read<V>('json', this.options.filePath!);
 
             if (options.cache && this.options.cache) this.cache = file;
 

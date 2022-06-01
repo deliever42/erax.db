@@ -36,7 +36,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
 
         this.options = options;
 
-        if (!this.options.filePath) this.options.filePath = join(process.cwd(), 'database.bson');
+        if (!this.options.filePath!) this.options.filePath = join(process.cwd(), 'database.bson');
         if (!this.options.cache && this.options.cache !== false) this.options.cache = true;
         if (!this.options.backup) this.options.backup = { enabled: false };
 
@@ -49,7 +49,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
             .replace(process.cwd(), '');
 
         if (this.options.filePath.endsWith(sep)) this.options.filePath += 'database.bson';
-        if (extname(this.options.filePath) !== '.bson') this.options.filePath += '.bson';
+        if (extname(this.options.filePath!) !== '.bson') this.options.filePath += '.bson';
 
         if (this.options.backup.enabled) {
             if (!this.options.backup.backupInterval) this.options.backup.backupInterval = 10800000;
@@ -120,11 +120,11 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
 
         if (this.options.cache) {
             set(this.cache, key, value);
-            _.write<V>('bson', this.options.filePath, this.cache);
+            _.write<V>('bson', this.options.filePath!, this.cache);
         } else {
-            const file = _.read<V>('bson', this.options.filePath);
+            const file = _.read<V>('bson', this.options.filePath!);
             set(file, key, value);
-            _.write<V>('bson', this.options.filePath, file);
+            _.write<V>('bson', this.options.filePath!, file);
         }
 
         return value;
@@ -136,7 +136,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
         if (this.options.cache) {
             return get(this.cache, key);
         } else {
-            const file = _.read<V>('bson', this.options.filePath);
+            const file = _.read<V>('bson', this.options.filePath!);
             return get(file, key);
         }
     }
@@ -155,7 +155,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
 
     public clear() {
         this.cache = {};
-        return _.write<V>('bson', this.options.filePath, {});
+        return _.write<V>('bson', this.options.filePath!, {});
     }
 
     public delete(key: string) {
@@ -163,11 +163,11 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
 
         if (this.options.cache) {
             unset(this.cache, key);
-            _.write<V>('bson', this.options.filePath, this.cache);
+            _.write<V>('bson', this.options.filePath!, this.cache);
         } else {
-            const file = _.read<V>('bson', this.options.filePath);
+            const file = _.read<V>('bson', this.options.filePath!);
             unset(file, key);
-            _.write<V>('bson', this.options.filePath, file);
+            _.write<V>('bson', this.options.filePath!, file);
         }
 
         return;
@@ -177,14 +177,14 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
         if (this.options.backup!.enabled && this.options.backup!.filePath)
             clearInterval(this.backupInterval);
         this.cache = {};
-        return unlinkSync(this.options.filePath);
+        return unlinkSync(this.options.filePath!);
     }
 
     public getAll(
         options: BaseFetchOptions = { force: true, cache: true }
     ): Array<{ ID: string; data: V }> {
         if (options.force) {
-            const file = _.read<V>('bson', this.options.filePath);
+            const file = _.read<V>('bson', this.options.filePath!);
 
             if (options.cache && this.options.cache) this.cache = file;
 
