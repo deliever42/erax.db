@@ -10,18 +10,15 @@ import type {
     BaseDeleteEachOptions,
     BaseMathOptions,
     Schema,
-    Operators
+    Operators,
+    BaseBackupOptions
 } from '../Interfaces';
 
 export interface JsonDatabaseOptions {
     space?: number;
     cache?: boolean;
     filePath: string;
-    backup?: {
-        enabled: boolean;
-        backupInterval?: number;
-        filePath?: string;
-    };
+    backup?: BaseBackupOptions;
 }
 
 export class JsonDatabase<V> extends BaseDatabase<V> {

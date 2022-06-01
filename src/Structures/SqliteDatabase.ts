@@ -18,18 +18,15 @@ import type {
     BaseDeleteEachOptions,
     BaseMathOptions,
     Schema,
-    Operators
+    Operators,
+    BaseBackupOptions
 } from '../Interfaces';
 
 export interface SqliteDatabaseOptions {
     cache?: boolean;
     filePath: string;
     tableName?: string;
-    backup?: {
-        enabled: boolean;
-        backupInterval?: number;
-        filePath?: string;
-    };
+    backup?: BaseBackupOptions;
 }
 
 export class SqliteDatabase<V> extends BaseDatabase<V> {

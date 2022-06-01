@@ -19,7 +19,8 @@ import type {
     BaseDeleteEachOptions,
     BaseMathOptions,
     Schema,
-    Operators
+    Operators,
+    BaseBackupOptions
 } from '../Interfaces';
 
 export interface MongoDatabaseOptions {
@@ -27,11 +28,7 @@ export interface MongoDatabaseOptions {
     url?: string;
     mongoOptions?: ConnectOptions;
     modelName?: string;
-    backup?: {
-        enabled: boolean;
-        backupInterval?: number;
-        filePath?: string;
-    };
+    backup?: BaseBackupOptions;
 }
 
 export class MongoDatabase<V> extends BaseDatabase<V> {

@@ -15,6 +15,12 @@ export interface BaseMathOptions {
     goToNegative?: boolean;
 }
 
+export interface BaseBackupOptions {
+    enabled: boolean;
+    backupInterval?: number;
+    filePath?: string;
+}
+
 export interface Schema<V> {
     ID: string;
     data: V;

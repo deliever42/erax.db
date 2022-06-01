@@ -10,17 +10,14 @@ import type {
     BaseDeleteEachOptions,
     BaseMathOptions,
     Schema,
-    Operators
+    Operators,
+    BaseBackupOptions
 } from '../Interfaces';
 
 export interface BsonDatabaseOptions {
     cache?: boolean;
     filePath: string;
-    backup?: {
-        enabled: boolean;
-        backupInterval?: number;
-        filePath?: string;
-    };
+    backup?: BaseBackupOptions;
 }
 
 export class BsonDatabase<V> extends BaseDatabase<V> {
