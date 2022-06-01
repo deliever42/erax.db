@@ -16,7 +16,7 @@ import type {
 
 export interface BsonDatabaseOptions {
     cache?: boolean;
-    filePath: string;
+    filePath?: string;
     backup?: BaseBackupOptions;
 }
 
@@ -36,7 +36,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
 
         this.options = options;
 
-        if (!this.options.filePath) throw new DatabaseError('Invalid file path!');
+        if (!this.options.filePath) this.options.filePath = join(process.cwd(), 'database.bson');
         if (!this.options.cache && this.options.cache !== false) this.options.cache = true;
         if (!this.options.backup) this.options.backup = { enabled: false };
 

@@ -24,7 +24,7 @@ import type {
 
 export interface SqliteDatabaseOptions {
     cache?: boolean;
-    filePath: string;
+    filePath?: string;
     tableName?: string;
     backup?: BaseBackupOptions;
 }
@@ -46,7 +46,7 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
 
         this.options = options;
 
-        if (!this.options.filePath) throw new DatabaseError('Invalid file path!');
+        if (!this.options.filePath) this.options.filePath = join(process.cwd(), 'database.db');
         if (!this.options.cache && this.options.cache !== false) this.options.cache = true;
         if (!this.options.backup) this.options.backup = { enabled: false };
         if (!this.options.tableName) this.options.tableName = 'EraxDB';

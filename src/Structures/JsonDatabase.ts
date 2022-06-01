@@ -17,7 +17,7 @@ import type {
 export interface JsonDatabaseOptions {
     space?: number;
     cache?: boolean;
-    filePath: string;
+    filePath?: string;
     backup?: BaseBackupOptions;
 }
 
@@ -38,7 +38,7 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
 
         this.options = options;
 
-        if (!this.options.filePath) throw new DatabaseError('Invalid file path!');
+        if (!this.options.filePath) this.options.filePath = join(process.cwd(), 'database.json');
         if (!this.options.cache && this.options.cache !== false) this.options.cache = true;
         if (!this.options.backup) this.options.backup = { enabled: false };
 
