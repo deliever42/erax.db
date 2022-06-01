@@ -1,7 +1,6 @@
 .prettierrc
-.eslintrc.json
 .npmrc
-.mocharc.json
+jest.config.ts
 package-lock.json
 test/
 node_modules/
