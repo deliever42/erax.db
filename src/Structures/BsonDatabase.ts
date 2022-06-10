@@ -116,7 +116,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public set(key: string, value: V): V {
-        if (!key) throw new DatabaseError('Invalid key!');
+        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
 
         if (this.options.cache) {
             set(this.cache, key, value);
@@ -131,7 +131,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public get(key: string): V | null {
-        if (!key) throw new DatabaseError('Invalid key!');
+        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
 
         if (this.options.cache) {
             return get(this.cache, key);
@@ -142,13 +142,13 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public fetch(key: string) {
-        if (!key) throw new DatabaseError('Invalid key!');
+        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
 
         return this.get(key);
     }
 
     public has(key: string) {
-        if (!key) throw new DatabaseError('Invalid key!');
+        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
 
         return !!this.get(key);
     }
@@ -159,7 +159,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public delete(key: string) {
-        if (!key) throw new DatabaseError('Invalid key!');
+        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
 
         if (this.options.cache) {
             unset(this.cache, key);
@@ -219,7 +219,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
         values: V | Array<V>,
         options: BasePushOptions = { returnIfExists: false }
     ) {
-        if (!key) throw new DatabaseError('Invalid key!');
+        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
 
         const array = (this.get(key) || []) as unknown as Array<V>;
         if (!Array.isArray(array)) return null;
@@ -243,7 +243,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public pull(key: string, values: V | Array<V>) {
-        if (!key) throw new DatabaseError('Invalid key!');
+        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
 
         const array = this.get(key);
         if (!Array.isArray(array)) return null;
@@ -260,7 +260,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public type(key: string) {
-        if (!key) throw new DatabaseError('Invalid key!');
+        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
 
         const data = this.get(key);
         if (!data) return null;
@@ -273,7 +273,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
         value: number,
         options: BaseMathOptions = { goToNegative: true }
     ) {
-        if (!key) throw new DatabaseError('Invalid key!');
+        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
         if (isNaN(value)) throw new DatabaseError('Invalid value!');
 
         let data = this.get(key) || 0;
@@ -352,7 +352,7 @@ export class BsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public deleteEach(key: string, options: BaseDeleteEachOptions & BaseFetchOptions = {}) {
-        if (!key) throw new DatabaseError('Invalid key!');
+        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
 
         const datas = this.keyArray(options).filter((ID) => ID.includes(key), options);
         let deleted = 0;
