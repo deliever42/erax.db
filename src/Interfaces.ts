@@ -7,7 +7,7 @@ export interface BasePushOptions {
     returnIfExists?: boolean;
 }
 
-export interface BaseDeleteEachOptions {
+export interface BaseFindAndDeleteOptions {
     maxDeletedSize?: number;
 }
 

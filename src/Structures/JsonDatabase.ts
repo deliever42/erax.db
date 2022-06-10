@@ -7,7 +7,7 @@ import { DatabaseError } from './DatabaseError';
 import type {
     BaseFetchOptions,
     BasePushOptions,
-    BaseDeleteEachOptions,
+    BaseFindAndDeleteOptions,
     BaseMathOptions,
     Schema,
     Operators,
@@ -120,7 +120,7 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public set(key: string, value: V): V {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         if (this.options.cache) {
             set(this.cache, key, value);
@@ -135,7 +135,7 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public get(key: string): V | null {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         if (this.options.cache) {
             return get(this.cache, key);
@@ -146,13 +146,13 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public fetch(key: string) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         return this.get(key);
     }
 
     public has(key: string) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         return !!this.get(key);
     }
@@ -163,7 +163,7 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public delete(key: string) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         if (this.options.cache) {
             unset(this.cache, key);
@@ -223,7 +223,7 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
         values: V | Array<V>,
         options: BasePushOptions = { returnIfExists: false }
     ) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         const array = (this.get(key) || []) as unknown as Array<V>;
         if (!Array.isArray(array)) return null;
@@ -247,7 +247,7 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public pull(key: string, values: V | Array<V>) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         const array = this.get(key);
         if (!Array.isArray(array)) return null;
@@ -264,7 +264,7 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
     }
 
     public type(key: string) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         const data = this.get(key);
         if (!data) return null;
@@ -277,7 +277,7 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
         value: number,
         options: BaseMathOptions = { goToNegative: true }
     ) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
         if (isNaN(value)) throw new DatabaseError('Invalid value!');
 
         let data = this.get(key) || 0;
@@ -355,32 +355,9 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
         };
     }
 
-    public deleteEach(key: string, options: BaseDeleteEachOptions & BaseFetchOptions = {}) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
-
-        const datas = this.keyArray(options).filter((ID) => ID.includes(key), options);
-        let deleted = 0;
-
-        options.maxDeletedSize = options.maxDeletedSize ??= 0;
-
-        for (const ID of datas) {
-            if (options.maxDeletedSize === 0) {
-                this.delete(ID);
-                deleted++;
-            } else {
-                if (deleted >= options.maxDeletedSize) break;
-
-                this.delete(ID);
-                deleted++;
-            }
-        }
-
-        return deleted;
-    }
-
     public findAndDelete(
         fn: (key: string, value: V) => boolean,
-        options: BaseDeleteEachOptions & BaseFetchOptions = {}
+        options: BaseFindAndDeleteOptions & BaseFetchOptions = {}
     ) {
         const datas = this.getAll(options);
         let deleted = 0;

@@ -16,7 +16,7 @@ import { CollectionModel } from './CollectionModel';
 import type {
     BaseFetchOptions,
     BasePushOptions,
-    BaseDeleteEachOptions,
+    BaseFindAndDeleteOptions,
     BaseMathOptions,
     Schema,
     Operators,
@@ -118,7 +118,7 @@ export class MongoDatabase<V> extends BaseDatabase<V> {
     }
 
     public async set(key: string, value: V): Promise<V> {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         const parsedKey = key.split('.')[0];
 
@@ -176,7 +176,7 @@ export class MongoDatabase<V> extends BaseDatabase<V> {
     }
 
     public async get(key: string): Promise<V | null> {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         if (this.options.cache) {
             return get(this.cache, key);
@@ -198,13 +198,13 @@ export class MongoDatabase<V> extends BaseDatabase<V> {
     }
 
     public async fetch(key: string) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         return await this.get(key);
     }
 
     public async has(key: string) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         return !!(await this.get(key));
     }
@@ -216,7 +216,7 @@ export class MongoDatabase<V> extends BaseDatabase<V> {
     }
 
     public async delete(key: string): Promise<null | void> {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         if (this.options.cache) {
             unset(this.cache, key);
@@ -305,7 +305,7 @@ export class MongoDatabase<V> extends BaseDatabase<V> {
         values: V | Array<V>,
         options: BasePushOptions = { returnIfExists: false }
     ) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         const array = ((await this.get(key)) || []) as unknown as Array<V>;
         if (!Array.isArray(array)) return null;
@@ -329,7 +329,7 @@ export class MongoDatabase<V> extends BaseDatabase<V> {
     }
 
     public async pull(key: string, values: V | Array<V>) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         const array = await this.get(key);
         if (!Array.isArray(array)) return null;
@@ -346,7 +346,7 @@ export class MongoDatabase<V> extends BaseDatabase<V> {
     }
 
     public async type(key: string) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
 
         const data = await this.get(key);
         if (!data) return null;
@@ -359,7 +359,7 @@ export class MongoDatabase<V> extends BaseDatabase<V> {
         value: number,
         options: BaseMathOptions = { goToNegative: true }
     ) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
+        if (typeof key !== 'string') throw new DatabaseError('Invalid key!');
         if (isNaN(value)) throw new DatabaseError('Invalid value!');
 
         let data = (await this.get(key)) || 0;
@@ -441,32 +441,9 @@ export class MongoDatabase<V> extends BaseDatabase<V> {
         };
     }
 
-    public async deleteEach(key: string, options: BaseDeleteEachOptions & BaseFetchOptions = {}) {
-        if (typeof key !== "string") throw new DatabaseError('Invalid key!');
-
-        const datas = (await this.keyArray(options)).filter((ID) => ID.includes(key), options);
-        let deleted = 0;
-
-        options.maxDeletedSize = options.maxDeletedSize ??= 0;
-
-        for (const ID of datas) {
-            if (options.maxDeletedSize === 0) {
-                await this.delete(ID);
-                deleted++;
-            } else {
-                if (deleted >= options.maxDeletedSize) break;
-
-                await this.delete(ID);
-                deleted++;
-            }
-        }
-
-        return deleted;
-    }
-
     public async findAndDelete(
         fn: (key: string, value: V) => boolean,
-        options: BaseDeleteEachOptions & BaseFetchOptions = {}
+        options: BaseFindAndDeleteOptions & BaseFetchOptions = {}
     ) {
         const datas = await this.getAll(options);
         let deleted = 0;
