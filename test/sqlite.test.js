@@ -1,13 +1,13 @@
-const { JsonDatabase } = require('../dist/index');
+const { SqliteDatabase } = require('../dist/index');
 
 jest.useFakeTimers();
 
-describe('JsonDatabase', () => {
-    const db = new JsonDatabase({
-        filePath: 'test\\databases\\test.json',
+describe('SqliteDatabase', () => {
+    const db = new SqliteDatabase({
+        filePath: 'test\\databases\\test.db',
         backup: {
             enabled: true,
-            filePath: 'test\\databases\\backups\\json',
+            filePath: 'test\\databases\\backups\\sqlite',
             backupInterval: 5000
         }
     });

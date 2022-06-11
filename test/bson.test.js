@@ -1,13 +1,13 @@
-const { JsonDatabase } = require('../dist/index');
+const { BsonDatabase } = require('../dist/index');
 
 jest.useFakeTimers();
 
-describe('JsonDatabase', () => {
-    const db = new JsonDatabase({
-        filePath: 'test\\databases\\test.json',
+describe('BsonDatabase', () => {
+    const db = new BsonDatabase({
+        filePath: 'test\\databases\\test.bson',
         backup: {
             enabled: true,
-            filePath: 'test\\databases\\backups\\json',
+            filePath: 'test\\databases\\backups\\bson',
             backupInterval: 5000
         }
     });

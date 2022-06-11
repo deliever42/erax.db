@@ -7,15 +7,32 @@
 
 # Change Log
 
-```npm
 - Performance has been increased.
-- Bug fixes.
-```
+- Removed yaml database system.
+- Added bson database system.
+- Added backup system.
+- The following methods have been removed:
+  - arrayHas
+  - arrayHasValue
+  - startsWith
+  - endsWith
+  - includes
+  - info
+  - add
+  - subtract
+  - all
+  - deleteAll
+- The following methods have been added:
+  - getAll
+  - fetchAll
+  - clear
+- Removed database collection.
+- Changed database options.
 
 # Warn
 
 ```npm
-- Node.JS version must be 14 or greater.
+- Node.JS version must be 16 or greater.
 ```
 
 # Documentation

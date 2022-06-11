@@ -1,4 +1,4 @@
-const { Schema } = require('mongoose');
+import { Schema, Connection } from 'mongoose';
 
 const schema = new Schema({
     key: {
@@ -12,6 +12,6 @@ const schema = new Schema({
     }
 });
 
-module.exports = (connection, modelName) => {
+export const CollectionModel = (connection: Connection, modelName: string) => {
     return connection.model(modelName, schema);
 };
