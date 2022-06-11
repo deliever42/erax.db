@@ -4,3 +4,5 @@ jest.config.ts
 package-lock.json
 test/
 node_modules/
+src/
+tsconfig.json
