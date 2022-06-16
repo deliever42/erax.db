@@ -7,10 +7,6 @@ export interface BasePushOptions {
     returnIfExists?: boolean;
 }
 
-export interface BaseFindAndDeleteOptions {
-    maxDeletedSize?: number;
-}
-
 export interface BaseMathOptions {
     goToNegative?: boolean;
 }

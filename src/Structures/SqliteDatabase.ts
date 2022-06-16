@@ -5,17 +5,9 @@ import { set, get, unset } from 'lodash';
 import { mkdirSync, existsSync } from 'fs';
 import { DatabaseError } from './DatabaseError';
 
-try {
-    require('better-sqlite3');
-} catch {
-    throw new DatabaseError('Package "better-sqlite3" is not installed!');
-}
-
-import Database from 'better-sqlite3';
 import type {
     BaseFetchOptions,
     BasePushOptions,
-    BaseFindAndDeleteOptions,
     BaseMathOptions,
     Schema,
     Operators,
@@ -31,7 +23,7 @@ export interface SqliteDatabaseOptions {
 
 export class SqliteDatabase<V> extends BaseDatabase<V> {
     public options: SqliteDatabaseOptions;
-    public sql!: Database.Database;
+    public sql!: any;
     private backupInterval: any = null;
     public constructor(
         options: SqliteDatabaseOptions = {
@@ -45,6 +37,13 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
         super();
 
         this.options = options;
+        let better_sqlite3: any = null;
+
+        try {
+            better_sqlite3 = require('better-sqlite3');
+        } catch {
+            throw new DatabaseError('Package "better-sqlite3" is not installed!');
+        }
 
         if (!this.options.filePath) this.options.filePath = join(process.cwd(), 'database.db');
         if (!this.options.cache && this.options.cache !== false) this.options.cache = true;
@@ -90,10 +89,10 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
             if (!existsSync(resolvedFilePath) && extname(resolvedFilePath) !== '.db')
                 mkdirSync(resolvedFilePath);
             else if (!existsSync(resolvedFilePath) && extname(resolvedFilePath) === '.db') {
-                this.sql = Database(resolvedFilePath);
+                this.sql = better_sqlite3.Database(resolvedFilePath);
                 break;
             } else if (existsSync(resolvedFilePath) && extname(resolvedFilePath) === '.db') {
-                this.sql = Database(resolvedFilePath);
+                this.sql = better_sqlite3.Database(resolvedFilePath);
                 break;
             }
         }
@@ -118,7 +117,9 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
                     createdAt.getMonth() + 1
                 }-${createdAt.getDate()}-${createdAt.getFullYear()} ${createdAt.getHours()}_${createdAt.getMinutes()}_${createdAt.getSeconds()}`;
 
-                const sql = Database(join(this.options.backup!.filePath!, `${createdAtString}.db`));
+                const sql = better_sqlite3.Database(
+                    join(this.options.backup!.filePath!, `${createdAtString}.db`)
+                );
 
                 sql.prepare(
                     `CREATE TABLE IF NOT EXISTS ${this.options.tableName} (key TEXT, value TEXT)`
@@ -479,29 +480,35 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
         };
     }
 
-    public findAndDelete(
-        fn: (key: string, value: V) => boolean,
-        options: BaseFindAndDeleteOptions & BaseFetchOptions = {}
-    ) {
+    public findAndDelete(fn: (key: string, value: V) => boolean, options: BaseFetchOptions = {}) {
         const datas = this.getAll(options);
         let deleted = 0;
 
-        options.maxDeletedSize = options.maxDeletedSize ??= 0;
-
         for (const { ID, data } of datas) {
             if (fn(ID, data)) {
-                if (options.maxDeletedSize === 0) {
-                    this.delete(ID);
-                    deleted++;
-                } else {
-                    if (deleted >= options.maxDeletedSize) break;
-
-                    this.delete(ID);
-                    deleted++;
-                }
+                this.delete(ID);
+                deleted++;
             }
         }
 
         return deleted;
+    }
+
+    public findAndModify(
+        fn: (key: string, value: V) => boolean,
+        newValue: V,
+        options: BaseFetchOptions = {}
+    ) {
+        const datas = this.getAll(options);
+        let modified = 0;
+
+        for (const { ID, data } of datas) {
+            if (fn(ID, data)) {
+                this.set(ID, newValue);
+                modified++;
+            }
+        }
+
+        return modified;
     }
 }

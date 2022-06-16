@@ -7,7 +7,6 @@ import { DatabaseError } from './DatabaseError';
 import type {
     BaseFetchOptions,
     BasePushOptions,
-    BaseFindAndDeleteOptions,
     BaseMathOptions,
     Schema,
     Operators,
@@ -355,29 +354,35 @@ export class JsonDatabase<V> extends BaseDatabase<V> {
         };
     }
 
-    public findAndDelete(
-        fn: (key: string, value: V) => boolean,
-        options: BaseFindAndDeleteOptions & BaseFetchOptions = {}
-    ) {
+    public findAndDelete(fn: (key: string, value: V) => boolean, options: BaseFetchOptions = {}) {
         const datas = this.getAll(options);
         let deleted = 0;
 
-        options.maxDeletedSize = options.maxDeletedSize ??= 0;
-
         for (const { ID, data } of datas) {
             if (fn(ID, data)) {
-                if (options.maxDeletedSize === 0) {
-                    this.delete(ID);
-                    deleted++;
-                } else {
-                    if (deleted >= options.maxDeletedSize) break;
-
-                    this.delete(ID);
-                    deleted++;
-                }
+                this.delete(ID);
+                deleted++;
             }
         }
 
         return deleted;
+    }
+
+    public findAndModify(
+        fn: (key: string, value: V) => boolean,
+        newValue: V,
+        options: BaseFetchOptions = {}
+    ) {
+        const datas = this.getAll(options);
+        let modified = 0;
+
+        for (const { ID, data } of datas) {
+            if (fn(ID, data)) {
+                this.set(ID, newValue);
+                modified++;
+            }
+        }
+
+        return modified;
     }
 }

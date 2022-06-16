@@ -7,27 +7,7 @@
 
 # Change Log
 
-- Performance has been increased.
-- Removed yaml database system.
-- Added bson database system.
-- Added backup system.
-- The following methods have been removed:
-  - arrayHas
-  - arrayHasValue
-  - startsWith
-  - endsWith
-  - includes
-  - info
-  - add
-  - subtract
-  - all
-  - deleteAll
-- The following methods have been added:
-  - getAll
-  - fetchAll
-  - clear
-- Removed database collection.
-- Changed database options.
+-   Bug fix.
 
 # Warn
 
@@ -37,4 +17,4 @@
 
 # Documentation
 
-<a href="https://eraxdb.js.org/documentation/">Go!</a>
+<a href="https://eraxdb.js.org/#/documentation/">Go!</a>
