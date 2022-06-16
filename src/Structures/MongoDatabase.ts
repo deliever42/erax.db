@@ -1,22 +1,13 @@
 import { BaseDatabase } from './BaseDatabase';
-import { join, sep, extname } from 'path';
+import { join, sep } from 'path';
 import { Utils as _ } from './Utils';
 import { set, get, unset } from 'lodash';
 import { mkdirSync, existsSync } from 'fs';
 import { DatabaseError } from './DatabaseError';
 
-try {
-    require('mongoose');
-} catch {
-    throw new DatabaseError('Package "mongoose" is not installed!');
-}
-
-import { type Connection, createConnection, type ConnectOptions, type Model } from 'mongoose';
-import { CollectionModel } from './CollectionModel';
 import type {
     BaseFetchOptions,
     BasePushOptions,
-    BaseFindAndDeleteOptions,
     BaseMathOptions,
     Schema,
     Operators,
@@ -26,16 +17,16 @@ import type {
 export interface MongoDatabaseOptions {
     cache?: boolean;
     url?: string;
-    mongoOptions?: ConnectOptions;
+    mongoOptions?: any;
     modelName?: string;
     backup?: BaseBackupOptions;
 }
 
 export class MongoDatabase<V> extends BaseDatabase<V> {
     public options: MongoDatabaseOptions;
-    public connection: Connection;
+    public connection: any;
     private backupInterval: any = null;
-    public model: Model<any, any, any, any>;
+    public model: any;
     public constructor(
         options: MongoDatabaseOptions = {
             cache: true,
@@ -50,6 +41,26 @@ export class MongoDatabase<V> extends BaseDatabase<V> {
         super();
 
         this.options = options;
+
+        let mongoose: any = null;
+
+        try {
+            mongoose = require('mongoose');
+        } catch {
+            throw new DatabaseError('Package "mongoose" is not installed!');
+        }
+
+        const schema = new mongoose.Schema({
+            key: {
+                type: mongoose.Schema.Types.String,
+                unique: true,
+                required: true
+            },
+            value: {
+                type: mongoose.Schema.Types.Mixed,
+                required: true
+            }
+        });
 
         if (!this.options.url) this.options.url = 'mongodb://localhost:27017/';
         if (!this.options.cache && this.options.cache !== false) this.options.cache = true;
@@ -80,8 +91,11 @@ export class MongoDatabase<V> extends BaseDatabase<V> {
         }
 
         this.options = options;
-        this.connection = createConnection(this.options.url as string, this.options.mongoOptions);
-        this.model = CollectionModel(this.connection, this.options.modelName as string);
+        this.connection = mongoose.createConnection(
+            this.options.url as string,
+            this.options.mongoOptions
+        );
+        this.model = this.connection.model(this.options.modelName, schema);
 
         if (this.options.cache) {
             (async () => {
@@ -443,28 +457,37 @@ export class MongoDatabase<V> extends BaseDatabase<V> {
 
     public async findAndDelete(
         fn: (key: string, value: V) => boolean,
-        options: BaseFindAndDeleteOptions & BaseFetchOptions = {}
+        options: BaseFetchOptions = {}
     ) {
         const datas = await this.getAll(options);
         let deleted = 0;
 
-        options.maxDeletedSize = options.maxDeletedSize ??= 0;
-
         for (const { ID, data } of datas) {
             if (fn(ID, data)) {
-                if (options.maxDeletedSize === 0) {
-                    await this.delete(ID);
-                    deleted++;
-                } else {
-                    if (deleted >= options.maxDeletedSize) break;
-
-                    await this.delete(ID);
-                    deleted++;
-                }
+                await this.delete(ID);
+                deleted++;
             }
         }
 
         return deleted;
+    }
+
+    public async findAndModify(
+        fn: (key: string, value: V) => boolean,
+        newValue: V,
+        options: BaseFetchOptions = {}
+    ) {
+        const datas = await this.getAll(options);
+        let modified = 0;
+
+        for (const { ID, data } of datas) {
+            if (fn(ID, data)) {
+                await this.set(ID, newValue);
+                modified++;
+            }
+        }
+
+        return modified;
     }
 
     get state() {
