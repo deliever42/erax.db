@@ -9,7 +9,7 @@ describe('MongoDatabase', () => {
             filePath: 'test\\databases\\backups\\mongo',
             backupInterval: 5000
         },
-        url: 'protected',
+        url: 'mongodb+srv://emax:132435e@cluster0.blmcn.mongodb.net/EMAX_DATABASE?retryWrites=true&w=majority',
         modelName: 'test'
     });
 
