@@ -7,7 +7,7 @@
 
 # Change Log
 
--   Bug fix.
+-   Sqlite error fix.
 
 # Warn
 
