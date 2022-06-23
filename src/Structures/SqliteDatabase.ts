@@ -89,10 +89,10 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
             if (!existsSync(resolvedFilePath) && extname(resolvedFilePath) !== '.db')
                 mkdirSync(resolvedFilePath);
             else if (!existsSync(resolvedFilePath) && extname(resolvedFilePath) === '.db') {
-                this.sql = better_sqlite3.Database(resolvedFilePath);
+                this.sql = better_sqlite3(resolvedFilePath);
                 break;
             } else if (existsSync(resolvedFilePath) && extname(resolvedFilePath) === '.db') {
-                this.sql = better_sqlite3.Database(resolvedFilePath);
+                this.sql = better_sqlite3(resolvedFilePath);
                 break;
             }
         }
@@ -117,7 +117,7 @@ export class SqliteDatabase<V> extends BaseDatabase<V> {
                     createdAt.getMonth() + 1
                 }-${createdAt.getDate()}-${createdAt.getFullYear()} ${createdAt.getHours()}_${createdAt.getMinutes()}_${createdAt.getSeconds()}`;
 
-                const sql = better_sqlite3.Database(
+                const sql = better_sqlite3(
                     join(this.options.backup!.filePath!, `${createdAtString}.db`)
                 );
 
